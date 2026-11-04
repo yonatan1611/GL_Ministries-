@@ -35,12 +35,28 @@ const LEGACY_PAGE_ID_REDIRECTS: Record<string, string> = {
  *    library and sister HQ site)
  *  - Facebook Graph API (verified page profile photos)
  *  - Stripe (USD giving + book store checkout)
+ *
+ * `'unsafe-eval'` is added to `script-src` in development only: Next.js
+ * dev mode's React Fast Refresh / HMR runtime evaluates code via
+ * `eval()`, and without it the entire client bundle throws on load
+ * (`EvalError: ... violates ... script-src`), which silently breaks
+ * React hydration site-wide — every button, modal, and effect stops
+ * working even though the server-rendered HTML still looks correct.
+ * Production builds don't use `eval()`, so the strict policy stays in
+ * place there.
  */
+const SCRIPT_SRC = [
+  "'self'",
+  "'unsafe-inline'",
+  ...(process.env.NODE_ENV !== "production" ? ["'unsafe-eval'"] : []),
+  "https://js.stripe.com",
+].join(" ");
+
 const CONTENT_SECURITY_POLICY = [
   "default-src 'self'",
   "base-uri 'self'",
   "object-src 'none'",
-  "script-src 'self' 'unsafe-inline' https://js.stripe.com",
+  `script-src ${SCRIPT_SRC}`,
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
   "font-src 'self' https://fonts.gstatic.com",
   "img-src 'self' data: https://i.ytimg.com https://img.youtube.com https://yt3.googleusercontent.com https://glministries.org https://gospellightethiopia.org https://graph.facebook.com https://*.fbcdn.net https://platform-lookaside.fbsbx.com",
@@ -131,7 +147,7 @@ export function middleware(request: NextRequest) {
 export const config = {
   matcher: [
     // Skip Next.js internals and static files; run on everything else.
-    "/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)",
+    "/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest|mp4|webm)).*)",
     // Always run for API routes.
     "/(api|trpc)(.*)",
   ],

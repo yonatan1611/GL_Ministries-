@@ -15,6 +15,7 @@ export interface UiDictionary {
   brand: {
     name: string;
     tagline: string;
+    subtitle: string;
   };
   topBar: {
     motto: string;
@@ -49,23 +50,31 @@ export interface UiDictionary {
     searchAria: string;
   };
   hero: {
-    kicker: string;
-    title: string;
+    badge: string;
+    headlinePrefix: string;
+    headlineAccent: string;
+    headlineSuffix: string;
     subtitle: string;
     ctaPrimary: string;
     ctaSecondary: string;
-    ctaTertiary: string;
-    watchLatestTeaching: string;
-    headlineLine1: string;
-    headlineLine2Gold: string;
-    headlineLine3: string;
-    slide2Badge: string;
-    slide2Title: string;
-    slide2Subtitle: string;
-    watchLive: string;
+    ctaWatch: string;
+    mediaSlideWorshipLabel: string;
+    mediaSlideDcLabel: string;
+    mediaSlideGlobalLabel: string;
+    mediaSlideYoutubeLabel: string;
+    cardFounderRole: string;
+    cardPastorRole: string;
+    cardSanctuaryLabel: string;
+    cardAdminOfficeLabel: string;
+    cardContactLabel: string;
+    cardDirectionsCta: string;
+    cardVisitCta: string;
+    cardNetworkTitle: string;
     slideAriaTemplate: string;
     prevSlideAria: string;
     nextSlideAria: string;
+    watchModalTitle: string;
+    closeVideoAria: string;
   };
   schedule: {
     hqTitle: string;
@@ -77,6 +86,25 @@ export interface UiDictionary {
     dcWednesday: string;
     liveStreamTitle: string;
     joinLive: string;
+  };
+  dcSpotlight: {
+    eyebrow: string;
+    heading: string;
+    historyParagraph: string;
+    galleryPastorAlt: string;
+    galleryApostleAlt: string;
+    galleryWorshipAlt: string;
+    watchAria: string;
+    infoSanctuaryTitle: string;
+    infoSanctuaryBody: string;
+    infoOfficeTitle: string;
+    infoOfficeBody: string;
+    infoCellGroupsTitle: string;
+    infoCellGroupsBody: string;
+    infoMissionBridgeTitle: string;
+    infoMissionBridgeBody: string;
+    ctaDirections: string;
+    ctaPlanVisit: string;
   };
   salvation: {
     label: string;
@@ -337,6 +365,12 @@ export interface UiDictionary {
     openInMaps: string;
     planVisit: string;
     addressLabel: string;
+    flagshipBadge: string;
+    flagshipHeading: string;
+    flagshipDcLabel: string;
+    flagshipDcBody: string;
+    flagshipAwareLabel: string;
+    flagshipAwareBody: string;
   };
   booksPage: {
     pageTitle: string;
@@ -435,6 +469,30 @@ export interface UiDictionary {
     receiptReferenceLabel: string;
     printReceipt: string;
     downloadReceipt: string;
+    payModalTitle: string;
+    payModalTestModeNotice: string;
+    cardNumberLabel: string;
+    cardExpiryLabel: string;
+    cardCvcLabel: string;
+    cardZipLabel: string;
+    cardNumberInvalid: string;
+    cardExpiryInvalid: string;
+    cardCvcInvalid: string;
+    cardZipInvalid: string;
+    payNowButtonTemplate: string;
+    applePaySimulateButtonTemplate: string;
+    processingLabel: string;
+    successPageTitle: string;
+    officialReceiptTitle: string;
+    einLabel: string;
+    noGoodsServicesNote: string;
+    printPdfReceiptButton: string;
+    pendingCheckTitle: string;
+    pendingCheckBody: string;
+    claimedOfferNote: string;
+    notFoundTitle: string;
+    notFoundBody: string;
+    backToGiveLabel: string;
     impactTitle: string;
     impactCongregationsTitle: string;
     impactCongregationsBody: string;
@@ -451,7 +509,7 @@ export interface UiDictionary {
     funds: Record<
       | "Tithes & General Ministry"
       | "Global Revival Crusades & Live Broadcasts"
-      | "Ethiopian Rural Church Planting (22 Stations)"
+      | "Global Missions & 32 Ethiopian Branch Churches"
       | "Aware International HQ Sanctuary"
       | "Washington DC Sanctuary"
       | "Compassion & Humanitarian Relief",
@@ -517,6 +575,7 @@ export const DICTIONARY: Record<Locale, UiDictionary> = {
     brand: {
       name: "Gospel Light Ministries",
       tagline: "የወንጌል ብርሃን አለማቀፍ አገልግሎት",
+      subtitle: "Washington, D.C. • Addis Ababa • 33 Global Churches",
     },
     topBar: {
       motto: "Building a legacy of faith—yesterday, today, and forever!",
@@ -551,24 +610,32 @@ export const DICTIONARY: Record<Locale, UiDictionary> = {
       searchAria: "Search the site",
     },
     hero: {
-      kicker: "UPDATED NOVEMBER 2026 • GLOBAL REVIVAL & BROADCAST MINISTRY",
-      title: "Taking the Saving & Healing Power of Jesus Christ to Ethiopia and the Nations",
+      badge: "Gospel Light International Church • Washington, D.C. & Global Network (32+1 Branches)",
+      headlinePrefix: "Shining the Saving Light of Jesus Christ from",
+      headlineAccent: "Washington, D.C.",
+      headlineSuffix: "to Ethiopia & the Nations",
       subtitle:
-        "For more than 43 years, Apostle Daniel Makonnen has carried an apostolic vision to proclaim the Gospel of Jesus Christ with power — now sustaining 32 congregations across Ethiopia, our Washington, D.C. sanctuary in North America, and daily media broadcasts reaching the Ethiopian diaspora worldwide.",
+        "Birthed in Washington, D.C. in 1989 through Apostle Daniel Makonnen and pastored locally at 2401 Virginia Ave NW by Senior Pastor Aberham Bedasso—uniting our D.C., Maryland, and Virginia congregation with 32 thriving branch churches across Ethiopia.",
       ctaPrimary: "Donate Now",
       ctaSecondary: "Prayer Requests",
-      ctaTertiary: "Watch VOD & Live",
-      watchLatestTeaching: "Watch Latest Teaching",
-      headlineLine1: "Give Glory to God as we",
-      headlineLine2Gold: "lift up the Name of Jesus",
-      headlineLine3: "to draw all people to Him!",
-      slide2Badge: "★ Special Announcement ★",
-      slide2Title: "Revival & Healing Service Live with Apostle Daniel Makonnen",
-      slide2Subtitle: "Sundays 9:00 AM EAT & 10:00 AM EST • Wednesdays Live Broadcast",
-      watchLive: "Watch Live",
+      ctaWatch: "Watch Full Worship & Sermons",
+      mediaSlideWorshipLabel: "Worship & Choir",
+      mediaSlideDcLabel: "Washington, D.C. Sanctuary",
+      mediaSlideGlobalLabel: "Global Revival & Community",
+      mediaSlideYoutubeLabel: "Live YouTube Stream",
+      cardFounderRole: "Founder & President",
+      cardPastorRole: "Senior Pastor, Washington, D.C.",
+      cardSanctuaryLabel: "Sanctuary Address",
+      cardAdminOfficeLabel: "U.S. Admin Office",
+      cardContactLabel: "Direct Contact",
+      cardDirectionsCta: "Get Directions",
+      cardVisitCta: "Plan Your Visit to D.C.",
+      cardNetworkTitle: "Connected Global Network — All 32 Ethiopian Branches",
       slideAriaTemplate: "Slide {n} of {total}",
       prevSlideAria: "Previous slide",
       nextSlideAria: "Next slide",
+      watchModalTitle: "Worship & Sermons",
+      closeVideoAria: "Close video",
     },
     schedule: {
       hqTitle: "Aware International HQ (Addis Ababa)",
@@ -580,6 +647,28 @@ export const DICTIONARY: Record<Locale, UiDictionary> = {
       dcWednesday: "Wednesday Bible Study & Prayer 7:00 PM EST (UTC-5)",
       liveStreamTitle: "Global Live Stream",
       joinLive: "Join Live Now",
+    },
+    dcSpotlight: {
+      eyebrow: "Welcome to Gospel Light Washington, D.C.",
+      heading: "Plan Your Visit",
+      historyParagraph:
+        "In 1989, while pastoring in Washington, D.C., Apostle Daniel Makonnen received the divine vision for Gospel Light Ministries International. Today, our Washington, D.C. congregation at 2401 Virginia Ave NW stands as our North American flagship sanctuary—serving families across D.C., Maryland, and Northern Virginia while partnering directly with our Aware International Headquarters and 32 branch churches across Ethiopia.",
+      galleryPastorAlt: "Pastor Aberham Bedasso ministering in Washington, D.C.",
+      galleryApostleAlt: "Apostle Daniel Makonnen teaching the Word",
+      galleryWorshipAlt: "Live sanctuary worship & choir",
+      watchAria: "Watch the worship video",
+      infoSanctuaryTitle: "Foggy Bottom Sanctuary",
+      infoSanctuaryBody: "2401 Virginia Ave NW, Washington, DC 20037 — steps from Foggy Bottom Metro & Watergate/GWU parking.",
+      infoOfficeTitle: "Alexandria Ministry Office",
+      infoOfficeBody: "85 South Bragg St, Suite 200, Alexandria, VA 22312",
+      infoCellGroupsTitle: "DMV Home Cell Groups",
+      infoCellGroupsBody:
+        "Weekly fellowship groups across Washington D.C., Silver Spring/Takoma Park (MD), and Alexandria/Arlington (VA).",
+      infoMissionBridgeTitle: "Global Mission Bridge",
+      infoMissionBridgeBody:
+        "Direct prayer and stewardship support for our 32 Ethiopian congregations in Addis Ababa, Adama, Meki, Harar, Dire Dawa, Hirna, Chiro, and 16 rural mission stations.",
+      ctaDirections: "Get Directions",
+      ctaPlanVisit: "Plan Your Visit",
     },
     salvation: {
       label: "Salvation",
@@ -893,6 +982,12 @@ export const DICTIONARY: Record<Locale, UiDictionary> = {
       openInMaps: "Open in Google Maps",
       planVisit: "Plan Your Visit / Contact Pastor",
       addressLabel: "Address",
+      flagshipBadge: "Flagship Sanctuaries",
+      flagshipHeading: "Washington, D.C. & Aware International HQ",
+      flagshipDcLabel: "Washington, D.C. Sanctuary & Alexandria, VA US Office",
+      flagshipDcBody: "2401 Virginia Ave NW, Washington, DC 20037 · 85 South Bragg St, Suite 200, Alexandria, VA 22312",
+      flagshipAwareLabel: "Aware International HQ — Addis Ababa",
+      flagshipAwareBody: "Aware, Kirkos Sub-City, P.O. Box 12992, Addis Ababa, Ethiopia",
     },
     booksPage: {
       pageTitle: "GLM Press Book Store",
@@ -997,6 +1092,33 @@ export const DICTIONARY: Record<Locale, UiDictionary> = {
       receiptReferenceLabel: "Reference ID",
       printReceipt: "Print Receipt",
       downloadReceipt: "Download Receipt",
+      payModalTitle: "Secure Test-Mode Checkout",
+      payModalTestModeNotice:
+        "Stripe is not yet connected for this ministry — this is a secure test-mode simulation. Use 4242 4242 4242 4242 with any future expiry and CVC.",
+      cardNumberLabel: "Card Number",
+      cardExpiryLabel: "Expiry (MM/YY)",
+      cardCvcLabel: "CVC",
+      cardZipLabel: "ZIP / Postal Code",
+      cardNumberInvalid: "Enter a valid card number.",
+      cardExpiryInvalid: "Enter a valid expiry date (MM/YY).",
+      cardCvcInvalid: "Enter a valid 3-4 digit CVC.",
+      cardZipInvalid: "Enter a valid ZIP/postal code.",
+      payNowButtonTemplate: "Pay {amount} Now",
+      applePaySimulateButtonTemplate: "Pay {amount} with Apple Pay",
+      processingLabel: "Processing...",
+      successPageTitle: "Stewardship Receipt",
+      officialReceiptTitle: "Official Tax-Deductible Contribution Receipt",
+      einLabel: "Federal EIN",
+      noGoodsServicesNote: "No goods or services were provided in exchange for this contribution.",
+      printPdfReceiptButton: "Print / Save Official PDF Receipt",
+      pendingCheckTitle: "Gift Pledge Recorded",
+      pendingCheckBody:
+        "We've recorded your pledge to give by check. Your official tax receipt will be issued once our office receives and processes your mailed check.",
+      claimedOfferNote: "You've also claimed this month's Partner Offer — our office will be in touch about your copy.",
+      notFoundTitle: "We couldn't find that gift",
+      notFoundBody:
+        "This reference may have expired or the link is incorrect. Please contact our office if you believe this is an error.",
+      backToGiveLabel: "Return to Giving Portal",
       impactTitle: "Where Your Gift Goes",
       impactCongregationsTitle: "32 Ethiopian Congregations",
       impactCongregationsBody:
@@ -1018,10 +1140,10 @@ export const DICTIONARY: Record<Locale, UiDictionary> = {
         "Tithes & General Ministry": "Tithes, Offerings & General Ministry (አስራትና መባ)",
         "Global Revival Crusades & Live Broadcasts":
           "Global Revival Crusades & Live Broadcasts (ጉባኤዎች እና የቀጥታ ስርጭት)",
-        "Ethiopian Rural Church Planting (22 Stations)":
-          "Ethiopian Rural Church Planting — 22 Outreach Stations (የገጠር ስርጭት ጣቢያዎች)",
+        "Global Missions & 32 Ethiopian Branch Churches":
+          "Global Missions & 32 Ethiopian Branch Churches (የኢትዮጵያ 32 አጥቢያዎች)",
         "Aware International HQ Sanctuary": "Aware International HQ Sanctuary — Addis Ababa (አዋሬ ዋና ቢሮ)",
-        "Washington DC Sanctuary": "Washington, D.C. Sanctuary & North America Ministry (ዋሽንግተን ዲሲ አጥቢያ)",
+        "Washington DC Sanctuary": "Washington, D.C. Sanctuary & DMV Ministry (ዋሽንግተን ዲሲ አጥቢያ)",
         "Compassion & Humanitarian Relief": "Compassion & Humanitarian Relief (የበጎ አድራጎት አገልግሎት)",
       },
     },
@@ -1084,6 +1206,7 @@ export const DICTIONARY: Record<Locale, UiDictionary> = {
     brand: {
       name: "የወንጌል ብርሃን አለማቀፍ አገልግሎት",
       tagline: "Gospel Light Ministries International",
+      subtitle: "ዋሽንግተን ዲሲ • አዲስ አበባ • 33 ዓለም አቀፍ አጥቢያዎች",
     },
     topBar: {
       motto: "የእምነት ቅርስን መገንባት — ትናንት፣ ዛሬ እና ለዘላለም!",
@@ -1118,24 +1241,32 @@ export const DICTIONARY: Record<Locale, UiDictionary> = {
       searchAria: "ድረ-ገጹን ይፈልጉ",
     },
     hero: {
-      kicker: "ኅዳር 2026 • ዓለም አቀፍ የተሃድሶ እና የሚዲያ አገልግሎት",
-      title: "የኢየሱስ ክርስቶስን የማዳንና የተሃድሶ ኃይል ለኢትዮጵያና ለዓለም ሁሉ ማድረስ",
+      badge: "የወንጌል ብርሃን ዓለም አቀፍ ቤተክርስቲያን • ዋሽንግተን ዲሲ እና በኢትዮጵያ 32 አጥቢያዎች",
+      headlinePrefix: "ከ",
+      headlineAccent: "ዋሽንግተን ዲሲ",
+      headlineSuffix: "እስከ ኢትዮጵያና ዓለም ዙሪያ የኢየሱስ ክርስቶስን የማዳን ብርሃን ማብራት",
       subtitle:
-        "ከ43 ዓመታት በላይ፣ ሐዋሪያው ዳንኤል መኮንን የኢየሱስ ክርስቶስን ወንጌል በኃይል ለመስበክ ሐዋርያዊ ራዕይን ተሸክሞ ቆይቷል — አሁን በኢትዮጵያ የሚገኙ 32 አጥቢያዎችን፣ በሰሜን አሜሪካ ያለውን የዋሽንግተን ዲሲ ቤተመቅደሳችንን እና በዓለም ዙሪያ ያለውን የኢትዮጵያ ዲያስፖራ የሚደርስ ዕለታዊ የሚዲያ ስርጭት ይደግፋል።",
+        "በ1989 ዓ.ም. በሐዋሪያው ዳንኤል መኮንን በዋሽንግተን ዲሲ የተወለደችና በ2401 Virginia Ave NW በፓስተር አብርሃም በዳሶ የምትመራ አጥቢያችን — የዲሲ፣ የሜሪላንድና የቫርጂኒያ ጉባኤያችንን ከ32ቱ የኢትዮጵያ አጥቢያዎች ጋር አንድ ያደርጋል።",
       ctaPrimary: "አሁን ይለግሱ",
       ctaSecondary: "የጸሎት ጥያቄ ያቅርቡ",
-      ctaTertiary: "ቀጥታ ስርጭት እና ስብከቶች",
-      watchLatestTeaching: "የቅርብ ጊዜውን ትምህርት ይከታተሉ",
-      headlineLine1: "ሰዎችን ሁሉ ወደ እርሱ ለመሳብ",
-      headlineLine2Gold: "የኢየሱስን ስም ከፍ ስናደርግ",
-      headlineLine3: "ለእግዚአብሔር ክብር ይሁን!",
-      slide2Badge: "★ ልዩ ማስታወቂያ ★",
-      slide2Title: "ልዩ የተሃድሶ እና የፈውስ ፕሮግራም በቀጥታ ከሐዋሪያው ዳንኤል መኮንን ጋር",
-      slide2Subtitle: "እሁድ ከጠዋቱ 9፡00 (EAT) እና 10፡00 (EST) • ረቡዕ በቀጥታ ስርጭት",
-      watchLive: "ቀጥታ ይከታተሉ",
+      ctaWatch: "ሙሉ አምልኮና ስብከት ይከታተሉ",
+      mediaSlideWorshipLabel: "አምልኮና ዝማሬ",
+      mediaSlideDcLabel: "የዋሽንግተን ዲሲ ቤተመቅደስ",
+      mediaSlideGlobalLabel: "ዓለም አቀፍ ተሃድሶና ማህበረሰብ",
+      mediaSlideYoutubeLabel: "ቀጥታ የYouTube ስርጭት",
+      cardFounderRole: "መስራችና ፕሬዝዳንት",
+      cardPastorRole: "ዋና ፓስተር፣ ዋሽንግተን ዲሲ",
+      cardSanctuaryLabel: "የቤተመቅደስ አድራሻ",
+      cardAdminOfficeLabel: "የአሜሪካ አስተዳደር ቢሮ",
+      cardContactLabel: "ቀጥታ ግንኙነት",
+      cardDirectionsCta: "አቅጣጫ ያግኙ",
+      cardVisitCta: "ዲሲን ለመጎብኘት ያቅዱ",
+      cardNetworkTitle: "የተገናኘ ዓለም አቀፍ መረብ — ሁሉም 32 የኢትዮጵያ አጥቢያዎች",
       slideAriaTemplate: "ስላይድ {n} ከ{total}",
       prevSlideAria: "ያለፈው ስላይድ",
       nextSlideAria: "የሚቀጥለው ስላይድ",
+      watchModalTitle: "አምልኮና ስብከት",
+      closeVideoAria: "ቪዲዮውን ይዝጉ",
     },
     schedule: {
       hqTitle: "አዋሬ ዓለም አቀፍ ዋና ቢሮ (አዲስ አበባ)",
@@ -1147,6 +1278,28 @@ export const DICTIONARY: Record<Locale, UiDictionary> = {
       dcWednesday: "የረቡዕ የመጽሐፍ ቅዱስ ጥናትና ጸሎት ከምሽቱ 7፡00 (EST, UTC-5)",
       liveStreamTitle: "ዓለም አቀፍ ቀጥታ ስርጭት",
       joinLive: "አሁን ቀጥታ ይከታተሉ",
+    },
+    dcSpotlight: {
+      eyebrow: "እንኳን ወደ ወንጌል ብርሃን ዋሽንግተን ዲሲ በደህና መጡ",
+      heading: "ጉብኝትዎን ያቅዱ",
+      historyParagraph:
+        "በ1989 ዓ.ም. ሐዋሪያው ዳንኤል መኮንን በዋሽንግተን ዲሲ እያገለገሉ ሳሉ ለወንጌል ብርሃን ዓለም አቀፍ አገልግሎት መንፈሳዊ ራዕይን ተቀበሉ። ዛሬ በ2401 Virginia Ave NW የምትገኘው የዋሽንግተን ዲሲ ጉባኤያችን የሰሜን አሜሪካ ዋና ቤተመቅደሳችን ሆና፣ በዲሲ፣ በሜሪላንድና በሰሜን ቫርጂኒያ ያሉ ቤተሰቦችን እያገለገለች ከአዋሬ ዓለም አቀፍ ዋና ቢሮና ከ32ቱ የኢትዮጵያ አጥቢያዎች ጋር በቀጥታ ትሰራለች።",
+      galleryPastorAlt: "ፓስተር አብርሃም በዳሶ በዋሽንግተን ዲሲ እያገለገሉ",
+      galleryApostleAlt: "ሐዋሪያው ዳንኤል መኮንን ቃሉን እያስተማሩ",
+      galleryWorshipAlt: "ቀጥታ የቤተመቅደስ አምልኮና ዝማሬ",
+      watchAria: "የአምልኮ ቪዲዮውን ይከታተሉ",
+      infoSanctuaryTitle: "የፎጊ ቦተም ቤተመቅደስ",
+      infoSanctuaryBody: "2401 Virginia Ave NW, Washington, DC 20037 — ከFoggy Bottom Metro እና ከWatergate/GWU ፓርኪንግ በእግር ርቀት።",
+      infoOfficeTitle: "የአሌክሳንድሪያ አገልግሎት ቢሮ",
+      infoOfficeBody: "85 South Bragg St, Suite 200, Alexandria, VA 22312",
+      infoCellGroupsTitle: "የDMV የቤት ህብረት ቡድኖች",
+      infoCellGroupsBody:
+        "በዋሽንግተን ዲሲ፣ በሲልቨር ስፕሪንግ/ታኮማ ፓርክ (ሜሪላንድ) እና በአሌክሳንድሪያ/አርሊንግተን (ቫርጂኒያ) ሳምንታዊ ህብረት ቡድኖች።",
+      infoMissionBridgeTitle: "ዓለም አቀፍ ተልዕኮ ድልድይ",
+      infoMissionBridgeBody:
+        "በአዲስ አበባ፣ በአዳማ፣ በመቂ፣ በሐረር፣ በድሬዳዋ፣ በሒርናና በጭሮ እና በ16 የገጠር ተልዕኮ ጣቢያዎች ለሚገኙ 32 የኢትዮጵያ ጉባኤዎች ቀጥታ የጸሎትና የድጎማ ድጋፍ።",
+      ctaDirections: "አቅጣጫ ያግኙ",
+      ctaPlanVisit: "ጉብኝትዎን ያቅዱ",
     },
     salvation: {
       label: "ድነት",
@@ -1454,6 +1607,12 @@ export const DICTIONARY: Record<Locale, UiDictionary> = {
       openInMaps: "በGoogle Maps ይክፈቱ",
       planVisit: "ጉብኝትዎን ያቅዱ / ፓስተርን ያግኙ",
       addressLabel: "አድራሻ",
+      flagshipBadge: "ዋና ቤተመቅደሶች",
+      flagshipHeading: "ዋሽንግተን ዲሲ እና አዋሬ ዓለም አቀፍ ዋና ቢሮ",
+      flagshipDcLabel: "የዋሽንግተን ዲሲ ቤተመቅደስ እና የአሌክሳንድሪያ ቫርጂኒያ ቢሮ",
+      flagshipDcBody: "2401 Virginia Ave NW, Washington, DC 20037 · 85 South Bragg St, Suite 200, Alexandria, VA 22312",
+      flagshipAwareLabel: "አዋሬ ዓለም አቀፍ ዋና ቢሮ — አዲስ አበባ",
+      flagshipAwareBody: "አዋሬ፣ ቂርቆስ ክፍለ ከተማ፣ ፖ.ሳ.ቁ. 12992፣ አዲስ አበባ፣ ኢትዮጵያ",
     },
     booksPage: {
       pageTitle: "የGLM Press የመጻሕፍት መደብር",
@@ -1556,6 +1715,32 @@ export const DICTIONARY: Record<Locale, UiDictionary> = {
       receiptReferenceLabel: "የማጣቀሻ ቁጥር",
       printReceipt: "ደረሰኝ ያትሙ",
       downloadReceipt: "ደረሰኝ ያውርዱ",
+      payModalTitle: "አስተማማኝ የሙከራ ክፍያ",
+      payModalTestModeNotice:
+        "Stripe ገና አልተገናኘም — ይህ አስተማማኝ የሙከራ ክፍያ ነው። 4242 4242 4242 4242 ከወደፊት ጊዜ ማብቂያና ከCVC ጋር ይጠቀሙ።",
+      cardNumberLabel: "የካርድ ቁጥር",
+      cardExpiryLabel: "የማብቂያ ጊዜ (ወወ/አአ)",
+      cardCvcLabel: "CVC",
+      cardZipLabel: "ዚፕ ኮድ",
+      cardNumberInvalid: "ትክክለኛ የካርድ ቁጥር ያስገቡ።",
+      cardExpiryInvalid: "ትክክለኛ የማብቂያ ጊዜ ያስገቡ (ወወ/አአ)።",
+      cardCvcInvalid: "ትክክለኛ 3-4 አሃዝ CVC ያስገቡ።",
+      cardZipInvalid: "ትክክለኛ ዚፕ ኮድ ያስገቡ።",
+      payNowButtonTemplate: "{amount} አሁን ይክፈሉ",
+      applePaySimulateButtonTemplate: "በApple Pay {amount} ይክፈሉ",
+      processingLabel: "በሂደት ላይ...",
+      successPageTitle: "የስጦታ ደረሰኝ",
+      officialReceiptTitle: "ይፋዊ ከቀረጥ ነፃ የመዋጮ ደረሰኝ",
+      einLabel: "የፌደራል EIN",
+      noGoodsServicesNote: "ለዚህ መዋጮ ምንም ዓይነት ዕቃ ወይም አገልግሎት አልተሰጠም።",
+      printPdfReceiptButton: "ይፋዊ የPDF ደረሰኝ ያትሙ / ያስቀምጡ",
+      pendingCheckTitle: "የስጦታ ቃል ተመዝግቧል",
+      pendingCheckBody:
+        "በቼክ ለመስጠት ያቀዱትን ተመዝግቧል። ቢሮአችን የተላከውን ቼክ ከተቀበለና ካስተናገደ በኋላ ይፋዊ የቀረጥ ደረሰኝዎ ይሰጣል።",
+      claimedOfferNote: "የዚህ ወር የአጋር ስጦታንም ጠይቀዋል — ቢሮአችን ስለ ቅጂዎ ያገናኛችኋል።",
+      notFoundTitle: "ይህ ስጦታ አልተገኘም",
+      notFoundBody: "ይህ ማጣቀሻ አልቋል ወይም አገናኙ ትክክል ላይሆን ይችላል። ይህ ስህተት ነው ብለው ካመኑ ቢሮአችንን ያግኙ።",
+      backToGiveLabel: "ወደ ስጦታ መድረክ ይመለሱ",
       impactTitle: "ስጦታዎ የሚሄድበት",
       impactCongregationsTitle: "32 የኢትዮጵያ አጥቢያዎች",
       impactCongregationsBody:
@@ -1574,10 +1759,10 @@ export const DICTIONARY: Record<Locale, UiDictionary> = {
       funds: {
         "Tithes & General Ministry": "አስራትና መባ (Tithes, Offerings & General Ministry)",
         "Global Revival Crusades & Live Broadcasts": "ጉባኤዎች እና የቀጥታ ስርጭት (Global Revival Crusades & Live Broadcasts)",
-        "Ethiopian Rural Church Planting (22 Stations)":
-          "የገጠር ስርጭት ጣቢያዎች — 22 ጣቢያዎች (Ethiopian Rural Church Planting)",
+        "Global Missions & 32 Ethiopian Branch Churches":
+          "የኢትዮጵያ 32 አጥቢያዎች (Global Missions & 32 Ethiopian Branch Churches)",
         "Aware International HQ Sanctuary": "አዋሬ ዋና ቢሮ (Aware International HQ Sanctuary — Addis Ababa)",
-        "Washington DC Sanctuary": "ዋሽንግተን ዲሲ አጥቢያ (Washington, D.C. Sanctuary & North America)",
+        "Washington DC Sanctuary": "ዋሽንግተን ዲሲ አጥቢያ (Washington, D.C. Sanctuary & DMV Ministry)",
         "Compassion & Humanitarian Relief": "የበጎ አድራጎት አገልግሎት (Compassion & Humanitarian Relief)",
       },
     },

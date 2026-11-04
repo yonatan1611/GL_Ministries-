@@ -110,6 +110,17 @@ export const MINISTRY_IMAGES = {
   localFallback: "/brand/glm-logo.jpg",
 } as const;
 
+/** Verified YouTube video ids behind the thumbnails above — the single
+ *  source of truth for the hero's ambient background loop and watch
+ *  modals, so the same ids aren't retyped (and risk drifting) across
+ *  `HeroSection` and `WashingtonDcSpotlightSection`. */
+export const MINISTRY_VIDEO_IDS = {
+  worshipChoir: "rwRtlhY3mW8",
+  crusadeRevival: "FvnQFVRwdLs",
+  pastoralTime: "-ilsw36Mh8E",
+  apostleDanielPreaching: "oLx8cvN83w4",
+} as const;
+
 /**
  * "Storytelling by the Numbers" impact metrics, inspired by
  * bennyhinn.org's large-photo-plus-numbers homepage storytelling.

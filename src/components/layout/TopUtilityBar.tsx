@@ -3,9 +3,9 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
-import { Phone, Search, ShoppingBag, X } from "lucide-react";
+import { Mail, Phone, Search, ShoppingBag, X } from "lucide-react";
 import { getDictionary } from "@/data/i18n";
-import { HQ_PHONE, DC_PHONE } from "@/data/locations";
+import { HQ_PHONE, HQ_EMAIL, DC_PHONE, DC_EMAIL } from "@/data/locations";
 import { resolveSiteSearchHref } from "@/lib/siteSearch";
 import { swapLocaleInPathname, type Locale } from "@/lib/utils";
 import { cn } from "@/lib/utils";
@@ -40,14 +40,28 @@ export function TopUtilityBar({ locale }: { locale: Locale }) {
           <span className="hidden font-display italic text-blue-200 md:inline">{dict.topBar.motto}</span>
           <span className="flex items-center gap-1.5 text-navy-200">
             <Phone className="h-3 w-3 text-amber-500" aria-hidden="true" />
-            <span className="font-semibold text-navy-300">{dict.topBar.hqPrefix}</span>
-            {HQ_PHONE}
-          </span>
-          <span className="hidden items-center gap-1.5 text-navy-200 sm:flex">
-            <Phone className="h-3 w-3 text-amber-500" aria-hidden="true" />
             <span className="font-semibold text-navy-300">{dict.topBar.usPrefix}</span>
             {DC_PHONE}
           </span>
+          <a
+            href={`mailto:${DC_EMAIL}`}
+            className="hidden items-center gap-1.5 text-navy-200 hover:text-amber-400 lg:flex"
+          >
+            <Mail className="h-3 w-3 text-amber-500" aria-hidden="true" />
+            {DC_EMAIL}
+          </a>
+          <span className="hidden items-center gap-1.5 text-navy-200 sm:flex">
+            <Phone className="h-3 w-3 text-amber-500" aria-hidden="true" />
+            <span className="font-semibold text-navy-300">{dict.topBar.hqPrefix}</span>
+            {HQ_PHONE}
+          </span>
+          <a
+            href={`mailto:${HQ_EMAIL}`}
+            className="hidden items-center gap-1.5 text-navy-200 hover:text-amber-400 lg:flex"
+          >
+            <Mail className="h-3 w-3 text-amber-500" aria-hidden="true" />
+            {HQ_EMAIL}
+          </a>
         </div>
 
         <div className="flex items-center gap-3">

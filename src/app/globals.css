@@ -18,6 +18,24 @@
   }
 }
 
+@layer utilities {
+  /* Slow pan-and-zoom used by the homepage hero's local Ken Burns photo
+     crossfade backdrop (zero-latency base layer behind the self-hosted
+     video). Runs continuously so each photo keeps drifting even while
+     hidden behind the video or another slide. */
+  @keyframes hero-ken-burns {
+    0% {
+      transform: scale(1) translate(0, 0);
+    }
+    100% {
+      transform: scale(1.12) translate(-1%, -1%);
+    }
+  }
+  .animate-hero-ken-burns {
+    animation: hero-ken-burns 18s ease-in-out infinite alternate;
+  }
+}
+
 @layer components {
   /* Centered royal-blue ornamental divider under section headlines,
      matching Gospel Light's classical editorial section treatment. */

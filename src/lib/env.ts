@@ -46,6 +46,10 @@ const envSchema = z.object({
     z.string().min(1, "NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY is required in production"),
     "pk_test_dev_placeholder"
   ),
+  // Only required once STRIPE_SECRET_KEY is a real key — verifies
+  // `/api/stripe/webhook` signatures. Safe to leave blank until the
+  // client connects a real Stripe account and configures the webhook.
+  STRIPE_WEBHOOK_SECRET: z.string().optional().default(""),
 
   // Tithe.ly (hosted giving page, primary USD/general giving CTA target)
   NEXT_PUBLIC_TITHELY_URL: z
@@ -108,6 +112,7 @@ function loadEnv(): Env {
     NEXT_PUBLIC_SITE_URL: process.env.NEXT_PUBLIC_SITE_URL,
     STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY,
     NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY,
+    STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET,
     NEXT_PUBLIC_TITHELY_URL: process.env.NEXT_PUBLIC_TITHELY_URL,
     YOUTUBE_CHANNEL_ID: process.env.YOUTUBE_CHANNEL_ID,
     GLM_ADDIS_EMAIL: process.env.GLM_ADDIS_EMAIL,

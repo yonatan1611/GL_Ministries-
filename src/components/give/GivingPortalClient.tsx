@@ -33,6 +33,7 @@ import { cn, type Locale } from "@/lib/utils";
 import { useToast } from "@/components/providers/AppProviders";
 import { MinistryImage } from "@/components/ui/MinistryImage";
 import { StewardshipReceiptModal, type GivingReceiptData } from "@/components/give/StewardshipReceiptModal";
+import { InteractivePaymentGatewayModal } from "@/components/give/InteractivePaymentGatewayModal";
 
 type Frequency = "one-time" | "monthly" | "annual";
 
@@ -40,6 +41,31 @@ const USD_PRESETS = [35, 50, 100, 250, 500];
 const MONTHLY_PARTNER_USD = 35;
 
 const MONTHLY_OFFER_BOOK = BOOKS.find((book) => book.isMonthlySpecialOffer);
+
+/** `true` once the client has configured a real Stripe publishable key
+ *  (inlined at build time) — flips the card/Apple Pay rail from the
+ *  local `InteractivePaymentGatewayModal` over to a direct redirect
+ *  into real Stripe Checkout. Mirrors `isStripeLiveConfigured` in
+ *  `src/lib/stripe.ts`: matches on substance (`pk_...` and not a
+ *  "placeholder" value) so it isn't fooled by whatever dev placeholder
+ *  spelling `.env.local` happens to ship. */
+const STRIPE_PUBLISHABLE_KEY = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY ?? "";
+const STRIPE_IS_LIVE =
+  STRIPE_PUBLISHABLE_KEY.startsWith("pk_") && !/placeholder/i.test(STRIPE_PUBLISHABLE_KEY);
+
+interface GivePayload {
+  currency: "USD";
+  amount: number;
+  frequency: Frequency;
+  fund: DonationFund;
+  paymentMethod: DonationPaymentMethod;
+  donorName: string;
+  donorEmail: string;
+  donorPhone?: string;
+  prayerNote?: string;
+  claimMonthlyBookOffer: boolean;
+  locale: Locale;
+}
 
 const PAYMENT_METHOD_ICONS: Record<DonationPaymentMethod, typeof CreditCard> = {
   card: CreditCard,
@@ -80,6 +106,8 @@ export function GivingPortalClient({ locale }: { locale: Locale }) {
   const [errors, setErrors] = useState<Partial<Record<string, string>>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [receipt, setReceipt] = useState<GivingReceiptData | null>(null);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [pendingPayload, setPendingPayload] = useState<GivePayload | null>(null);
 
   // Deep-linked from the homepage Monthly Offer banner
   // (`/give?offer=<slug>#partnership`) — pre-selects Monthly Partner
@@ -113,11 +141,31 @@ export function GivingPortalClient({ locale }: { locale: Locale }) {
     if (!Number.isNaN(parsed) && parsed > 0) setAmount(parsed);
   }
 
+  async function submitDonation(payload: GivePayload) {
+    setIsSubmitting(true);
+    const { result } = await postJson<GivingReceiptData & { redirectUrl?: string }>("/api/give", payload);
+    setIsSubmitting(false);
+
+    if (!result || !result.success) {
+      showToast((result && !result.success && result.error) || dict.forms.error, "error");
+      return;
+    }
+
+    if (result.data.redirectUrl) {
+      window.location.href = result.data.redirectUrl;
+      return;
+    }
+
+    setReceipt(result.data);
+    setForm(EMPTY_FORM);
+    showToast(dict.give.receiptThankYou, "success");
+  }
+
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
 
-    const payload = {
-      currency: "USD" as const,
+    const payload: GivePayload = {
+      currency: "USD",
       amount,
       frequency,
       fund,
@@ -127,6 +175,7 @@ export function GivingPortalClient({ locale }: { locale: Locale }) {
       donorPhone: form.donorPhone || undefined,
       prayerNote: form.prayerNote || undefined,
       claimMonthlyBookOffer: frequency === "one-time" ? false : claimMonthlyBookOffer,
+      locale,
     };
 
     const localCheck = donationSchema.safeParse(payload);
@@ -141,18 +190,18 @@ export function GivingPortalClient({ locale }: { locale: Locale }) {
     }
 
     setErrors({});
-    setIsSubmitting(true);
-    const { result } = await postJson<GivingReceiptData>("/api/give", payload);
-    setIsSubmitting(false);
 
-    if (!result || !result.success) {
-      showToast((result && !result.success && result.error) || dict.forms.error, "error");
+    // No real Stripe key yet: collect card/Apple Pay details in the
+    // local interactive test-mode modal before this ever reaches the
+    // server. Once a real key is configured, STRIPE_IS_LIVE flips and
+    // this goes straight to submitDonation -> real Stripe Checkout.
+    if ((paymentMethod === "card" || paymentMethod === "apple_pay") && !STRIPE_IS_LIVE) {
+      setPendingPayload(payload);
+      setShowPaymentModal(true);
       return;
     }
 
-    setReceipt(result.data);
-    setForm(EMPTY_FORM);
-    showToast(dict.give.receiptThankYou, "success");
+    await submitDonation(payload);
   }
 
   return (
@@ -410,18 +459,20 @@ export function GivingPortalClient({ locale }: { locale: Locale }) {
             />
           </div>
 
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="mt-5 flex w-full items-center justify-center gap-1.5 rounded-lg bg-amber-600 px-4 py-3 text-sm font-semibold text-white hover:bg-amber-700 disabled:opacity-60"
-          >
-            {isSubmitting ? (
-              <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
-            ) : (
-              <Heart className="h-4 w-4" aria-hidden="true" />
-            )}
-            {dict.give.submitGift}
-          </button>
+          {paymentMethod !== "tithely" && (
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="mt-5 flex w-full items-center justify-center gap-1.5 rounded-lg bg-amber-600 px-4 py-3 text-sm font-semibold text-white hover:bg-amber-700 disabled:opacity-60"
+            >
+              {isSubmitting ? (
+                <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+              ) : (
+                <Heart className="h-4 w-4" aria-hidden="true" />
+              )}
+              {dict.give.submitGift}
+            </button>
+          )}
         </div>
       </form>
 
@@ -499,6 +550,18 @@ export function GivingPortalClient({ locale }: { locale: Locale }) {
       </div>
 
       <StewardshipReceiptModal locale={locale} receipt={receipt} onClose={() => setReceipt(null)} />
+
+      <InteractivePaymentGatewayModal
+        isOpen={showPaymentModal && pendingPayload !== null}
+        locale={locale}
+        amountUsd={amount}
+        paymentMethod={paymentMethod === "apple_pay" ? "apple_pay" : "card"}
+        onClose={() => setShowPaymentModal(false)}
+        onConfirm={async () => {
+          if (!pendingPayload) return;
+          await submitDonation(pendingPayload);
+        }}
+      />
     </div>
   );
 }

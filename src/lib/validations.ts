@@ -33,7 +33,7 @@ const emailField = z
 export const DONATION_FUNDS = [
   "Tithes & General Ministry",
   "Global Revival Crusades & Live Broadcasts",
-  "Ethiopian Rural Church Planting (22 Stations)",
+  "Global Missions & 32 Ethiopian Branch Churches",
   "Aware International HQ Sanctuary",
   "Washington DC Sanctuary",
   "Compassion & Humanitarian Relief",

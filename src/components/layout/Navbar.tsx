@@ -167,6 +167,9 @@ export function Navbar({ locale }: { locale: Locale }) {
             <span className="truncate text-[10px] font-semibold uppercase tracking-[0.25em] text-amber-700">
               {locale === "am" ? dict.brand.tagline : "MINISTRIES INTERNATIONAL"}
             </span>
+            <span className="hidden truncate text-[10px] font-medium tracking-wide text-navy-400 sm:inline">
+              {dict.brand.subtitle}
+            </span>
           </span>
         </Link>
 

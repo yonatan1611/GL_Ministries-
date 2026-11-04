@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { Search, X } from "lucide-react";
+import { MapPin, Search, X } from "lucide-react";
 import { getDictionary } from "@/data/i18n";
 import { LOCATIONS } from "@/data/locations";
 import { cn, type Locale } from "@/lib/utils";
@@ -68,6 +68,37 @@ export function LocationsDirectoryClient({ locale }: { locale: Locale }) {
 
   return (
     <div className="flex flex-col gap-8">
+      <div className="overflow-hidden rounded-2xl border-2 border-blue-500/30 bg-gradient-to-r from-[#0F2342] to-[#1B365D] p-6 text-white shadow-md sm:p-8">
+        <span className="inline-block rounded-full border border-blue-400/40 bg-blue-600/20 px-3 py-1 font-nav text-[11px] font-bold uppercase tracking-[0.15em] text-blue-200">
+          {dict.locationsPage.flagshipBadge}
+        </span>
+        <h2 className="mt-3 font-display text-xl font-bold sm:text-2xl">{dict.locationsPage.flagshipHeading}</h2>
+        <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <button
+            type="button"
+            onClick={() => setSynodFilter("USA")}
+            className="flex items-start gap-3 rounded-xl border border-blue-400/30 bg-white/5 p-4 text-left hover:bg-white/10"
+          >
+            <MapPin className="mt-0.5 h-5 w-5 shrink-0 text-blue-300" aria-hidden="true" />
+            <div>
+              <p className="text-sm font-semibold text-white">{dict.locationsPage.flagshipDcLabel}</p>
+              <p className="mt-1 text-xs leading-relaxed text-blue-100">{dict.locationsPage.flagshipDcBody}</p>
+            </div>
+          </button>
+          <button
+            type="button"
+            onClick={() => setSynodFilter("Addis Ababa")}
+            className="flex items-start gap-3 rounded-xl border border-blue-400/30 bg-white/5 p-4 text-left hover:bg-white/10"
+          >
+            <MapPin className="mt-0.5 h-5 w-5 shrink-0 text-blue-300" aria-hidden="true" />
+            <div>
+              <p className="text-sm font-semibold text-white">{dict.locationsPage.flagshipAwareLabel}</p>
+              <p className="mt-1 text-xs leading-relaxed text-blue-100">{dict.locationsPage.flagshipAwareBody}</p>
+            </div>
+          </button>
+        </div>
+      </div>
+
       <SynodBannerCards locale={locale} activeSynod={synodFilter} onSelect={setSynodFilter} />
 
       <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
