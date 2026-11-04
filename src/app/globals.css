@@ -1,0 +1,35 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  :focus-visible {
+    outline: 2px solid theme("colors.amber.600");
+    outline-offset: 2px;
+  }
+}
+
+@layer components {
+  /* Centered royal-blue ornamental divider under section headlines,
+     matching Gospel Light's classical editorial section treatment. */
+  .section-divider {
+    @apply mx-auto my-4 flex w-24 items-center justify-center gap-2;
+  }
+  .section-divider::before,
+  .section-divider::after {
+    content: "";
+    @apply h-px flex-1 bg-amber-600;
+  }
+  .section-divider-diamond {
+    @apply text-xs text-amber-600;
+  }
+}
