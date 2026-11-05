@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import type { Metadata, Viewport } from "next";
-import { Cinzel, Inter, Montserrat, Noto_Sans_Ethiopic, Noto_Serif, Playfair_Display } from "next/font/google";
+import { Cinzel, Inter, Noto_Sans_Ethiopic, Noto_Serif, Playfair_Display } from "next/font/google";
+import localFont from "next/font/local";
 import { notFound } from "next/navigation";
 import { isSupportedLocale, type Locale } from "@/lib/utils";
 import { AppProviders } from "@/components/providers/AppProviders";
@@ -53,10 +54,16 @@ const fontCinzel = Cinzel({
   display: "swap",
 });
 
-// Uppercase, wide-tracking navigation links and buttons.
-const fontMontserrat = Montserrat({
-  subsets: ["latin"],
-  weight: ["600", "700", "800"],
+// Uppercase, wide-tracking navigation links and buttons. Self-hosted
+// (rather than next/font/google) because the Google Fonts fetch during
+// Vercel builds was intermittently failing and breaking production
+// deploys.
+const fontMontserrat = localFont({
+  src: [
+    { path: "../../assets/fonts/Montserrat-600.woff2", weight: "600", style: "normal" },
+    { path: "../../assets/fonts/Montserrat-700.woff2", weight: "700", style: "normal" },
+    { path: "../../assets/fonts/Montserrat-800.woff2", weight: "800", style: "normal" },
+  ],
   variable: "--font-montserrat",
   display: "swap",
 });
