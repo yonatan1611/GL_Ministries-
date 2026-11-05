@@ -1,12 +1,15 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { CheckCircle2, Clock, Mail, MapPin, ShieldCheck } from "lucide-react";
+import { CheckCircle2, Clock, Download, Mail, MapPin, ShieldCheck } from "lucide-react";
 import { getDictionary } from "@/data/i18n";
 import { isSupportedLocale, type Locale } from "@/lib/utils";
 import { findDonation, updateDonation, type DonationRecord } from "@/lib/db";
 import { isStripeLiveConfigured, retrieveCheckoutSession } from "@/lib/stripe";
 import { PrintReceiptButton } from "@/components/give/PrintReceiptButton";
+import { BOOKS } from "@/data/ministry-content";
+
+const MONTHLY_OFFER_BOOK = BOOKS.find((book) => book.isMonthlySpecialOffer);
 
 interface SuccessPageProps {
   params: Promise<{ locale: string }>;
@@ -193,10 +196,17 @@ function ReceiptCard({ locale, donation }: { locale: Locale; donation: DonationR
         </div>
       </dl>
 
-      {donation.claimedMonthlyOffer && (
-        <p className="mt-4 rounded-lg border border-dashed border-amber-400 bg-amber-50 p-3 text-xs text-amber-800">
-          {dict.give.claimedOfferNote}
-        </p>
+      {donation.claimedMonthlyOffer && MONTHLY_OFFER_BOOK && (
+        <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-dashed border-amber-400 bg-amber-50 p-3">
+          <p className="text-xs text-amber-800">{dict.give.claimedOfferNote}</p>
+          <a
+            href={`/api/books/download/${MONTHLY_OFFER_BOOK.id}?donation=${encodeURIComponent(donation.referenceCode)}`}
+            className="flex shrink-0 items-center gap-1.5 rounded-lg bg-amber-600 px-3 py-2 text-xs font-semibold text-white hover:bg-amber-700 print:hidden"
+          >
+            <Download className="h-3.5 w-3.5" aria-hidden="true" />
+            {dict.give.downloadEbookButton}
+          </a>
+        </div>
       )}
 
       <p className="mt-6 text-xs leading-relaxed text-slate-500">{dict.give.noGoodsServicesNote}</p>

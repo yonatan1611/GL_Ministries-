@@ -106,6 +106,41 @@ export async function createGivingCheckoutSession(
   });
 }
 
+export interface CreateBookCheckoutSessionParams {
+  orderNumber: string;
+  items: { titleEn: string; format: "Print" | "PDF"; quantity: number; unitPriceUsd: number }[];
+  customerEmail: string;
+  locale: string;
+  origin: string;
+}
+
+/** Creates a real Stripe Checkout Session for a book store order — one
+ *  line item per cart line, prices taken from the server-recomputed
+ *  totals (never trusting client-submitted prices). */
+export async function createBookCheckoutSession(
+  params: CreateBookCheckoutSessionParams
+): Promise<Stripe.Checkout.Session> {
+  const stripe = getStripeClient();
+  const successUrl = `${params.origin}/${params.locale}/books/order-success?session_id={CHECKOUT_SESSION_ID}&ref=${encodeURIComponent(params.orderNumber)}`;
+  const cancelUrl = `${params.origin}/${params.locale}/books`;
+
+  return stripe.checkout.sessions.create({
+    mode: "payment",
+    customer_email: params.customerEmail,
+    line_items: params.items.map((item) => ({
+      price_data: {
+        currency: "usd",
+        unit_amount: Math.round(item.unitPriceUsd * 100),
+        product_data: { name: `${item.titleEn} (${item.format})` },
+      },
+      quantity: item.quantity,
+    })),
+    metadata: { orderNumber: params.orderNumber },
+    success_url: successUrl,
+    cancel_url: cancelUrl,
+  });
+}
+
 /** Verifies and parses an incoming Stripe webhook request body. Throws
  *  on a bad/missing signature — callers should turn that into a 400. */
 export function constructWebhookEvent(rawBody: string, signature: string): Stripe.Event {

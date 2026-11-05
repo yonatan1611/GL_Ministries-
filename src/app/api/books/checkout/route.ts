@@ -4,17 +4,27 @@ import { RATE_LIMIT_PRESETS } from "@/lib/security/rate-limit";
 import { rateLimitGuard, readJsonBody, serverErrorResponse, validateBody } from "@/lib/api/guards";
 import { generateReferenceCode } from "@/lib/referenceCode";
 import { BOOKS } from "@/data/ministry-content";
+import { isSupportedLocale } from "@/lib/utils";
+import { insertBookOrder, updateBookOrder, type BookOrderItem } from "@/lib/db";
+import { createBookCheckoutSession, isStripeLiveConfigured } from "@/lib/stripe";
 
 function getUnitPriceUsd(book: (typeof BOOKS)[number], format: "Print" | "PDF"): number {
   return format === "Print" ? book.priceUsdPrint : book.priceUsdPdf;
 }
 
 /**
- * Book store checkout. Validates with `bookOrderSchema`, then
- * recalculates every line-item total server-side from `BOOKS` — the
- * client's submitted prices (if any) are never trusted. Returns a
- * digital download token for each PDF line and shipping-dispatch
- * details for any print line.
+ * Book store checkout. Validates with `bookOrderSchema`, recalculates
+ * every line-item total server-side from `BOOKS` (client-submitted
+ * prices are never trusted), persists a real order (`src/lib/db.ts`),
+ * then routes by rail the same way `/api/give` does:
+ *
+ *  - A real `STRIPE_SECRET_KEY` configured: creates a real Stripe
+ *    Checkout Session and returns its hosted URL.
+ *  - No real key: the frontend has already run the customer through
+ *    `InteractivePaymentGatewayModal`'s local test-mode card
+ *    validation before calling this endpoint, so the order is
+ *    recorded as completed immediately — PDF lines get a real
+ *    download token right away.
  */
 export async function POST(request: Request) {
   const limited = rateLimitGuard(request, "books-checkout", RATE_LIMIT_PRESETS.booksCheckout);
@@ -22,6 +32,12 @@ export async function POST(request: Request) {
 
   const parsed = await readJsonBody(request);
   if (!parsed.ok) return parsed.response;
+
+  const rawLocale =
+    typeof parsed.body === "object" && parsed.body !== null && "locale" in parsed.body
+      ? String((parsed.body as { locale?: unknown }).locale ?? "")
+      : "";
+  const locale = isSupportedLocale(rawLocale) ? rawLocale : "en";
 
   try {
     const validated = validateBody(bookOrderSchema, parsed.body);
@@ -39,25 +55,14 @@ export async function POST(request: Request) {
     }
 
     let totalUsd = 0;
-    const digitalDownloads: { bookId: string; titleEn: string; downloadToken: string }[] = [];
     let hasPrintItem = false;
 
-    const lineItems = order.items.map((item) => {
+    const orderItems: BookOrderItem[] = order.items.map((item) => {
       // Non-null: every bookId was already verified to exist above.
       const book = BOOKS.find((candidate) => candidate.id === item.bookId)!;
       const unitPriceUsd = getUnitPriceUsd(book, item.format);
-      const lineUsd = unitPriceUsd * item.quantity;
-      totalUsd += lineUsd;
-
-      if (item.format === "PDF") {
-        digitalDownloads.push({
-          bookId: book.id,
-          titleEn: book.titleEn,
-          downloadToken: generateReferenceCode("DL"),
-        });
-      } else {
-        hasPrintItem = true;
-      }
+      totalUsd += unitPriceUsd * item.quantity;
+      if (item.format === "Print") hasPrintItem = true;
 
       return {
         bookId: book.id,
@@ -66,31 +71,62 @@ export async function POST(request: Request) {
         format: item.format,
         quantity: item.quantity,
         unitPriceUsd,
-        lineTotalUsd: lineUsd,
+        downloadToken: item.format === "PDF" ? generateReferenceCode("DL") : undefined,
       };
     });
 
-    const referenceId = generateReferenceCode("GLM-BK");
+    const orderNumber = generateReferenceCode("GLM-BK");
+    const origin = new URL(request.url).origin;
+
+    await insertBookOrder({
+      orderNumber,
+      customerName: order.customerName,
+      customerEmail: order.customerEmail,
+      shippingCity: hasPrintItem ? order.shippingCity : undefined,
+      shippingCountry: hasPrintItem ? order.shippingCountry : undefined,
+      items: orderItems,
+      totalUsd,
+      paymentStatus: "pending",
+    });
+
+    if (isStripeLiveConfigured) {
+      const session = await createBookCheckoutSession({
+        orderNumber,
+        items: orderItems.map((item) => ({
+          titleEn: item.titleEn,
+          format: item.format,
+          quantity: item.quantity,
+          unitPriceUsd: item.unitPriceUsd,
+        })),
+        customerEmail: order.customerEmail,
+        locale,
+        origin,
+      });
+      await updateBookOrder({ orderNumber }, { stripeSessionId: session.id ?? undefined });
+
+      return NextResponse.json(
+        {
+          success: true,
+          referenceId: orderNumber,
+          message: "Redirecting to secure Stripe Checkout...",
+          data: { redirectUrl: session.url },
+        },
+        { status: 200 }
+      );
+    }
+
+    // Local test-mode: the client already validated card details in
+    // InteractivePaymentGatewayModal before calling here.
+    await updateBookOrder({ orderNumber }, { paymentStatus: "completed", completedAt: new Date().toISOString() });
 
     return NextResponse.json(
       {
         success: true,
-        referenceId,
+        referenceId: orderNumber,
         message: hasPrintItem
           ? "Your order was received. Print titles ship from Alexandria, VA and Addis Ababa HQ."
           : "Your order was received. Digital titles are ready for instant download.",
-        data: {
-          referenceId,
-          lineItems,
-          totalUsd,
-          digitalDownloads,
-          shipping: hasPrintItem
-            ? { city: order.shippingCity, country: order.shippingCountry, dispatchFrom: "Alexandria, VA / Addis Ababa HQ" }
-            : null,
-          customerName: order.customerName,
-          customerEmail: order.customerEmail,
-          submittedAt: new Date().toISOString(),
-        },
+        data: { redirectUrl: `/${locale}/books/order-success?ref=${orderNumber}` },
       },
       { status: 200 }
     );

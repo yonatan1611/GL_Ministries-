@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import type Stripe from "stripe";
 import { constructWebhookEvent, isStripeLiveConfigured } from "@/lib/stripe";
-import { updateDonation } from "@/lib/db";
+import { updateDonation, updateBookOrder } from "@/lib/db";
 
 /**
  * Stripe webhook receiver for the giving flow. Verifies the signature
@@ -35,6 +35,8 @@ export async function POST(request: Request) {
   if (event.type === "checkout.session.completed" || event.type === "checkout.session.async_payment_succeeded") {
     const session = event.data.object as Stripe.Checkout.Session;
     const referenceCode = session.metadata?.referenceCode;
+    const orderNumber = session.metadata?.orderNumber;
+
     if (referenceCode && session.payment_status === "paid") {
       await updateDonation(
         { referenceCode },
@@ -45,6 +47,11 @@ export async function POST(request: Request) {
           stripeSubscriptionId:
             typeof session.subscription === "string" ? session.subscription : session.subscription?.id,
         }
+      );
+    } else if (orderNumber && session.payment_status === "paid") {
+      await updateBookOrder(
+        { orderNumber },
+        { paymentStatus: "completed", completedAt: new Date().toISOString(), stripeSessionId: session.id }
       );
     }
   }

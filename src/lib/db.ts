@@ -42,17 +42,31 @@ export interface DonationRecord {
   completedAt?: string;
 }
 
+export interface BookOrderItem {
+  bookId: string;
+  titleEn: string;
+  titleAm: string;
+  format: "Print" | "PDF";
+  quantity: number;
+  unitPriceUsd: number;
+  /** Capability token authorizing `/api/books/download/[bookId]` —
+   *  present only on `PDF` lines. */
+  downloadToken?: string;
+}
+
 export interface BookOrderRecord {
   id: string;
   orderNumber: string;
   customerName: string;
   customerEmail: string;
-  shippingAddress?: string;
-  items: { bookId: string; titleEn: string; format: "Print" | "PDF"; quantity: number; unitPriceUsd: number }[];
+  shippingCity?: string;
+  shippingCountry?: string;
+  items: BookOrderItem[];
   totalUsd: number;
   paymentStatus: "pending" | "completed";
-  downloadTokens: string[];
+  stripeSessionId?: string;
   createdAt: string;
+  completedAt?: string;
 }
 
 export interface PrayerRequestRecord {
@@ -213,6 +227,54 @@ export async function findDonation(match: {
       (d) =>
         (match.referenceCode && d.referenceCode === match.referenceCode) ||
         (match.stripeSessionId && d.stripeSessionId === match.stripeSessionId)
+    ) ?? null
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Book Orders
+// ---------------------------------------------------------------------------
+
+export async function insertBookOrder(
+  record: Omit<BookOrderRecord, "id" | "createdAt">
+): Promise<BookOrderRecord> {
+  return mutate((db) => {
+    const order: BookOrderRecord = {
+      ...record,
+      id: randomUUID(),
+      createdAt: new Date().toISOString(),
+    };
+    db.bookOrders.push(order);
+    return order;
+  });
+}
+
+export async function updateBookOrder(
+  match: { orderNumber?: string; stripeSessionId?: string },
+  patch: Partial<BookOrderRecord>
+): Promise<BookOrderRecord | null> {
+  return mutate((db) => {
+    const order = db.bookOrders.find(
+      (o) =>
+        (match.orderNumber && o.orderNumber === match.orderNumber) ||
+        (match.stripeSessionId && o.stripeSessionId === match.stripeSessionId)
+    );
+    if (!order) return null;
+    Object.assign(order, patch);
+    return order;
+  });
+}
+
+export async function findBookOrder(match: {
+  orderNumber?: string;
+  stripeSessionId?: string;
+}): Promise<BookOrderRecord | null> {
+  const db = await getDb();
+  return (
+    db.bookOrders.find(
+      (o) =>
+        (match.orderNumber && o.orderNumber === match.orderNumber) ||
+        (match.stripeSessionId && o.stripeSessionId === match.stripeSessionId)
     ) ?? null
   );
 }

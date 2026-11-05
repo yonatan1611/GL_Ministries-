@@ -487,6 +487,7 @@ export interface UiDictionary {
     einLabel: string;
     noGoodsServicesNote: string;
     printPdfReceiptButton: string;
+    downloadEbookButton: string;
     pendingCheckTitle: string;
     pendingCheckBody: string;
     claimedOfferNote: string;
@@ -529,6 +530,16 @@ export interface UiDictionary {
     deliveryNote: string;
     openAria: string;
     closeAria: string;
+    orderSuccessTitle: string;
+    orderThankYou: string;
+    orderNumberLabel: string;
+    downloadPdfButton: string;
+    printOrderShipsNote: string;
+    pendingOrderTitle: string;
+    pendingOrderBody: string;
+    orderNotFoundTitle: string;
+    orderNotFoundBody: string;
+    backToBooksLabel: string;
   };
   footer: {
     missionStatement: string;
@@ -1111,6 +1122,7 @@ export const DICTIONARY: Record<Locale, UiDictionary> = {
       einLabel: "Federal EIN",
       noGoodsServicesNote: "No goods or services were provided in exchange for this contribution.",
       printPdfReceiptButton: "Print / Save Official PDF Receipt",
+      downloadEbookButton: "Download Your Partner eBook (PDF)",
       pendingCheckTitle: "Gift Pledge Recorded",
       pendingCheckBody:
         "We've recorded your pledge to give by check. Your official tax receipt will be issued once our office receives and processes your mailed check.",
@@ -1161,6 +1173,17 @@ export const DICTIONARY: Record<Locale, UiDictionary> = {
         "Digital PDF titles are emailed instantly after checkout; print titles ship from our Alexandria, VA and Addis Ababa HQ offices.",
       openAria: "Open Book Store Cart",
       closeAria: "Close cart",
+      orderSuccessTitle: "Order Confirmation",
+      orderThankYou: "Thank you for your order from Gospel Light Ministries International.",
+      orderNumberLabel: "Order Number",
+      downloadPdfButton: "Download eBook PDF",
+      printOrderShipsNote: "Print titles ship from our Alexandria, VA and Addis Ababa HQ offices.",
+      pendingOrderTitle: "Order Received",
+      pendingOrderBody: "We've recorded your order and are finalizing payment. This page will update automatically once it's confirmed.",
+      orderNotFoundTitle: "We couldn't find that order",
+      orderNotFoundBody:
+        "This order reference may have expired or the link is incorrect. Please contact our office if you believe this is an error.",
+      backToBooksLabel: "Return to Book Store",
     },
     footer: {
       missionStatement:
@@ -1734,6 +1757,7 @@ export const DICTIONARY: Record<Locale, UiDictionary> = {
       einLabel: "የፌደራል EIN",
       noGoodsServicesNote: "ለዚህ መዋጮ ምንም ዓይነት ዕቃ ወይም አገልግሎት አልተሰጠም።",
       printPdfReceiptButton: "ይፋዊ የPDF ደረሰኝ ያትሙ / ያስቀምጡ",
+      downloadEbookButton: "የአጋር ኢ-መጽሐፍዎን ያውርዱ (PDF)",
       pendingCheckTitle: "የስጦታ ቃል ተመዝግቧል",
       pendingCheckBody:
         "በቼክ ለመስጠት ያቀዱትን ተመዝግቧል። ቢሮአችን የተላከውን ቼክ ከተቀበለና ካስተናገደ በኋላ ይፋዊ የቀረጥ ደረሰኝዎ ይሰጣል።",
@@ -1780,6 +1804,16 @@ export const DICTIONARY: Record<Locale, UiDictionary> = {
         "ዲጂታል ፒዲኤፍ መጻሕፍት ክፍያ እንደተፈጸመ በኢሜል ይደርሳሉ፤ የታተሙ መጻሕፍት ከአሌክሳንድሪያ ቫርጂኒያና ከአዲስ አበባ ዋና ቢሮ ይላካሉ።",
       openAria: "የመጻሕፍት ጋሪን ክፈት",
       closeAria: "ጋሪን ዝጋ",
+      orderSuccessTitle: "የትዕዛዝ ማረጋገጫ",
+      orderThankYou: "ከወንጌል ብርሃን አለማቀፍ አገልግሎት ለገዙት እናመስግናለን።",
+      orderNumberLabel: "የትዕዛዝ ቁጥር",
+      downloadPdfButton: "የPDF መጽሐፍ ያውርዱ",
+      printOrderShipsNote: "የታተሙ መጻሕፍት ከአሌክሳንድሪያ ቫርጂኒያና ከአዲስ አበባ ዋና ቢሮ ይላካሉ።",
+      pendingOrderTitle: "ትዕዛዝ ተቀብሏል",
+      pendingOrderBody: "ትዕዛዝዎ ተመዝግቧል፣ ክፍያው በመጠናቀቅ ላይ ነው። ይህ ገጽ ክፍያው ከተረጋገጠ በኋላ በራሱ ይዘምናል።",
+      orderNotFoundTitle: "ይህ ትዕዛዝ አልተገኘም",
+      orderNotFoundBody: "ይህ ማጣቀሻ አልቋል ወይም አገናኙ ትክክል ላይሆን ይችላል። ይህ ስህተት ነው ብለው ካመኑ ቢሮአችንን ያግኙ።",
+      backToBooksLabel: "ወደ የመጻሕፍት መደብር ይመለሱ",
     },
     footer: {
       missionStatement:

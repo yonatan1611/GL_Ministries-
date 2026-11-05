@@ -10,6 +10,8 @@ import { cn, getLocaleFromPathname } from "@/lib/utils";
 import { MINISTRY_IMAGES } from "@/data/social-media";
 import { useCart, useToast, type CartItem } from "@/components/providers/AppProviders";
 import { MinistryImage } from "@/components/ui/MinistryImage";
+import { InteractivePaymentGatewayModal } from "@/components/give/InteractivePaymentGatewayModal";
+import { STRIPE_IS_LIVE } from "@/lib/stripe-public";
 
 type FormState = {
   customerName: string;
@@ -41,6 +43,8 @@ export function CartDrawer() {
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
   const [errors, setErrors] = useState<Partial<Record<keyof FormState, string>>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [pendingPayload, setPendingPayload] = useState<Record<string, unknown> | null>(null);
 
   useEffect(() => {
     if (!isCartOpen) return;
@@ -61,6 +65,29 @@ export function CartDrawer() {
     return format === "Print" ? dict.cart.formatPrint : dict.cart.formatPdf;
   }
 
+async function submitOrder(payload: Record<string, unknown>) {
+    setIsSubmitting(true);
+    const { result } = await postJson<{ redirectUrl?: string }>("/api/books/checkout", payload);
+    setIsSubmitting(false);
+
+    if (!result || !result.success) {
+      showToast((result && !result.success && result.error) || dict.forms.error, "error");
+      return;
+    }
+
+    clearCart();
+    setForm(EMPTY_FORM);
+    setIsCheckingOut(false);
+
+    if (result.data?.redirectUrl) {
+      window.location.href = result.data.redirectUrl;
+      return;
+    }
+
+    setIsCartOpen(false);
+    showToast(result.message, "success");
+  }
+
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
 
@@ -71,6 +98,7 @@ export function CartDrawer() {
         quantity: item.quantity,
       })),
       ...form,
+      locale,
     };
 
     const localCheck = bookOrderSchema.safeParse(payload);
@@ -86,20 +114,17 @@ export function CartDrawer() {
     }
 
     setErrors({});
-    setIsSubmitting(true);
-    const { result } = await postJson("/api/books/checkout", payload);
-    setIsSubmitting(false);
 
-    if (!result || !result.success) {
-      showToast((result && !result.success && result.error) || dict.forms.error, "error");
+    // No real Stripe key yet: collect card details in the local
+    // interactive test-mode modal before this ever reaches the
+    // server, same as the giving flow.
+    if (!STRIPE_IS_LIVE) {
+      setPendingPayload(payload);
+      setShowPaymentModal(true);
       return;
     }
 
-    clearCart();
-    setForm(EMPTY_FORM);
-    setIsCheckingOut(false);
-    setIsCartOpen(false);
-    showToast(result.message, "success");
+    await submitOrder(payload);
   }
 
   return (
@@ -292,6 +317,18 @@ export function CartDrawer() {
           </div>
         )}
       </div>
+
+      <InteractivePaymentGatewayModal
+        isOpen={showPaymentModal && pendingPayload !== null}
+        locale={locale}
+        amountUsd={subtotalUsd}
+        paymentMethod="card"
+        onClose={() => setShowPaymentModal(false)}
+        onConfirm={async () => {
+          if (!pendingPayload) return;
+          await submitOrder(pendingPayload);
+        }}
+      />
     </div>
   );
 }

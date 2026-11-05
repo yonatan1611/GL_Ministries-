@@ -34,6 +34,7 @@ import { useToast } from "@/components/providers/AppProviders";
 import { MinistryImage } from "@/components/ui/MinistryImage";
 import { StewardshipReceiptModal, type GivingReceiptData } from "@/components/give/StewardshipReceiptModal";
 import { InteractivePaymentGatewayModal } from "@/components/give/InteractivePaymentGatewayModal";
+import { STRIPE_IS_LIVE } from "@/lib/stripe-public";
 
 type Frequency = "one-time" | "monthly" | "annual";
 
@@ -41,17 +42,6 @@ const USD_PRESETS = [35, 50, 100, 250, 500];
 const MONTHLY_PARTNER_USD = 35;
 
 const MONTHLY_OFFER_BOOK = BOOKS.find((book) => book.isMonthlySpecialOffer);
-
-/** `true` once the client has configured a real Stripe publishable key
- *  (inlined at build time) — flips the card/Apple Pay rail from the
- *  local `InteractivePaymentGatewayModal` over to a direct redirect
- *  into real Stripe Checkout. Mirrors `isStripeLiveConfigured` in
- *  `src/lib/stripe.ts`: matches on substance (`pk_...` and not a
- *  "placeholder" value) so it isn't fooled by whatever dev placeholder
- *  spelling `.env.local` happens to ship. */
-const STRIPE_PUBLISHABLE_KEY = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY ?? "";
-const STRIPE_IS_LIVE =
-  STRIPE_PUBLISHABLE_KEY.startsWith("pk_") && !/placeholder/i.test(STRIPE_PUBLISHABLE_KEY);
 
 interface GivePayload {
   currency: "USD";

@@ -101,6 +101,9 @@ export const RATE_LIMIT_PRESETS = {
   booksCheckout: { limit: 10, windowMs: 10 * 60 * 1000 } satisfies RateLimitOptions,
   /** YouTube channel feed sync (read-only, but still worth a floor). */
   youtubeSync: { limit: 30, windowMs: 5 * 60 * 1000 } satisfies RateLimitOptions,
+  /** PDF book/eBook download (token-gated, but still worth a floor
+   *  against brute-forcing a token). */
+  booksDownload: { limit: 20, windowMs: 10 * 60 * 1000 } satisfies RateLimitOptions,
 } as const;
 
 /**
