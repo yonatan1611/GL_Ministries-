@@ -1,5 +1,5 @@
 import Stripe from "stripe";
-import { env } from "@/lib/env";
+import { env } from "@/lib/env.server";
 import type { DonationFund } from "@/lib/validations";
 
 /** `true` once the client has configured a real Stripe secret key — the
