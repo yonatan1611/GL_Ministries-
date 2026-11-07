@@ -8,6 +8,11 @@ import { GivingPortalClient } from "@/components/give/GivingPortalClient";
 import { BlurText } from "@/components/react-bits/BlurText";
 import { listBooks } from "@/lib/db";
 
+// Reads the live book catalog on every render — force dynamic
+// rendering instead of letting Next.js statically prerender this page
+// at build time. See the homepage's page.tsx for why.
+export const dynamic = "force-dynamic";
+
 export async function generateMetadata({ params }: LocalePageProps): Promise<Metadata> {
   const { locale } = await params;
   const loc: Locale = isSupportedLocale(locale) ? locale : "en";

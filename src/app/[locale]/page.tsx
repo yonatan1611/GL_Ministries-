@@ -13,6 +13,13 @@ import { UpcomingEventsSection } from "@/components/home/UpcomingEventsSection";
 import { ScriptureDividerBanner } from "@/components/home/ScriptureDividerBanner";
 import { AnimatedContent } from "@/components/react-bits/AnimatedContent";
 
+// MonthlyResourceOffer/DiscoverProductsBanner read the live book catalog
+// (src/lib/db.ts) on every render — force dynamic rendering so Next.js
+// never tries to statically prerender this page at build time (which
+// both bakes in stale data and, on Vercel's build filesystem, raced
+// writing data/glm-database.json across parallel prerender workers).
+export const dynamic = "force-dynamic";
+
 /**
  * Homepage, sequenced to replicate bennyhinn.org's exact top-to-bottom
  * conversion flow: a cinematic media hero, the Salvation callout, the
