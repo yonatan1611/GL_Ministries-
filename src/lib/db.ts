@@ -147,8 +147,26 @@ async function persist(db: Database): Promise<void> {
   await fs.rename(tmpFile, DB_FILE);
 }
 
+/** Like `persist`, but never throws — callers that can proceed with an
+ *  in-memory-only copy (every read path, and every write that already
+ *  applied the mutation to `memoryCache`) use this instead of letting
+ *  a filesystem failure become a 500. This matters specifically on
+ *  Vercel: a deployed function's filesystem is read-only outside
+ *  `/tmp`, so every write here fails every time in that environment —
+ *  loud in the logs, but the site stays up on seeded/in-memory data
+ *  rather than crashing on every single page load. */
+async function persistBestEffort(db: Database): Promise<void> {
+  try {
+    await persist(db);
+  } catch (error) {
+    console.error(
+      "[db] Failed to persist data/glm-database.json — continuing with in-memory data only.",
+      error
+    );
+  }
+}
+
 async function loadFromDisk(): Promise<Database> {
-  await fs.mkdir(DB_DIR, { recursive: true });
   try {
     const raw = await fs.readFile(DB_FILE, "utf-8");
     const parsed = JSON.parse(raw) as Partial<Database>;
@@ -157,7 +175,7 @@ async function loadFromDisk(): Promise<Database> {
     return { ...seedDatabase(), ...parsed };
   } catch {
     const seeded = seedDatabase();
-    await persist(seeded);
+    await persistBestEffort(seeded);
     return seeded;
   }
 }
@@ -170,12 +188,17 @@ async function getDbUncached(): Promise<Database> {
 }
 
 /** Serializes every read-modify-write through one promise chain so
- *  concurrent requests in this process never interleave writes. */
+ *  concurrent requests in this process never interleave writes. The
+ *  mutation always applies to `memoryCache` even if the disk write
+ *  fails (see `persistBestEffort`) — a form submission still succeeds
+ *  for the visitor and is visible for the rest of this instance's
+ *  life, it just isn't guaranteed to survive a cold start until this
+ *  runs against a real database instead of a local JSON file. */
 function mutate<T>(mutator: (db: Database) => T): Promise<T> {
   const resultPromise = writeChain.then(async () => {
     const db = await getDbUncached();
     const result = mutator(db);
-    await persist(db);
+    await persistBestEffort(db);
     return result;
   });
   // Keep the chain alive even if this particular write rejects, so a
