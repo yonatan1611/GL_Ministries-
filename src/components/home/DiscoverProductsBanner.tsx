@@ -1,17 +1,19 @@
 import Link from "next/link";
 import { BookOpen } from "lucide-react";
 import { getDictionary } from "@/data/i18n";
-import { BOOKS } from "@/data/ministry-content";
+import { listBooks } from "@/lib/db";
 import type { Locale } from "@/lib/utils";
 import { MinistryImage } from "@/components/ui/MinistryImage";
 
 /**
  * "Discover Resources / Products" banner, styled after bennyhinn.org's
  * products showcase: a short mission-framed pitch alongside previews of
- * all 4 GLM Press books and an "Explore Now!" link into the Book Store.
+ * the live book catalog (prices editable from the Admin Portal) and an
+ * "Explore Now!" link into the Book Store.
  */
-export function DiscoverProductsBanner({ locale }: { locale: Locale }) {
+export async function DiscoverProductsBanner({ locale }: { locale: Locale }) {
   const dict = getDictionary(locale);
+  const books = await listBooks();
 
   return (
     <section className="bg-white px-4 py-16 sm:px-6 lg:px-8">
@@ -27,7 +29,7 @@ export function DiscoverProductsBanner({ locale }: { locale: Locale }) {
         </p>
 
         <div className="mt-10 grid grid-cols-2 gap-5 sm:grid-cols-4">
-          {BOOKS.map((book) => (
+          {books.map((book) => (
             <Link
               key={book.id}
               href={`/${locale}/books`}

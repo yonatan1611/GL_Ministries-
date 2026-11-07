@@ -6,6 +6,7 @@ import { isSupportedLocale, type Locale } from "@/lib/utils";
 import type { LocalePageProps } from "@/types/ministry";
 import { GivingPortalClient } from "@/components/give/GivingPortalClient";
 import { BlurText } from "@/components/react-bits/BlurText";
+import { listBooks } from "@/lib/db";
 
 export async function generateMetadata({ params }: LocalePageProps): Promise<Metadata> {
   const { locale } = await params;
@@ -28,6 +29,7 @@ export default async function GivePage({ params }: LocalePageProps) {
   if (!isSupportedLocale(locale)) notFound();
 
   const dict = getDictionary(locale);
+  const books = await listBooks();
 
   return (
     <main className="min-h-screen bg-slate-50">
@@ -40,7 +42,7 @@ export default async function GivePage({ params }: LocalePageProps) {
 
       <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:px-8">
         <Suspense fallback={null}>
-          <GivingPortalClient locale={locale} />
+          <GivingPortalClient locale={locale} books={books} />
         </Suspense>
       </div>
     </main>

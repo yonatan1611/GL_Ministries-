@@ -451,3 +451,30 @@ export async function findSermonByYoutubeId(youtubeId: string): Promise<Sermon |
   const db = await getDb();
   return db.sermons.find((sermon) => sermon.youtubeId === youtubeId) ?? null;
 }
+
+// ---------------------------------------------------------------------------
+// Books (catalog — live-editable from the Admin Portal)
+// ---------------------------------------------------------------------------
+
+/** Live book catalog — the source of truth every giving/checkout/PDF
+ *  route reads from, seeded once from `BOOKS` and then editable
+ *  (price, monthly offer flag) through the Admin Portal. */
+export async function listBooks(): Promise<Book[]> {
+  const db = await getDb();
+  return db.books;
+}
+
+/** Setting `isMonthlySpecialOffer: true` here atomically unsets it on
+ *  every other book first — "at most one book should carry this at a
+ *  time" (see the field's own doc comment on `Book`). */
+export async function updateBook(id: string, patch: Partial<Book>): Promise<Book | null> {
+  return mutate((db) => {
+    const book = db.books.find((b) => b.id === id);
+    if (!book) return null;
+    if (patch.isMonthlySpecialOffer === true) {
+      for (const other of db.books) other.isMonthlySpecialOffer = false;
+    }
+    Object.assign(book, patch);
+    return book;
+  });
+}

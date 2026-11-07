@@ -5,6 +5,7 @@ import { isSupportedLocale, type Locale } from "@/lib/utils";
 import type { LocalePageProps } from "@/types/ministry";
 import { BookStoreClient } from "@/components/books/BookStoreClient";
 import { BlurText } from "@/components/react-bits/BlurText";
+import { listBooks } from "@/lib/db";
 
 export async function generateMetadata({ params }: LocalePageProps): Promise<Metadata> {
   const { locale } = await params;
@@ -27,6 +28,7 @@ export default async function BooksPage({ params }: LocalePageProps) {
   if (!isSupportedLocale(locale)) notFound();
 
   const dict = getDictionary(locale);
+  const books = await listBooks();
 
   return (
     <main className="min-h-screen bg-slate-50">
@@ -40,7 +42,7 @@ export default async function BooksPage({ params }: LocalePageProps) {
       </div>
 
       <div className="mx-auto max-w-5xl px-4 py-12 sm:px-6 lg:px-8">
-        <BookStoreClient locale={locale} />
+        <BookStoreClient locale={locale} books={books} />
       </div>
     </main>
   );

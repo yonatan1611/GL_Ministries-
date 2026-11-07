@@ -43,11 +43,14 @@ const envSchema = z.object({
   // etc.), so anything requiring a real secret in production would crash
   // in the browser — secrets are never available in the client bundle.
 
-  // Tithe.ly (hosted giving page, primary USD/general giving CTA target)
+  // Tithe.ly (hosted giving page, primary USD/general giving CTA target).
+  // Church id 1848247 is the real one glministries.org's own "GIVE
+  // ONLINE" button uses — verified by fetching the live site, not
+  // guessed. An earlier placeholder id (2282350) silently 404'd.
   NEXT_PUBLIC_TITHELY_URL: z
     .string()
     .url()
-    .default("https://tithe.ly/give?c=2282350"),
+    .default("https://tithe.ly/give?c=1848247"),
 
   // YouTube (sermon archive + live stream detection). Defaults to the
   // ministry's own verified, public channel ID — not a secret, so it's

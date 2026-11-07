@@ -206,7 +206,12 @@ export function AdminPortalClient({
               <AdminPrayerTab locale={locale} prayerRequests={snapshot.prayerRequests} onChanged={refresh} />
             )}
             {activeTab === "books" && (
-              <AdminBooksTab locale={locale} bookOrders={snapshot.bookOrders} books={snapshot.books} />
+              <AdminBooksTab
+                locale={locale}
+                bookOrders={snapshot.bookOrders}
+                books={snapshot.books}
+                onChanged={refresh}
+              />
             )}
             {activeTab === "events" && (
               <AdminEventsTab locale={locale} rsvps={snapshot.rsvps} events={snapshot.events} onChanged={refresh} />

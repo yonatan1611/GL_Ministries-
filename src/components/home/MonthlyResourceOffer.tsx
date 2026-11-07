@@ -1,9 +1,7 @@
-"use client";
-
 import Link from "next/link";
 import { BookOpen, Check, Gift } from "lucide-react";
 import { getDictionary } from "@/data/i18n";
-import { BOOKS } from "@/data/ministry-content";
+import { listBooks } from "@/lib/db";
 import type { Locale } from "@/lib/utils";
 import { MinistryImage } from "@/components/ui/MinistryImage";
 import { Aurora } from "@/components/react-bits/Aurora";
@@ -16,13 +14,18 @@ import { SplitText } from "@/components/react-bits/SplitText";
  * Full-bleed theatrical Monthly Partner Resource Offer showcase, styled
  * after bennyhinn.org's "Intimate Moments... / Get the Offer" banner: a
  * dark charcoal-and-blue stage with a glowing spotlight behind the
- * featured book cover. Surfaces whichever `BOOKS` entry is flagged
- * `isMonthlySpecialOffer` rather than hardcoding the title.
+ * featured book cover. Surfaces whichever live catalog entry is
+ * flagged `isMonthlySpecialOffer` (editable from the Admin Portal)
+ * rather than hardcoding the title. No client hooks of its own — the
+ * animated children (Aurora, TiltedCard, Magnet, ShinyText, SplitText)
+ * are each their own "use client" island, so this can stay a plain
+ * async Server Component and read the database directly.
  */
-export function MonthlyResourceOffer({ locale }: { locale: Locale }) {
+export async function MonthlyResourceOffer({ locale }: { locale: Locale }) {
   const dict = getDictionary(locale);
 
-  const found = BOOKS.find((book) => book.isMonthlySpecialOffer);
+  const books = await listBooks();
+  const found = books.find((book) => book.isMonthlySpecialOffer);
   if (!found) return null;
   const offerBook = found;
 

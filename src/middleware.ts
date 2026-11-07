@@ -28,7 +28,6 @@ const LEGACY_PAGE_ID_REDIRECTS: Record<string, string> = {
 /**
  * Content-Security-Policy, assembled as directives rather than one long
  * literal so each third-party allowance is easy to audit:
- *  - Google Fonts (stylesheet + font files)
  *  - YouTube embeds (sermon player, live stream) + thumbnails/avatars
  *  - glministries.org / gospellightethiopia.org (real ministry photo
  *    assets, hotlinked from the ministry's own legacy WordPress media
@@ -57,8 +56,8 @@ const CONTENT_SECURITY_POLICY = [
   "base-uri 'self'",
   "object-src 'none'",
   `script-src ${SCRIPT_SRC}`,
-  "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-  "font-src 'self' https://fonts.gstatic.com",
+  "style-src 'self' 'unsafe-inline'",
+  "font-src 'self'",
   "img-src 'self' data: https://i.ytimg.com https://img.youtube.com https://yt3.googleusercontent.com https://glministries.org https://gospellightethiopia.org https://graph.facebook.com https://*.fbcdn.net https://platform-lookaside.fbsbx.com",
   "frame-src 'self' https://www.youtube.com https://www.youtube-nocookie.com https://js.stripe.com",
   "connect-src 'self'",

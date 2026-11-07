@@ -27,9 +27,9 @@ import {
 } from "@/lib/validations";
 import { postJson } from "@/lib/http";
 import { HQ_EMAIL, HQ_PHONE, DC_EMAIL, DC_PHONE } from "@/data/locations";
-import { BOOKS } from "@/data/ministry-content";
 import { SOCIAL_LINKS } from "@/data/social-media";
 import { cn, type Locale } from "@/lib/utils";
+import type { Book } from "@/types/ministry";
 import { useToast } from "@/components/providers/AppProviders";
 import { MinistryImage } from "@/components/ui/MinistryImage";
 import { StewardshipReceiptModal, type GivingReceiptData } from "@/components/give/StewardshipReceiptModal";
@@ -41,8 +41,6 @@ type Frequency = "one-time" | "monthly" | "annual";
 
 const USD_PRESETS = [35, 50, 100, 250, 500];
 const MONTHLY_PARTNER_USD = 35;
-
-const MONTHLY_OFFER_BOOK = BOOKS.find((book) => book.isMonthlySpecialOffer);
 
 interface GivePayload {
   currency: "USD";
@@ -81,10 +79,11 @@ const EMPTY_FORM: FormState = { donorName: "", donorEmail: "", donorPhone: "", p
  * here; Ethiopian branches and stations are supported through the
  * ministry's standard USD giving channels instead.
  */
-export function GivingPortalClient({ locale }: { locale: Locale }) {
+export function GivingPortalClient({ locale, books }: { locale: Locale; books: Book[] }) {
   const dict = getDictionary(locale);
   const { showToast } = useToast();
   const searchParams = useSearchParams();
+  const MONTHLY_OFFER_BOOK = books.find((book) => book.isMonthlySpecialOffer);
 
   const [amount, setAmount] = useState<number>(100);
   const [customAmountInput, setCustomAmountInput] = useState("");
@@ -110,7 +109,10 @@ export function GivingPortalClient({ locale }: { locale: Locale }) {
     setFrequency("monthly");
     setClaimMonthlyBookOffer(true);
     setAmount(MONTHLY_PARTNER_USD);
-  }, [searchParams]);
+    // MONTHLY_OFFER_BOOK is derived fresh each render from `books` — depend
+    // on that root input rather than the derived value itself.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams, books]);
 
   const paymentOptions: { value: DonationPaymentMethod; label: string }[] = [
     { value: "card", label: dict.give.paymentCardLabel },

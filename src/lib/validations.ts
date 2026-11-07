@@ -386,3 +386,20 @@ export const newSermonSchema = z.object({
 });
 
 export type NewSermonInput = z.infer<typeof newSermonSchema>;
+
+// ---------------------------------------------------------------------------
+// 10. Admin Portal — Edit Book Catalog
+// ---------------------------------------------------------------------------
+
+/** Admin-portal book edit — price and the monthly-offer flag only.
+ *  Titles/synopsis stay source-controlled content, not something an
+ *  office PIN should be able to rewrite. */
+export const updateBookSchema = z
+  .object({
+    priceUsdPrint: z.number().positive().finite().optional(),
+    priceUsdPdf: z.number().positive().finite().optional(),
+    isMonthlySpecialOffer: z.boolean().optional(),
+  })
+  .refine((data) => Object.keys(data).length > 0, "No changes provided.");
+
+export type UpdateBookInput = z.infer<typeof updateBookSchema>;

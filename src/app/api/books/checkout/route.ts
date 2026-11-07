@@ -3,19 +3,20 @@ import { bookOrderSchema } from "@/lib/validations";
 import { RATE_LIMIT_PRESETS } from "@/lib/security/rate-limit";
 import { rateLimitGuard, readJsonBody, serverErrorResponse, validateBody } from "@/lib/api/guards";
 import { generateReferenceCode } from "@/lib/referenceCode";
-import { BOOKS } from "@/data/ministry-content";
 import { isSupportedLocale } from "@/lib/utils";
-import { insertBookOrder, updateBookOrder, type BookOrderItem } from "@/lib/db";
+import { insertBookOrder, listBooks, updateBookOrder, type BookOrderItem } from "@/lib/db";
 import { createBookCheckoutSession, isStripeLiveConfigured } from "@/lib/stripe";
+import type { Book } from "@/types/ministry";
 
-function getUnitPriceUsd(book: (typeof BOOKS)[number], format: "Print" | "PDF"): number {
+function getUnitPriceUsd(book: Book, format: "Print" | "PDF"): number {
   return format === "Print" ? book.priceUsdPrint : book.priceUsdPdf;
 }
 
 /**
  * Book store checkout. Validates with `bookOrderSchema`, recalculates
- * every line-item total server-side from `BOOKS` (client-submitted
- * prices are never trusted), persists a real order (`src/lib/db.ts`),
+ * every line-item total server-side from the live catalog
+ * (`src/lib/db.ts`, editable from the Admin Portal — client-submitted
+ * prices are never trusted), persists a real order,
  * then routes by rail the same way `/api/give` does:
  *
  *  - A real `STRIPE_SECRET_KEY` configured: creates a real Stripe
@@ -43,10 +44,11 @@ export async function POST(request: Request) {
     const validated = validateBody(bookOrderSchema, parsed.body);
     if (!validated.ok) return validated.response;
     const order = validated.data;
+    const books = await listBooks();
 
     const unknownBookIds = order.items
       .map((item) => item.bookId)
-      .filter((bookId) => !BOOKS.some((book) => book.id === bookId));
+      .filter((bookId) => !books.some((book) => book.id === bookId));
     if (unknownBookIds.length > 0) {
       return NextResponse.json(
         { success: false, error: `Unknown book reference(s): ${unknownBookIds.join(", ")}` },
@@ -59,7 +61,7 @@ export async function POST(request: Request) {
 
     const orderItems: BookOrderItem[] = order.items.map((item) => {
       // Non-null: every bookId was already verified to exist above.
-      const book = BOOKS.find((candidate) => candidate.id === item.bookId)!;
+      const book = books.find((candidate) => candidate.id === item.bookId)!;
       const unitPriceUsd = getUnitPriceUsd(book, item.format);
       totalUsd += unitPriceUsd * item.quantity;
       if (item.format === "Print") hasPrintItem = true;

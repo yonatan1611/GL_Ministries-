@@ -3,12 +3,9 @@ import { donationSchema } from "@/lib/validations";
 import { RATE_LIMIT_PRESETS } from "@/lib/security/rate-limit";
 import { rateLimitGuard, readJsonBody, serverErrorResponse, validateBody } from "@/lib/api/guards";
 import { generateReferenceCode } from "@/lib/referenceCode";
-import { BOOKS } from "@/data/ministry-content";
 import { isSupportedLocale } from "@/lib/utils";
-import { insertDonation, updateDonation } from "@/lib/db";
+import { insertDonation, listBooks, updateDonation } from "@/lib/db";
 import { createGivingCheckoutSession, isStripeLiveConfigured } from "@/lib/stripe";
-
-const MONTHLY_OFFER_BOOK = BOOKS.find((book) => book.isMonthlySpecialOffer);
 
 /**
  * Direct Stripe Checkout Session creation for USD giving — the same
@@ -46,7 +43,9 @@ export async function POST(request: Request) {
     const donation = validated.data;
 
     const referenceId = generateReferenceCode("GLM");
-    const fulfillsMonthlyOffer = Boolean(donation.claimMonthlyBookOffer) && Boolean(MONTHLY_OFFER_BOOK);
+    const books = await listBooks();
+    const fulfillsMonthlyOffer =
+      Boolean(donation.claimMonthlyBookOffer) && books.some((book) => book.isMonthlySpecialOffer);
     const origin = new URL(request.url).origin;
 
     await insertDonation({

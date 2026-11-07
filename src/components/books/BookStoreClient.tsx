@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { Mail, ShoppingBag } from "lucide-react";
 import { getDictionary } from "@/data/i18n";
-import { BOOKS } from "@/data/ministry-content";
 import { HQ_EMAIL, DC_EMAIL } from "@/data/locations";
 import type { Locale } from "@/lib/utils";
 import type { Book } from "@/types/ministry";
@@ -11,7 +10,7 @@ import { useCart } from "@/components/providers/AppProviders";
 import { BookCard } from "@/components/books/BookCard";
 import { BookExcerptModal } from "@/components/books/BookExcerptModal";
 
-export function BookStoreClient({ locale }: { locale: Locale }) {
+export function BookStoreClient({ locale, books }: { locale: Locale; books: Book[] }) {
   const dict = getDictionary(locale);
   const { totalItems, setIsCartOpen } = useCart();
   const [excerptBook, setExcerptBook] = useState<Book | null>(null);
@@ -30,7 +29,7 @@ export function BookStoreClient({ locale }: { locale: Locale }) {
       </div>
 
       <div className="flex flex-col gap-6">
-        {BOOKS.map((book) => (
+        {books.map((book) => (
           <BookCard key={book.id} locale={locale} book={book} onReadExcerpt={setExcerptBook} />
         ))}
       </div>

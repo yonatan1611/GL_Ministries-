@@ -1,6 +1,5 @@
 import type { ReactNode } from "react";
 import type { Metadata, Viewport } from "next";
-import { Cinzel, Inter, Noto_Sans_Ethiopic, Noto_Serif, Playfair_Display } from "next/font/google";
 import localFont from "next/font/local";
 import { notFound } from "next/navigation";
 import { isSupportedLocale, type Locale } from "@/lib/utils";
@@ -15,51 +14,74 @@ import { JsonLdSchema } from "@/components/seo/JsonLdSchema";
 import { ClickSpark } from "@/components/react-bits/ClickSpark";
 import "../globals.css";
 
-const fontSans = Inter({
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
+// Every font below is self-hosted (`next/font/local`) rather than
+// fetched live via `next/font/google`. The Montserrat fetch started
+// intermittently failing Vercel builds first; Noto Serif then failed
+// the same way on a later deploy. Rather than patch one font at a
+// time as each one happens to flake, every Google font this layout
+// uses is vendored into `src/assets/fonts/` (sourced from the
+// `@fontsource/*` npm packages — the same real font files Google
+// Fonts serves, just not fetched at build time) so none of them can
+// break a production build on a bad network day.
+
+const fontSans = localFont({
+  src: [
+    { path: "../../assets/fonts/Inter-400.woff2", weight: "400", style: "normal" },
+    { path: "../../assets/fonts/Inter-500.woff2", weight: "500", style: "normal" },
+    { path: "../../assets/fonts/Inter-600.woff2", weight: "600", style: "normal" },
+    { path: "../../assets/fonts/Inter-700.woff2", weight: "700", style: "normal" },
+  ],
   variable: "--font-sans",
   display: "swap",
 });
 
-const fontSerif = Noto_Serif({
-  subsets: ["latin"],
-  weight: ["600", "700"],
-  style: ["normal", "italic"],
+const fontSerif = localFont({
+  src: [
+    { path: "../../assets/fonts/NotoSerif-600.woff2", weight: "600", style: "normal" },
+    { path: "../../assets/fonts/NotoSerif-600-Italic.woff2", weight: "600", style: "italic" },
+    { path: "../../assets/fonts/NotoSerif-700.woff2", weight: "700", style: "normal" },
+    { path: "../../assets/fonts/NotoSerif-700-Italic.woff2", weight: "700", style: "italic" },
+  ],
   variable: "--font-serif",
   display: "swap",
 });
 
-const fontEthiopic = Noto_Sans_Ethiopic({
-  subsets: ["ethiopic"],
-  weight: ["400", "500", "600", "700"],
+const fontEthiopic = localFont({
+  src: [
+    { path: "../../assets/fonts/NotoSansEthiopic-400.woff2", weight: "400", style: "normal" },
+    { path: "../../assets/fonts/NotoSansEthiopic-500.woff2", weight: "500", style: "normal" },
+    { path: "../../assets/fonts/NotoSansEthiopic-600.woff2", weight: "600", style: "normal" },
+    { path: "../../assets/fonts/NotoSansEthiopic-700.woff2", weight: "700", style: "normal" },
+  ],
   variable: "--font-ethiopic",
   display: "swap",
 });
 
 // bennyhinn.org-style classical editorial display serif for section
 // headlines and hero copy.
-const fontPlayfair = Playfair_Display({
-  subsets: ["latin"],
-  weight: ["600", "700"],
-  style: ["normal", "italic"],
+const fontPlayfair = localFont({
+  src: [
+    { path: "../../assets/fonts/PlayfairDisplay-600.woff2", weight: "600", style: "normal" },
+    { path: "../../assets/fonts/PlayfairDisplay-600-Italic.woff2", weight: "600", style: "italic" },
+    { path: "../../assets/fonts/PlayfairDisplay-700.woff2", weight: "700", style: "normal" },
+    { path: "../../assets/fonts/PlayfairDisplay-700-Italic.woff2", weight: "700", style: "italic" },
+  ],
   variable: "--font-playfair",
   display: "swap",
 });
 
 // Small uppercase crest/wordmark lettering (the "GOSPEL LIGHT" logo
 // lockup in the header and footer).
-const fontCinzel = Cinzel({
-  subsets: ["latin"],
-  weight: ["600", "700"],
+const fontCinzel = localFont({
+  src: [
+    { path: "../../assets/fonts/Cinzel-600.woff2", weight: "600", style: "normal" },
+    { path: "../../assets/fonts/Cinzel-700.woff2", weight: "700", style: "normal" },
+  ],
   variable: "--font-cinzel",
   display: "swap",
 });
 
-// Uppercase, wide-tracking navigation links and buttons. Self-hosted
-// (rather than next/font/google) because the Google Fonts fetch during
-// Vercel builds was intermittently failing and breaking production
-// deploys.
+// Uppercase, wide-tracking navigation links and buttons.
 const fontMontserrat = localFont({
   src: [
     { path: "../../assets/fonts/Montserrat-600.woff2", weight: "600", style: "normal" },

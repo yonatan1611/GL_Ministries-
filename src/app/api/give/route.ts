@@ -3,12 +3,9 @@ import { donationSchema } from "@/lib/validations";
 import { RATE_LIMIT_PRESETS } from "@/lib/security/rate-limit";
 import { rateLimitGuard, readJsonBody, serverErrorResponse, validateBody } from "@/lib/api/guards";
 import { generateReferenceCode } from "@/lib/referenceCode";
-import { BOOKS } from "@/data/ministry-content";
 import { isSupportedLocale } from "@/lib/utils";
-import { insertDonation, updateDonation } from "@/lib/db";
+import { insertDonation, listBooks, updateDonation } from "@/lib/db";
 import { createGivingCheckoutSession, isStripeLiveConfigured } from "@/lib/stripe";
-
-const MONTHLY_OFFER_BOOK = BOOKS.find((book) => book.isMonthlySpecialOffer);
 
 /**
  * Giving checkout. Validates with `donationSchema`, persists a real
@@ -44,7 +41,9 @@ export async function POST(request: Request) {
     const donation = validated.data;
 
     const referenceId = generateReferenceCode("GLM");
-    const fulfillsMonthlyOffer = Boolean(donation.claimMonthlyBookOffer) && Boolean(MONTHLY_OFFER_BOOK);
+    const books = await listBooks();
+    const monthlyOfferBook = books.find((book) => book.isMonthlySpecialOffer);
+    const fulfillsMonthlyOffer = Boolean(donation.claimMonthlyBookOffer) && Boolean(monthlyOfferBook);
     const origin = new URL(request.url).origin;
 
     const baseResponseData = {
@@ -58,10 +57,10 @@ export async function POST(request: Request) {
       donorEmail: donation.donorEmail,
       donorPhone: donation.donorPhone,
       submittedAt: new Date().toISOString(),
-      ...(fulfillsMonthlyOffer && MONTHLY_OFFER_BOOK
+      ...(fulfillsMonthlyOffer && monthlyOfferBook
         ? {
-            monthlyOfferBookTitleEn: MONTHLY_OFFER_BOOK.titleEn,
-            monthlyOfferBookTitleAm: MONTHLY_OFFER_BOOK.titleAm,
+            monthlyOfferBookTitleEn: monthlyOfferBook.titleEn,
+            monthlyOfferBookTitleAm: monthlyOfferBook.titleAm,
           }
         : {}),
     };

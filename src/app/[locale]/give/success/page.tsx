@@ -4,12 +4,9 @@ import { notFound } from "next/navigation";
 import { CheckCircle2, Clock, Download, Mail, MapPin, ShieldCheck } from "lucide-react";
 import { getDictionary } from "@/data/i18n";
 import { isSupportedLocale, type Locale } from "@/lib/utils";
-import { findDonation, updateDonation, type DonationRecord } from "@/lib/db";
+import { findDonation, listBooks, updateDonation, type DonationRecord } from "@/lib/db";
 import { isStripeLiveConfigured, retrieveCheckoutSession } from "@/lib/stripe";
 import { PrintReceiptButton } from "@/components/give/PrintReceiptButton";
-import { BOOKS } from "@/data/ministry-content";
-
-const MONTHLY_OFFER_BOOK = BOOKS.find((book) => book.isMonthlySpecialOffer);
 
 interface SuccessPageProps {
   params: Promise<{ locale: string }>;
@@ -145,8 +142,11 @@ function PendingCard({ locale, donation }: { locale: Locale; donation: DonationR
   );
 }
 
-function ReceiptCard({ locale, donation }: { locale: Locale; donation: DonationRecord }) {
+async function ReceiptCard({ locale, donation }: { locale: Locale; donation: DonationRecord }) {
   const dict = getDictionary(locale);
+  const monthlyOfferBook = donation.claimedMonthlyOffer
+    ? (await listBooks()).find((book) => book.isMonthlySpecialOffer)
+    : undefined;
   const amountLabel = `$${donation.amountUsd.toLocaleString()}`;
   const dateLabel = new Date(donation.completedAt ?? donation.createdAt).toLocaleString(
     locale === "am" ? "am-ET" : "en-US"
@@ -196,11 +196,11 @@ function ReceiptCard({ locale, donation }: { locale: Locale; donation: DonationR
         </div>
       </dl>
 
-      {donation.claimedMonthlyOffer && MONTHLY_OFFER_BOOK && (
+      {donation.claimedMonthlyOffer && monthlyOfferBook && (
         <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-dashed border-amber-400 bg-amber-50 p-3">
           <p className="text-xs text-amber-800">{dict.give.claimedOfferNote}</p>
           <a
-            href={`/api/books/download/${MONTHLY_OFFER_BOOK.id}?donation=${encodeURIComponent(donation.referenceCode)}`}
+            href={`/api/books/download/${monthlyOfferBook.id}?donation=${encodeURIComponent(donation.referenceCode)}`}
             className="flex shrink-0 items-center gap-1.5 rounded-lg bg-amber-600 px-3 py-2 text-xs font-semibold text-white hover:bg-amber-700 print:hidden"
           >
             <Download className="h-3.5 w-3.5" aria-hidden="true" />

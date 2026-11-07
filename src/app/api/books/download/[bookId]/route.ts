@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
-import { BOOKS } from "@/data/ministry-content";
-import { findBookOrder, findDonation } from "@/lib/db";
+import { findBookOrder, findDonation, listBooks } from "@/lib/db";
 import { generateBookCertificatePdf } from "@/lib/pdfGenerator";
 import { rateLimitGuard, serverErrorResponse } from "@/lib/api/guards";
 import { RATE_LIMIT_PRESETS } from "@/lib/security/rate-limit";
@@ -23,7 +22,8 @@ export async function GET(request: Request, { params }: { params: Promise<{ book
   if (limited) return limited;
 
   const { bookId } = await params;
-  const book = BOOKS.find((candidate) => candidate.id === bookId);
+  const books = await listBooks();
+  const book = books.find((candidate) => candidate.id === bookId);
   if (!book) {
     return NextResponse.json({ success: false, error: "Unknown book." }, { status: 404 });
   }
