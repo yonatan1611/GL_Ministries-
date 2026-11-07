@@ -226,7 +226,7 @@ function OnDemandView({
 
   return (
     <div>
-      <div className="flex flex-wrap items-start justify-between gap-3">
+      <div className="mb-5 flex flex-wrap items-start justify-between gap-3">
         <div>
           <p className="text-xs font-semibold uppercase tracking-wide text-amber-400">{sermon.yearLabel}</p>
           <h2 className="mt-1 font-display text-xl font-bold sm:text-2xl">{title}</h2>
@@ -264,7 +264,7 @@ function OnDemandView({
         )}
       </div>
 
-      <div className="mt-5">
+      <div className="sticky top-16 z-30 -mx-6 bg-navy-950 px-6 py-2 shadow-xl lg:static lg:top-auto lg:z-auto lg:mx-0 lg:bg-transparent lg:px-0 lg:py-0 lg:shadow-none">
         {playerMode === "video" || !hasAudio ? (
           <div className="aspect-video w-full overflow-hidden rounded-xl bg-black">
             <iframe

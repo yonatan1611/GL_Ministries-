@@ -6,6 +6,7 @@ import type { Locale } from "@/lib/utils";
 import type { Book } from "@/types/ministry";
 import { useCart, useToast } from "@/components/providers/AppProviders";
 import { MinistryImage } from "@/components/ui/MinistryImage";
+import { TiltedCard } from "@/components/react-bits/TiltedCard";
 
 interface BookCardProps {
   locale: Locale;
@@ -54,26 +55,28 @@ export function BookCard({ locale, book, onReadExcerpt }: BookCardProps) {
   }
 
   return (
-    <div className="flex flex-col gap-5 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:flex-row">
+    <div className="flex flex-row gap-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:gap-5 sm:p-5">
       {book.coverImageUrl ? (
-        <div className="relative w-full shrink-0 overflow-hidden rounded-xl border border-amber-500/40 shadow-md sm:w-48">
-          <MinistryImage
-            src={book.coverImageUrl}
-            alt={titleEn}
-            width={192}
-            height={272}
-            className="h-full w-full object-cover"
-          />
-        </div>
+        <TiltedCard rotateAmplitude={10} scaleOnHover={1.04} className="w-24 shrink-0 sm:w-48">
+          <div className="relative overflow-hidden rounded-xl border border-amber-500/40 shadow-md">
+            <MinistryImage
+              src={book.coverImageUrl}
+              alt={titleEn}
+              width={192}
+              height={272}
+              className="h-full w-full object-cover"
+            />
+          </div>
+        </TiltedCard>
       ) : (
-        <div className="flex w-full shrink-0 flex-col items-center justify-center rounded-xl border border-amber-500/40 bg-gradient-to-br from-navy-800 to-navy-950 p-5 text-center shadow-md sm:w-48">
-          <span className="text-xs font-bold uppercase tracking-widest text-amber-400">
+        <div className="flex w-24 shrink-0 flex-col items-center justify-center rounded-xl border border-amber-500/40 bg-gradient-to-br from-navy-800 to-navy-950 p-2 text-center shadow-md sm:w-48 sm:p-5">
+          <span className="hidden text-xs font-bold uppercase tracking-widest text-amber-400 sm:inline">
             {dict.booksPage.pressCrest}
           </span>
-          <BookOpen className="mt-3 h-8 w-8 text-amber-300" aria-hidden="true" />
-          <p className="mt-3 font-display text-base font-bold text-white">{titleAm}</p>
-          <p className="mt-1 text-xs text-slate-300">{titleEn}</p>
-          <p className="mt-3 text-xs font-medium text-amber-200">{author}</p>
+          <BookOpen className="mt-1 h-6 w-6 text-amber-300 sm:mt-3 sm:h-8 sm:w-8" aria-hidden="true" />
+          <p className="mt-2 hidden font-display text-base font-bold text-white sm:mt-3 sm:block">{titleAm}</p>
+          <p className="mt-1 hidden text-xs text-slate-300 sm:block">{titleEn}</p>
+          <p className="mt-2 hidden text-xs font-medium text-amber-200 sm:mt-3 sm:block">{author}</p>
         </div>
       )}
 
@@ -118,28 +121,30 @@ export function BookCard({ locale, book, onReadExcerpt }: BookCardProps) {
           </div>
         </div>
 
-        <div className="mt-4 flex flex-wrap gap-2">
-          <button
-            type="button"
-            onClick={handleAddPrint}
-            className="rounded-lg bg-amber-600 px-3 py-2 text-xs font-semibold text-white hover:bg-amber-700"
-          >
-            {dict.booksPage.addPrint}
-          </button>
-          <button
-            type="button"
-            onClick={handleAddPdf}
-            className="rounded-lg bg-amber-600 px-3 py-2 text-xs font-semibold text-white hover:bg-amber-700"
-          >
-            {dict.booksPage.addDigitalPdf}
-          </button>
+        <div className="mt-4 flex flex-col gap-2">
           <button
             type="button"
             onClick={() => onReadExcerpt(book)}
-            className="rounded-lg border border-slate-300 px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50"
+            className="min-h-[40px] touch-manipulation self-start rounded-lg border border-slate-300 px-3 py-2 text-xs font-semibold text-slate-700 transition-transform active:scale-[0.98] hover:bg-slate-50"
           >
             {dict.booksPage.readExcerpt}
           </button>
+          <div className="grid w-full grid-cols-2 gap-2">
+            <button
+              type="button"
+              onClick={handleAddPrint}
+              className="min-h-[44px] touch-manipulation rounded-lg bg-amber-600 px-3 py-2 text-xs font-semibold text-white transition-transform active:scale-[0.98] hover:bg-amber-700"
+            >
+              {dict.booksPage.addPrint}
+            </button>
+            <button
+              type="button"
+              onClick={handleAddPdf}
+              className="min-h-[44px] touch-manipulation rounded-lg bg-amber-600 px-3 py-2 text-xs font-semibold text-white transition-transform active:scale-[0.98] hover:bg-amber-700"
+            >
+              {dict.booksPage.addDigitalPdf}
+            </button>
+          </div>
         </div>
       </div>
     </div>

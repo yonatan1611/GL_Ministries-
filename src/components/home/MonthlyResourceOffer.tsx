@@ -6,6 +6,11 @@ import { getDictionary } from "@/data/i18n";
 import { BOOKS } from "@/data/ministry-content";
 import type { Locale } from "@/lib/utils";
 import { MinistryImage } from "@/components/ui/MinistryImage";
+import { Aurora } from "@/components/react-bits/Aurora";
+import { ShinyText } from "@/components/react-bits/ShinyText";
+import { TiltedCard } from "@/components/react-bits/TiltedCard";
+import { Magnet } from "@/components/react-bits/Magnet";
+import { SplitText } from "@/components/react-bits/SplitText";
 
 /**
  * Full-bleed theatrical Monthly Partner Resource Offer showcase, styled
@@ -26,8 +31,15 @@ export function MonthlyResourceOffer({ locale }: { locale: Locale }) {
   return (
     <section className="relative overflow-hidden bg-navy-950 px-4 py-16 sm:px-6 lg:px-8">
       <div className="absolute inset-0 bg-bh-stage-radial" />
+      <Aurora
+        className="absolute inset-0 opacity-35 mix-blend-screen"
+        colorStops={["#091528", "#1B365D", "#2563EB", "#1E40AF"]}
+        amplitude={1.1}
+        blend={0.55}
+        speed={0.6}
+      />
       <div className="relative mx-auto flex max-w-5xl flex-col items-center gap-10 sm:flex-row">
-        <div className="relative h-72 w-52 shrink-0">
+        <TiltedCard rotateAmplitude={10} scaleOnHover={1.04} className="relative h-72 w-52 shrink-0">
           <div className="absolute inset-0 scale-125 rounded-full bg-amber-500/20 blur-3xl" aria-hidden="true" />
           <div className="relative h-full w-full -rotate-3 overflow-hidden rounded-xl border border-amber-500/50 shadow-2xl">
             {offerBook.coverImageUrl ? (
@@ -38,14 +50,16 @@ export function MonthlyResourceOffer({ locale }: { locale: Locale }) {
               </div>
             )}
           </div>
-        </div>
+        </TiltedCard>
 
         <div className="flex-1 text-center sm:text-left">
           <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-500/60 px-3 py-1 font-nav text-xs font-bold uppercase tracking-[0.2em] text-amber-400">
             <Gift className="h-3.5 w-3.5" aria-hidden="true" />
-            {dict.monthlyOffer.badge}
+            <ShinyText text={dict.monthlyOffer.badge} speed={3} baseColor="rgba(251, 191, 36, 0.85)" shineColor="rgba(255, 255, 255, 0.95)" />
           </span>
-          <h2 className="mt-4 font-display text-2xl font-bold text-white sm:text-3xl">{dict.monthlyOffer.title}</h2>
+          <h2 className="mt-4 font-display text-2xl font-bold text-white sm:text-3xl">
+            <SplitText text={dict.monthlyOffer.title} animateBy="words" as="span" />
+          </h2>
           <p className="mt-3 text-sm leading-relaxed text-navy-200">{dict.monthlyOffer.body}</p>
 
           <ul className="mt-5 flex flex-col gap-2 text-sm text-navy-100 sm:items-start">
@@ -60,12 +74,14 @@ export function MonthlyResourceOffer({ locale }: { locale: Locale }) {
           </ul>
 
           <div className="mt-6 flex flex-wrap justify-center gap-3 sm:justify-start">
-            <Link
-              href={`/${locale}/give?offer=${offerBook.slug}#partnership`}
-              className="rounded border border-blue-400/50 bg-brand-logo-gradient px-6 py-3 font-nav text-sm font-extrabold uppercase tracking-wider text-white shadow-lg hover:brightness-110"
-            >
-              {dict.monthlyOffer.claimCta}
-            </Link>
+            <Magnet padding={40} magnetStrength={3}>
+              <Link
+                href={`/${locale}/give?offer=${offerBook.slug}#partnership`}
+                className="block rounded border border-blue-400/50 bg-brand-logo-gradient px-6 py-3 font-nav text-sm font-extrabold uppercase tracking-wider text-white shadow-lg hover:brightness-110"
+              >
+                {dict.monthlyOffer.claimCta}
+              </Link>
+            </Magnet>
             <Link
               href={`/${locale}/books`}
               className="rounded border border-navy-600 px-6 py-3 font-nav text-sm font-bold uppercase tracking-wider text-white hover:bg-navy-900"

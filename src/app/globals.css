@@ -3,6 +3,15 @@
 @tailwind utilities;
 
 @layer base {
+  html,
+  body {
+    /* Guarantee zero horizontal scroll bleed on phones — a full-bleed
+       hero background, Ken Burns scale transform, or any decorative
+       element that creeps past 100vw gets clipped instead of causing
+       side-to-side wobble. */
+    overflow-x: clip;
+  }
+
   html {
     scroll-behavior: smooth;
   }
@@ -15,6 +24,25 @@
   :focus-visible {
     outline: 2px solid theme("colors.amber.600");
     outline-offset: 2px;
+  }
+
+  /* iOS Safari auto-zooms the viewport whenever a focused form field
+     renders below 16px. `!important` is deliberate here: every form
+     field across the site sets its own (desktop-appropriate) Tailwind
+     text-size utility, and this has to win on mobile regardless of
+     which one was used. */
+  input,
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+
+  @media (min-width: 640px) {
+    input,
+    select,
+    textarea {
+      font-size: 14px !important;
+    }
   }
 }
 
@@ -33,6 +61,69 @@
   }
   .animate-hero-ken-burns {
     animation: hero-ken-burns 18s ease-in-out infinite alternate;
+  }
+
+  /* Hides the scrollbar on horizontally swipeable chip/pill strips
+     (filter tabs, background switchers) while leaving native touch
+     scrolling intact. */
+  .no-scrollbar {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* --------------------------------------------------------------
+     React Bits support utilities (ShinyText, GradientText) — pure-CSS
+     loops so these run on the compositor, not the main thread, and
+     cost nothing extra on low-end mobile devices.
+     -------------------------------------------------------------- */
+  @keyframes rb-shine {
+    0% {
+      background-position: 150% 0;
+    }
+    100% {
+      background-position: -50% 0;
+    }
+  }
+  .rb-shiny-sweep {
+    background-size: 200% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation-name: rb-shine;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+  }
+
+  @keyframes rb-gradient-pan {
+    to {
+      background-position: 200% center;
+    }
+  }
+  .rb-gradient-text {
+    background-size: 200% auto;
+    background-position: 0% center;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation-name: rb-gradient-pan;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+  }
+
+  @keyframes rb-light-ray-drift {
+    0%,
+    100% {
+      opacity: 0.5;
+    }
+    50% {
+      opacity: 0.9;
+    }
+  }
+  .rb-light-ray {
+    animation: rb-light-ray-drift 6s ease-in-out infinite;
   }
 }
 

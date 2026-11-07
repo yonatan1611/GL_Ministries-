@@ -5,6 +5,7 @@ import { getDictionary } from "@/data/i18n";
 import { isSupportedLocale, type Locale } from "@/lib/utils";
 import type { LocalePageProps } from "@/types/ministry";
 import { GivingPortalClient } from "@/components/give/GivingPortalClient";
+import { BlurText } from "@/components/react-bits/BlurText";
 
 export async function generateMetadata({ params }: LocalePageProps): Promise<Metadata> {
   const { locale } = await params;
@@ -31,7 +32,9 @@ export default async function GivePage({ params }: LocalePageProps) {
   return (
     <main className="min-h-screen bg-slate-50">
       <div className="bg-navy-800 px-4 py-14 text-center sm:px-6 lg:px-8">
-        <h1 className="font-display text-3xl font-bold text-white sm:text-4xl">{dict.give.sectionTitle}</h1>
+        <h1 className="font-display text-3xl font-bold text-white sm:text-4xl">
+          <BlurText text={dict.give.sectionTitle} animateBy="words" direction="top" delay={80} as="span" />
+        </h1>
         <p className="mx-auto mt-3 max-w-2xl text-sm text-navy-100 sm:text-base">{dict.give.pageSubtitle}</p>
       </div>
 

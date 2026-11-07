@@ -5,6 +5,8 @@ import { getDictionary } from "@/data/i18n";
 import type { Locale } from "@/lib/utils";
 import type { LeaderProfile } from "@/types/ministry";
 import { MinistryImage } from "@/components/ui/MinistryImage";
+import { TiltedCard } from "@/components/react-bits/TiltedCard";
+import { SplitText } from "@/components/react-bits/SplitText";
 
 interface ExtraInfoRow {
   icon: typeof MapPin;
@@ -52,30 +54,36 @@ export function LeaderSection({
         {(leader.portraitUrl || secondaryImageUrl) && (
           <div className="mb-5 grid grid-cols-2 gap-3 sm:max-w-md">
             {leader.portraitUrl && (
-              <div className="relative aspect-[16/9] overflow-hidden rounded-2xl border border-slate-200 bg-slate-100">
-                <MinistryImage
-                  src={leader.portraitUrl}
-                  alt={name}
-                  fill
-                  sizes="(min-width: 640px) 14rem, 50vw"
-                  className="object-cover"
-                />
-              </div>
+              <TiltedCard rotateAmplitude={10} scaleOnHover={1.04}>
+                <div className="relative aspect-[16/9] overflow-hidden rounded-2xl border border-slate-200 bg-slate-100">
+                  <MinistryImage
+                    src={leader.portraitUrl}
+                    alt={name}
+                    fill
+                    sizes="(min-width: 640px) 14rem, 50vw"
+                    className="object-cover"
+                  />
+                </div>
+              </TiltedCard>
             )}
             {secondaryImageUrl && (
-              <div className="relative aspect-[16/9] overflow-hidden rounded-2xl border border-slate-200 bg-slate-100">
-                <MinistryImage
-                  src={secondaryImageUrl}
-                  alt={secondaryImageAlt ?? name}
-                  fill
-                  sizes="(min-width: 640px) 14rem, 50vw"
-                  className="object-cover"
-                />
-              </div>
+              <TiltedCard rotateAmplitude={10} scaleOnHover={1.04}>
+                <div className="relative aspect-[16/9] overflow-hidden rounded-2xl border border-slate-200 bg-slate-100">
+                  <MinistryImage
+                    src={secondaryImageUrl}
+                    alt={secondaryImageAlt ?? name}
+                    fill
+                    sizes="(min-width: 640px) 14rem, 50vw"
+                    className="object-cover"
+                  />
+                </div>
+              </TiltedCard>
             )}
           </div>
         )}
-        <h3 className="font-display text-xl font-bold text-navy-900">{name}</h3>
+        <h3 className="font-display text-xl font-bold text-navy-900">
+          <SplitText text={name} animateBy="words" as="span" />
+        </h3>
         <p className="mt-1 text-sm font-medium text-amber-700">{role}</p>
         <div className="mt-5 flex flex-col gap-3">
           {bioParagraphs.map((paragraph, index) => (

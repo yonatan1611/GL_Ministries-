@@ -47,7 +47,11 @@ export type SermonTopic =
   | "Hearing God's Voice"
   | "Revival & Repentance"
   | "Prophetic Archive"
-  | "Discipleship";
+  | "Discipleship"
+  /** Default topic for videos added through the Admin Portal's YouTube
+   *  sync/add flow — honest about not yet being hand-categorized,
+   *  rather than guessing one of the curated topics above. */
+  | "New Upload";
 
 export interface Sermon {
   id: string;

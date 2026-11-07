@@ -10,6 +10,9 @@ import { MinistryImage } from "@/components/ui/MinistryImage";
 import { VideoModal } from "@/components/ui/VideoModal";
 import { MinistryContactModal } from "@/components/home/MinistryContactModal";
 import type { ContactInquiryType } from "@/lib/validations";
+import { RotatingText } from "@/components/react-bits/RotatingText";
+import { SpotlightCard } from "@/components/react-bits/SpotlightCard";
+import { SplitText } from "@/components/react-bits/SplitText";
 
 const DC_SANCTUARY_ADDRESS = "2401 Virginia Ave NW, Washington, DC 20037";
 const DC_ADMIN_OFFICE_ADDRESS = "85 South Bragg St, Suite 200, Alexandria, VA 22312";
@@ -76,33 +79,44 @@ export function WashingtonDcSpotlightSection({ locale }: { locale: Locale }) {
             {dict.dcSpotlight.eyebrow}
           </p>
           <h2 className="mt-2 font-display text-2xl font-bold text-navy-900 sm:text-3xl">
-            {dict.dcSpotlight.heading}
+            <SplitText text={dict.dcSpotlight.heading} animateBy="words" as="span" />
           </h2>
+          <p className="mt-3 font-nav text-sm font-bold uppercase tracking-wide text-blue-700">
+            <RotatingText
+              texts={[
+                dict.dcSpotlight.pillarWorship,
+                dict.dcSpotlight.pillarTeaching,
+                dict.dcSpotlight.pillarPrayer,
+                dict.dcSpotlight.pillarChurchPlanting,
+              ]}
+              rotationInterval={3200}
+            />
+          </p>
           <p className="mt-4 text-sm leading-relaxed text-slate-600 sm:text-base">
             {dict.dcSpotlight.historyParagraph}
           </p>
 
           <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <div className="rounded-xl border border-slate-200 p-4">
+            <SpotlightCard spotlightColor="rgba(37, 99, 235, 0.22)" className="rounded-xl border border-slate-200 p-4">
               <MapPin className="h-5 w-5 text-amber-600" aria-hidden="true" />
               <p className="mt-2 text-sm font-semibold text-navy-900">{dict.dcSpotlight.infoSanctuaryTitle}</p>
               <p className="mt-1 text-xs leading-relaxed text-slate-500">{dict.dcSpotlight.infoSanctuaryBody}</p>
-            </div>
-            <div className="rounded-xl border border-slate-200 p-4">
+            </SpotlightCard>
+            <SpotlightCard spotlightColor="rgba(37, 99, 235, 0.22)" className="rounded-xl border border-slate-200 p-4">
               <MapPin className="h-5 w-5 text-amber-600" aria-hidden="true" />
               <p className="mt-2 text-sm font-semibold text-navy-900">{dict.dcSpotlight.infoOfficeTitle}</p>
               <p className="mt-1 text-xs leading-relaxed text-slate-500">{dict.dcSpotlight.infoOfficeBody}</p>
-            </div>
-            <div className="rounded-xl border border-slate-200 p-4">
+            </SpotlightCard>
+            <SpotlightCard spotlightColor="rgba(37, 99, 235, 0.22)" className="rounded-xl border border-slate-200 p-4">
               <Users className="h-5 w-5 text-amber-600" aria-hidden="true" />
               <p className="mt-2 text-sm font-semibold text-navy-900">{dict.dcSpotlight.infoCellGroupsTitle}</p>
               <p className="mt-1 text-xs leading-relaxed text-slate-500">{dict.dcSpotlight.infoCellGroupsBody}</p>
-            </div>
-            <div className="rounded-xl border border-slate-200 p-4">
+            </SpotlightCard>
+            <SpotlightCard spotlightColor="rgba(37, 99, 235, 0.22)" className="rounded-xl border border-slate-200 p-4">
               <Church className="h-5 w-5 text-amber-600" aria-hidden="true" />
               <p className="mt-2 text-sm font-semibold text-navy-900">{dict.dcSpotlight.infoMissionBridgeTitle}</p>
               <p className="mt-1 text-xs leading-relaxed text-slate-500">{dict.dcSpotlight.infoMissionBridgeBody}</p>
-            </div>
+            </SpotlightCard>
           </div>
 
           <div className="mt-6 flex flex-wrap gap-3">

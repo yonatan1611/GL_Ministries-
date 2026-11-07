@@ -40,7 +40,7 @@ export function Footer({ locale }: { locale: Locale }) {
   ];
 
   return (
-    <footer className="border-t-4 border-[#1E40AF] bg-navy-950 text-navy-200">
+    <footer className="border-t-4 border-[#1E40AF] bg-navy-950 pb-20 text-navy-200 lg:pb-0">
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
         <div className="flex items-center gap-3">
           <Image
@@ -235,6 +235,9 @@ export function Footer({ locale }: { locale: Locale }) {
             <Link href={`/${locale}#stay-connected`} className="hover:text-amber-400">
               {dict.topBar.contactLabel}
             </Link>
+            <Link href={`/${locale}/admin`} className="text-navy-700 hover:text-amber-400">
+              {dict.admin.footerLinkLabel}
+            </Link>
           </div>
         </div>
       </div>
@@ -244,7 +247,7 @@ export function Footer({ locale }: { locale: Locale }) {
           type="button"
           onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
           aria-label={dict.footer.goToTopAria}
-          className="fixed bottom-6 right-6 z-30 flex h-10 w-10 items-center justify-center border border-blue-400/40 bg-[#1B365D] text-white shadow-lg hover:bg-[#1E40AF]"
+          className="fixed bottom-20 right-4 z-30 flex h-11 w-11 touch-manipulation items-center justify-center border border-blue-400/40 bg-[#1B365D] text-white shadow-lg transition-transform hover:bg-[#1E40AF] active:scale-[0.98] lg:bottom-6 lg:right-6 lg:h-10 lg:w-10"
         >
           <ArrowUp className="h-5 w-5" aria-hidden="true" />
         </button>

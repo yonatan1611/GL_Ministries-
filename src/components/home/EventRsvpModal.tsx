@@ -35,10 +35,14 @@ export function EventRsvpModal({
   locale,
   event,
   onClose,
+  onSuccess,
 }: {
   locale: Locale;
   event: MinistryEvent | null;
   onClose: () => void;
+  /** Called once an RSVP is confirmed, so the caller can refresh any
+   *  live registered-count badge. */
+  onSuccess?: () => void;
 }) {
   const dict = getDictionary(locale);
   const { showToast } = useToast();
@@ -83,6 +87,7 @@ export function EventRsvpModal({
 
     setIsConfirmed(true);
     showToast(dict.rsvpModal.confirmTitle, "success");
+    onSuccess?.();
   }
 
   if (!event) return null;
@@ -139,6 +144,7 @@ export function EventRsvpModal({
             <input
               id="rsvp-name"
               type="text"
+              autoComplete="name"
               value={form.fullName}
               onChange={(e) => setForm((f) => ({ ...f, fullName: e.target.value }))}
               className={cn(
@@ -156,6 +162,7 @@ export function EventRsvpModal({
             <input
               id="rsvp-email"
               type="email"
+              autoComplete="email"
               value={form.email}
               onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
               className={cn(
@@ -173,6 +180,8 @@ export function EventRsvpModal({
             <input
               id="rsvp-phone"
               type="tel"
+              inputMode="tel"
+              autoComplete="tel"
               value={form.phone}
               onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))}
               className={cn(

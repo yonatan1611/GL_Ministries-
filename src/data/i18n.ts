@@ -49,6 +49,15 @@ export interface UiDictionary {
     searchPlaceholder: string;
     searchAria: string;
   };
+  mobileNav: {
+    home: string;
+    watch: string;
+    prayer: string;
+    visit: string;
+    give: string;
+    liveBadge: string;
+    callDcAria: string;
+  };
   hero: {
     badge: string;
     headlinePrefix: string;
@@ -84,6 +93,8 @@ export interface UiDictionary {
     dcAddress: string;
     dcSunday: string;
     dcWednesday: string;
+    dcSundayShort: string;
+    dcWednesdayShort: string;
     liveStreamTitle: string;
     joinLive: string;
   };
@@ -105,6 +116,10 @@ export interface UiDictionary {
     infoMissionBridgeBody: string;
     ctaDirections: string;
     ctaPlanVisit: string;
+    pillarWorship: string;
+    pillarTeaching: string;
+    pillarPrayer: string;
+    pillarChurchPlanting: string;
   };
   salvation: {
     label: string;
@@ -137,6 +152,7 @@ export interface UiDictionary {
     sectionTitle: string;
     sectionSubtitle: string;
     liveStreamed: string;
+    registeredCountTemplate: string;
   };
   impact: {
     sectionTitle: string;
@@ -198,6 +214,11 @@ export interface UiDictionary {
   prayerArmySection: {
     sectionTitle: string;
     sectionSubtitle: string;
+    memberCountTemplate: string;
+    wallTitle: string;
+    wallEmpty: string;
+    prayedButtonLabel: string;
+    prayedCountTemplate: string;
   };
   vodSpotlight: {
     sectionTitle: string;
@@ -343,7 +364,13 @@ export interface UiDictionary {
     followEverywhereLabel: string;
     watchFacebookLive: string;
     topics: Record<
-      "Christian Growth" | "Holy Spirit" | "Hearing God's Voice" | "Revival & Repentance" | "Prophetic Archive" | "Discipleship",
+      | "Christian Growth"
+      | "Holy Spirit"
+      | "Hearing God's Voice"
+      | "Revival & Repentance"
+      | "Prophetic Archive"
+      | "Discipleship"
+      | "New Upload",
       string
     >;
   };
@@ -569,6 +596,40 @@ export interface UiDictionary {
     emailUsLabel: string;
     goToTopAria: string;
   };
+  admin: {
+    pageTitle: string;
+    loginTitle: string;
+    loginSubtitle: string;
+    passcodeLabel: string;
+    loginButton: string;
+    loginError: string;
+    logoutButton: string;
+    footerLinkLabel: string;
+    tabDonations: string;
+    tabPrayer: string;
+    tabBooks: string;
+    tabEvents: string;
+    tabSubscribers: string;
+    tabSermons: string;
+    exportCsvButton: string;
+    filterAllFunds: string;
+    noDataLabel: string;
+    loadingLabel: string;
+    markPrayedOverButton: string;
+    prayedOverBadge: string;
+    confidentialBadge: string;
+    prayerArmyMemberBadge: string;
+    addEventTitle: string;
+    addEventButton: string;
+    eventAddedToast: string;
+    totalLabel: string;
+    syncYoutubeButton: string;
+    syncingLabel: string;
+    addSermonTitle: string;
+    addSermonButton: string;
+    sermonAddedToast: string;
+    youtubeUrlLabel: string;
+  };
   a11y: {
     skipToContent: string;
     openMenu: string;
@@ -578,6 +639,8 @@ export interface UiDictionary {
     pauseVideo: string;
     primaryNav: string;
     mobileNav: string;
+    callDcSanctuary: string;
+    directionsToDc: string;
   };
 }
 
@@ -620,6 +683,15 @@ export const DICTIONARY: Record<Locale, UiDictionary> = {
       searchPlaceholder: "Search for sermons, books, branches…",
       searchAria: "Search the site",
     },
+    mobileNav: {
+      home: "Home",
+      watch: "Watch",
+      prayer: "Prayer",
+      visit: "Visit D.C.",
+      give: "Give",
+      liveBadge: "LIVE",
+      callDcAria: "Call the Washington, D.C. sanctuary",
+    },
     hero: {
       badge: "Gospel Light International Church • Washington, D.C. & Global Network (32+1 Branches)",
       headlinePrefix: "Shining the Saving Light of Jesus Christ from",
@@ -656,6 +728,8 @@ export const DICTIONARY: Record<Locale, UiDictionary> = {
       dcAddress: "2401 Virginia Ave NW",
       dcSunday: "Sunday Worship 10:00 AM EST (UTC-5)",
       dcWednesday: "Wednesday Bible Study & Prayer 7:00 PM EST (UTC-5)",
+      dcSundayShort: "Sunday",
+      dcWednesdayShort: "Wednesday",
       liveStreamTitle: "Global Live Stream",
       joinLive: "Join Live Now",
     },
@@ -680,6 +754,10 @@ export const DICTIONARY: Record<Locale, UiDictionary> = {
         "Direct prayer and stewardship support for our 32 Ethiopian congregations in Addis Ababa, Adama, Meki, Harar, Dire Dawa, Hirna, Chiro, and 16 rural mission stations.",
       ctaDirections: "Get Directions",
       ctaPlanVisit: "Plan Your Visit",
+      pillarWorship: "Passionate Worship",
+      pillarTeaching: "Apostolic Teaching",
+      pillarPrayer: "24/7 Intercessory Prayer",
+      pillarChurchPlanting: "Global Church Planting",
     },
     salvation: {
       label: "Salvation",
@@ -722,6 +800,7 @@ export const DICTIONARY: Record<Locale, UiDictionary> = {
       sectionSubtitle:
         "Join us in person or online for our upcoming conferences, convocations, and equipping summits.",
       liveStreamed: "Live Streamed",
+      registeredCountTemplate: "{count} registered",
     },
     impact: {
       sectionTitle: "Four Decades of Revival, By the Numbers",
@@ -790,6 +869,11 @@ export const DICTIONARY: Record<Locale, UiDictionary> = {
       sectionTitle: "Join the GLM Global Prayer Army",
       sectionSubtitle:
         "Submit an urgent prayer request, or enlist to receive requests and intercede with believers worldwide.",
+      memberCountTemplate: "{count} Intercessors Enlisted Worldwide",
+      wallTitle: "Recent Prayer Requests",
+      wallEmpty: "Be the first to share a request others can join you in praying over.",
+      prayedButtonLabel: "🙏 I Prayed for This",
+      prayedCountTemplate: "{count} prayed",
     },
     vodSpotlight: {
       sectionTitle: "Video-on-Demand & Media Spotlight",
@@ -972,6 +1056,7 @@ export const DICTIONARY: Record<Locale, UiDictionary> = {
         "Revival & Repentance": "Revival & Repentance",
         "Prophetic Archive": "Prophetic Archive",
         Discipleship: "Discipleship",
+        "New Upload": "New Upload",
       },
     },
     locationsPage: {
@@ -1214,6 +1299,40 @@ export const DICTIONARY: Record<Locale, UiDictionary> = {
       emailUsLabel: "Email Us",
       goToTopAria: "Go to top",
     },
+    admin: {
+      pageTitle: "Ministry Admin Portal",
+      loginTitle: "Staff Sign-In",
+      loginSubtitle: "Enter the ministry office passcode to view live donations, orders, and submissions.",
+      passcodeLabel: "Passcode",
+      loginButton: "Sign In",
+      loginError: "Incorrect passcode. Please try again.",
+      logoutButton: "Sign Out",
+      footerLinkLabel: "Admin Portal",
+      tabDonations: "Donations",
+      tabPrayer: "Prayer Wall",
+      tabBooks: "Book Orders",
+      tabEvents: "Events & RSVPs",
+      tabSubscribers: "Subscribers",
+      tabSermons: "Sermons",
+      exportCsvButton: "Export CSV",
+      filterAllFunds: "All Funds",
+      noDataLabel: "Nothing here yet.",
+      loadingLabel: "Loading...",
+      markPrayedOverButton: "Mark Prayed Over by Staff",
+      prayedOverBadge: "Prayed Over",
+      confidentialBadge: "Confidential",
+      prayerArmyMemberBadge: "Prayer Army",
+      addEventTitle: "Add a New Upcoming Event",
+      addEventButton: "Add Event",
+      eventAddedToast: "Event added — now live on the homepage.",
+      totalLabel: "Total",
+      syncYoutubeButton: "Sync Latest Videos from YouTube",
+      syncingLabel: "Syncing...",
+      addSermonTitle: "Add a Sermon by URL",
+      addSermonButton: "Add Sermon",
+      sermonAddedToast: "Sermon added — now live on the Sermons page.",
+      youtubeUrlLabel: "YouTube URL or Video ID",
+    },
     a11y: {
       skipToContent: "Skip to main content",
       openMenu: "Open navigation menu",
@@ -1223,6 +1342,8 @@ export const DICTIONARY: Record<Locale, UiDictionary> = {
       pauseVideo: "Pause video",
       primaryNav: "Primary Navigation",
       mobileNav: "Mobile navigation menu",
+      callDcSanctuary: "Call Washington, D.C. Sanctuary",
+      directionsToDc: "Google Maps Directions",
     },
   },
   am: {
@@ -1263,6 +1384,15 @@ export const DICTIONARY: Record<Locale, UiDictionary> = {
       searchPlaceholder: "ስብከቶችን፣ መጻሕፍትን፣ አጥቢያዎችን ይፈልጉ…",
       searchAria: "ድረ-ገጹን ይፈልጉ",
     },
+    mobileNav: {
+      home: "ዋና ገጽ",
+      watch: "ይከታተሉ",
+      prayer: "ጸሎት",
+      visit: "ይጎብኙን",
+      give: "ይለግሱ",
+      liveBadge: "ቀጥታ",
+      callDcAria: "የዋሽንግተን ዲሲ ቤተመቅደስን ይደውሉ",
+    },
     hero: {
       badge: "የወንጌል ብርሃን ዓለም አቀፍ ቤተክርስቲያን • ዋሽንግተን ዲሲ እና በኢትዮጵያ 32 አጥቢያዎች",
       headlinePrefix: "ከ",
@@ -1299,6 +1429,8 @@ export const DICTIONARY: Record<Locale, UiDictionary> = {
       dcAddress: "2401 Virginia Ave NW",
       dcSunday: "የሰንበት አምልኮ ከጠዋቱ 10፡00 (EST, UTC-5)",
       dcWednesday: "የረቡዕ የመጽሐፍ ቅዱስ ጥናትና ጸሎት ከምሽቱ 7፡00 (EST, UTC-5)",
+      dcSundayShort: "እሁድ",
+      dcWednesdayShort: "ረቡዕ",
       liveStreamTitle: "ዓለም አቀፍ ቀጥታ ስርጭት",
       joinLive: "አሁን ቀጥታ ይከታተሉ",
     },
@@ -1323,6 +1455,10 @@ export const DICTIONARY: Record<Locale, UiDictionary> = {
         "በአዲስ አበባ፣ በአዳማ፣ በመቂ፣ በሐረር፣ በድሬዳዋ፣ በሒርናና በጭሮ እና በ16 የገጠር ተልዕኮ ጣቢያዎች ለሚገኙ 32 የኢትዮጵያ ጉባኤዎች ቀጥታ የጸሎትና የድጎማ ድጋፍ።",
       ctaDirections: "አቅጣጫ ያግኙ",
       ctaPlanVisit: "ጉብኝትዎን ያቅዱ",
+      pillarWorship: "ድንቅ አምልኮ",
+      pillarTeaching: "ሐዋሪያዊ ትምህርት",
+      pillarPrayer: "24/7 የምልጃ ጸሎት",
+      pillarChurchPlanting: "ዓለም አቀፍ ቤተክርስቲያን ተከላ",
     },
     salvation: {
       label: "ድነት",
@@ -1363,6 +1499,7 @@ export const DICTIONARY: Record<Locale, UiDictionary> = {
       sectionSubtitle:
         "በቀጣዮቹ ጉባኤዎች፣ መሰባሰቦችና ማሰልጠኛዎች በቀጥታ ወይም በመስመር ላይ ይቀላቀሉን።",
       liveStreamed: "በቀጥታ ይተላለፋል",
+      registeredCountTemplate: "{count} ተመዝግበዋል",
     },
     impact: {
       sectionTitle: "አራት አስርት ዓመታት የተሃድሶ አገልግሎት በቁጥር",
@@ -1430,6 +1567,11 @@ export const DICTIONARY: Record<Locale, UiDictionary> = {
     prayerArmySection: {
       sectionTitle: "ወደ GLM ዓለም አቀፍ የጸሎት ሠራዊት ይቀላቀሉ",
       sectionSubtitle: "አስቸኳይ የጸሎት ጥያቄ ያስገቡ፣ ወይም ጥያቄዎችን ለመቀበልና ከዓለም ዙሪያ አማኞች ጋር ለማማለድ ይመዝገቡ።",
+      memberCountTemplate: "{count} አማላጆች ከዓለም ዙሪያ ተመዝግበዋል",
+      wallTitle: "የቅርብ ጊዜ የጸሎት ጥያቄዎች",
+      wallEmpty: "ሌሎች አብረውዎት ሊጸልዩለት የሚችሉትን ጥያቄ የመጀመሪያ ይሁኑ።",
+      prayedButtonLabel: "🙏 ጸልይቻለሁ",
+      prayedCountTemplate: "{count} ጸልየዋል",
     },
     vodSpotlight: {
       sectionTitle: "የቪዲዮ ትምህርቶችና የሚዲያ ማዕከል",
@@ -1610,6 +1752,7 @@ export const DICTIONARY: Record<Locale, UiDictionary> = {
         "Revival & Repentance": "ተሃድሶ እና ንስሐ",
         "Prophetic Archive": "ትንቢታዊ መልእክቶች",
         Discipleship: "ደቀ መዝሙርነት",
+        "New Upload": "አዲስ ስብከት",
       },
     },
     locationsPage: {
@@ -1844,6 +1987,40 @@ export const DICTIONARY: Record<Locale, UiDictionary> = {
       emailUsLabel: "ኢሜል ይላኩልን",
       goToTopAria: "ወደ ላይ ይሂዱ",
     },
+    admin: {
+      pageTitle: "የአገልግሎት አስተዳደር መግቢያ",
+      loginTitle: "የሰራተኛ መግቢያ",
+      loginSubtitle: "ቀጥታ ልገሳዎችን፣ ትዕዛዞችንና ማመልከቻዎችን ለማየት የቢሮ የይለፍ ኮድ ያስገቡ።",
+      passcodeLabel: "የይለፍ ኮድ",
+      loginButton: "ግባ",
+      loginError: "የተሳሳተ የይለፍ ኮድ። እንደገና ይሞክሩ።",
+      logoutButton: "ውጣ",
+      footerLinkLabel: "የአስተዳደር መግቢያ",
+      tabDonations: "ልገሳዎች",
+      tabPrayer: "የጸሎት ግንብ",
+      tabBooks: "የመጻሕፍት ትዕዛዞች",
+      tabEvents: "ጉባኤዎችና ምዝገባዎች",
+      tabSubscribers: "ተመዝጋቢዎች",
+      tabSermons: "ስብከቶች",
+      exportCsvButton: "CSV ላክ",
+      filterAllFunds: "ሁሉም መዋጮዎች",
+      noDataLabel: "እስካሁን ምንም የለም።",
+      loadingLabel: "በመጫን ላይ...",
+      markPrayedOverButton: "በሰራተኞች እንደተጸለየ ምልክት አድርግ",
+      prayedOverBadge: "ተጸልዮለታል",
+      confidentialBadge: "ሚስጥራዊ",
+      prayerArmyMemberBadge: "የጸሎት ሠራዊት",
+      addEventTitle: "አዲስ ጉባኤ ጨምር",
+      addEventButton: "ጉባኤ ጨምር",
+      eventAddedToast: "ጉባኤው ታክሏል — አሁን በድረ-ገጹ ላይ ይታያል።",
+      totalLabel: "ድምር",
+      syncYoutubeButton: "ከYouTube የቅርብ ጊዜ ቪዲዮዎችን አመሳስል",
+      syncingLabel: "በማመሳሰል ላይ...",
+      addSermonTitle: "ስብከት በሊንክ ጨምር",
+      addSermonButton: "ስብከት ጨምር",
+      sermonAddedToast: "ስብከቱ ታክሏል — አሁን በስብከቶች ገጽ ላይ ይታያል።",
+      youtubeUrlLabel: "የYouTube ሊንክ ወይም የቪዲዮ መለያ",
+    },
     a11y: {
       skipToContent: "ወደ ዋናው ይዘት ዝለል",
       openMenu: "የአሰሳ ምናሌ ክፈት",
@@ -1853,6 +2030,8 @@ export const DICTIONARY: Record<Locale, UiDictionary> = {
       pauseVideo: "ቪዲዮውን አቁም",
       primaryNav: "ዋና አሰሳ",
       mobileNav: "የተንቀሳቃሽ ስልክ አሰሳ ምናሌ",
+      callDcSanctuary: "የዋሽንግተን ዲሲ ቤተመቅደስን ይደውሉ",
+      directionsToDc: "የGoogle Maps አቅጣጫ",
     },
   },
 };

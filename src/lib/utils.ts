@@ -62,3 +62,16 @@ export function swapLocaleInPathname(pathname: string, targetLocale: Locale): st
   segments[0] = targetLocale;
   return `/${segments.join("/")}`;
 }
+
+/** Latin-only slug from an English title — Amharic titles keep their
+ *  own script rather than being transliterated, so this only ever
+ *  touches `titleEn`. */
+export function slugify(text: string): string {
+  return text
+    .toLowerCase()
+    .normalize("NFKD")
+    .replace(/[̀-ͯ]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 80);
+}

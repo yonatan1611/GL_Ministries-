@@ -1,9 +1,9 @@
 import { randomUUID } from "node:crypto";
 import { promises as fs } from "node:fs";
 import path from "node:path";
-import { BOOKS } from "@/data/ministry-content";
+import { BOOKS, SERMONS, UPCOMING_EVENTS_2026 } from "@/data/ministry-content";
 import { LOCATIONS } from "@/data/locations";
-import type { Book, BranchLocation } from "@/types/ministry";
+import type { Book, BranchLocation, MinistryEvent, Sermon } from "@/types/ministry";
 import type { DonationFund, DonationPaymentMethod } from "@/lib/validations";
 
 /**
@@ -76,8 +76,14 @@ export interface PrayerRequestRecord {
   phone?: string;
   category: string;
   requestText: string;
+  isConfidential: boolean;
   joinedPrayerArmy: boolean;
-  isPrayedFor: boolean;
+  /** Visitor-facing "🙏 I Prayed for This" tally — incremented by
+   *  anyone viewing the public prayer wall, unrelated to staff review. */
+  prayedCount: number;
+  /** Set by the (future) Admin Portal when pastoral staff have
+   *  personally interceded over this request. */
+  prayedOverByStaff: boolean;
   createdAt: string;
 }
 
@@ -94,7 +100,7 @@ export interface SubscriberRecord {
 
 export interface RsvpRecord {
   id: string;
-  kind: "event" | "salvation" | "ministry-action" | "plan-your-visit";
+  kind: "event" | "salvation" | "ministry-action" | "plan-your-visit" | "contact-inquiry";
   eventId?: string;
   fullName: string;
   email: string;
@@ -111,8 +117,8 @@ interface Database {
   rsvps: RsvpRecord[];
   books: Book[];
   locations: BranchLocation[];
-  sermons: unknown[];
-  events: unknown[];
+  sermons: Sermon[];
+  events: MinistryEvent[];
   dailyDevotionals: unknown[];
 }
 
@@ -125,8 +131,8 @@ function seedDatabase(): Database {
     rsvps: [],
     books: BOOKS,
     locations: LOCATIONS,
-    sermons: [],
-    events: [],
+    sermons: SERMONS,
+    events: UPCOMING_EVENTS_2026,
     dailyDevotionals: [],
   };
 }
@@ -277,4 +283,171 @@ export async function findBookOrder(match: {
         (match.stripeSessionId && o.stripeSessionId === match.stripeSessionId)
     ) ?? null
   );
+}
+
+// ---------------------------------------------------------------------------
+// Prayer Requests / Global Prayer Army
+// ---------------------------------------------------------------------------
+
+export async function insertPrayerRequest(
+  record: Omit<PrayerRequestRecord, "id" | "createdAt" | "prayedCount" | "prayedOverByStaff">
+): Promise<PrayerRequestRecord> {
+  return mutate((db) => {
+    const prayer: PrayerRequestRecord = {
+      ...record,
+      id: randomUUID(),
+      prayedCount: 0,
+      prayedOverByStaff: false,
+      createdAt: new Date().toISOString(),
+    };
+    db.prayerRequests.push(prayer);
+    return prayer;
+  });
+}
+
+/** Increments the public "I Prayed for This" tally on one request. */
+export async function incrementPrayerCount(id: string): Promise<PrayerRequestRecord | null> {
+  return mutate((db) => {
+    const prayer = db.prayerRequests.find((p) => p.id === id);
+    if (!prayer) return null;
+    prayer.prayedCount += 1;
+    return prayer;
+  });
+}
+
+export interface PrayerArmyStats {
+  totalPrayerArmyMembers: number;
+  totalPrayersOffered: number;
+}
+
+/** Live counters for the homepage Global Prayer Army panel. */
+export async function getPrayerArmyStats(): Promise<PrayerArmyStats> {
+  const db = await getDb();
+  return {
+    totalPrayerArmyMembers: db.prayerRequests.filter((p) => p.joinedPrayerArmy).length,
+    totalPrayersOffered: db.prayerRequests.reduce((sum, p) => sum + p.prayedCount, 0),
+  };
+}
+
+/** Most recent non-confidential requests for the public prayer wall —
+ *  confidential submissions (the default) never appear here. */
+export async function listPublicPrayerRequests(limit = 10): Promise<PrayerRequestRecord[]> {
+  const db = await getDb();
+  return db.prayerRequests
+    .filter((p) => !p.isConfidential)
+    .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+    .slice(0, limit);
+}
+
+// ---------------------------------------------------------------------------
+// Subscribers ("Stay Connected to God's Grace")
+// ---------------------------------------------------------------------------
+
+/** Upserts by email or phone so re-subscribing updates preferences
+ *  instead of creating duplicate records. */
+export async function upsertSubscriber(
+  record: Omit<SubscriberRecord, "id" | "createdAt">
+): Promise<SubscriberRecord> {
+  return mutate((db) => {
+    const existing = db.subscribers.find(
+      (s) =>
+        (record.email && s.email === record.email) || (record.phone && s.phone === record.phone)
+    );
+    if (existing) {
+      Object.assign(existing, record);
+      return existing;
+    }
+    const subscriber: SubscriberRecord = {
+      ...record,
+      id: randomUUID(),
+      createdAt: new Date().toISOString(),
+    };
+    db.subscribers.push(subscriber);
+    return subscriber;
+  });
+}
+
+// ---------------------------------------------------------------------------
+// RSVPs (Event RSVPs, Salvation decisions, Ministry Actions)
+// ---------------------------------------------------------------------------
+
+export async function insertRsvp(record: Omit<RsvpRecord, "id" | "createdAt">): Promise<RsvpRecord> {
+  return mutate((db) => {
+    const rsvp: RsvpRecord = {
+      ...record,
+      id: randomUUID(),
+      createdAt: new Date().toISOString(),
+    };
+    db.rsvps.push(rsvp);
+    return rsvp;
+  });
+}
+
+/** Live registered-count per event, for the "X registered" badge on
+ *  the homepage Upcoming Events cards. */
+export async function getEventRegisteredCounts(): Promise<Record<string, number>> {
+  const db = await getDb();
+  const counts: Record<string, number> = {};
+  for (const rsvp of db.rsvps) {
+    if (rsvp.kind !== "event" || !rsvp.eventId) continue;
+    counts[rsvp.eventId] = (counts[rsvp.eventId] ?? 0) + 1;
+  }
+  return counts;
+}
+
+// ---------------------------------------------------------------------------
+// Admin Portal actions
+// ---------------------------------------------------------------------------
+
+/** Marks a prayer request as personally interceded over by pastoral
+ *  staff — distinct from the public `prayedCount` tally. */
+export async function markPrayerProcessedByStaff(id: string): Promise<PrayerRequestRecord | null> {
+  return mutate((db) => {
+    const prayer = db.prayerRequests.find((p) => p.id === id);
+    if (!prayer) return null;
+    prayer.prayedOverByStaff = true;
+    return prayer;
+  });
+}
+
+/** Live event list — the source of truth `GET /api/events` and
+ *  `/api/events/rsvp` read from, seeded once from
+ *  `UPCOMING_EVENTS_2026` and then editable through the Admin Portal
+ *  without touching source files. */
+export async function listEvents(): Promise<MinistryEvent[]> {
+  const db = await getDb();
+  return db.events;
+}
+
+export async function insertEvent(record: Omit<MinistryEvent, "id"> & { id?: string }): Promise<MinistryEvent> {
+  return mutate((db) => {
+    const event: MinistryEvent = { ...record, id: record.id || randomUUID() };
+    db.events.push(event);
+    return event;
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Sermons (curated catalog + Admin Portal YouTube sync/add)
+// ---------------------------------------------------------------------------
+
+/** Live sermon catalog — seeded once from the curated `SERMONS`, then
+ *  editable through the Admin Portal (one-click YouTube sync, or
+ *  manual add-by-URL) without touching source files. */
+export async function listSermons(): Promise<Sermon[]> {
+  const db = await getDb();
+  return db.sermons;
+}
+
+export async function insertSermon(record: Omit<Sermon, "id"> & { id?: string }): Promise<Sermon> {
+  return mutate((db) => {
+    const sermon: Sermon = { ...record, id: record.id || randomUUID() };
+    db.sermons.push(sermon);
+    return sermon;
+  });
+}
+
+export async function findSermonByYoutubeId(youtubeId: string): Promise<Sermon | null> {
+  const db = await getDb();
+  return db.sermons.find((sermon) => sermon.youtubeId === youtubeId) ?? null;
 }

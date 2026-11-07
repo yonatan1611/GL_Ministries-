@@ -31,12 +31,19 @@ const serverEnvSchema = z.object({
   // `/api/stripe/webhook` signatures. Safe to leave blank until the
   // client connects a real Stripe account and configures the webhook.
   STRIPE_WEBHOOK_SECRET: z.string().optional().default(""),
+
+  // Ministry Admin Portal passcode (`/[locale]/admin`). Demo default
+  // `2026` — override in production via `.env`. Never exposed to the
+  // client: only used server-side to verify `/api/admin/login` and to
+  // sign the admin session cookie.
+  ADMIN_PASSCODE: z.string().min(1).default("2026"),
 });
 
 function loadServerEnv() {
   const parsed = serverEnvSchema.safeParse({
     STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY,
     STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET,
+    ADMIN_PASSCODE: process.env.ADMIN_PASSCODE,
   });
 
   if (!parsed.success) {

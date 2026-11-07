@@ -1,6 +1,6 @@
+import { useMemo } from "react";
 import { Search, X } from "lucide-react";
 import { getDictionary } from "@/data/i18n";
-import { SERMONS } from "@/data/ministry-content";
 import { cn, type Locale } from "@/lib/utils";
 import type { Sermon, SermonTopic } from "@/types/ministry";
 
@@ -42,16 +42,13 @@ const TOPIC_OPTIONS: SermonTopic[] = [
   "Revival & Repentance",
   "Prophetic Archive",
   "Discipleship",
+  "New Upload",
 ];
 
 interface Speaker {
   en: string;
   am: string;
 }
-
-const SPEAKERS: Speaker[] = Array.from(
-  new Map(SERMONS.map((sermon) => [sermon.speakerEn, { en: sermon.speakerEn, am: sermon.speakerAm }])).values()
-);
 
 export interface SermonFilters {
   search: string;
@@ -78,6 +75,7 @@ export function isFiltersActive(filters: SermonFilters): boolean {
 
 interface SermonFilterBarProps {
   locale: Locale;
+  sermons: Sermon[];
   filters: SermonFilters;
   onChange: (filters: SermonFilters) => void;
   filteredCount: number;
@@ -87,11 +85,20 @@ interface SermonFilterBarProps {
 /**
  * Instant faceted search/filter bar — replaces the legacy page's leaked
  * WordPress plugin controls ("Generic selectors", "Post Type Selectors")
- * and 21 unorganized scripture checkboxes.
+ * and 21 unorganized scripture checkboxes. The speaker list is derived
+ * from the live `sermons` list (not a static import) so a
+ * newly-synced-from-YouTube speaker shows up in the filter too.
  */
-export function SermonFilterBar({ locale, filters, onChange, filteredCount, totalCount }: SermonFilterBarProps) {
+export function SermonFilterBar({ locale, sermons, filters, onChange, filteredCount, totalCount }: SermonFilterBarProps) {
   const dict = getDictionary(locale);
   const active = isFiltersActive(filters);
+  const speakers = useMemo<Speaker[]>(
+    () =>
+      Array.from(
+        new Map(sermons.map((sermon) => [sermon.speakerEn, { en: sermon.speakerEn, am: sermon.speakerAm }])).values()
+      ),
+    [sermons]
+  );
 
   function update(partial: Partial<SermonFilters>) {
     onChange({ ...filters, ...partial });
@@ -139,7 +146,7 @@ export function SermonFilterBar({ locale, filters, onChange, filteredCount, tota
             className="rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-800 focus:border-amber-500 focus:outline-none"
           >
             <option value="all">{dict.sermonsPage.allSpeakersLabel}</option>
-            {SPEAKERS.map((speaker) => (
+            {speakers.map((speaker) => (
               <option key={speaker.en} value={speaker.en}>
                 {locale === "am" ? speaker.am : speaker.en}
               </option>
@@ -148,29 +155,31 @@ export function SermonFilterBar({ locale, filters, onChange, filteredCount, tota
         </label>
       </div>
 
-      <div className="mt-4 flex flex-wrap items-center gap-2">
-        <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+      <div className="mt-4">
+        <span className="mb-2 block text-xs font-semibold uppercase tracking-wide text-slate-500">
           {dict.sermonsPage.scriptureFiltersLabel}
         </span>
-        {QUICK_FILTER_CHIPS.map((chip) => {
-          const isActive = filters.quickFilterId === chip.id;
-          return (
-            <button
-              key={chip.id}
-              type="button"
-              onClick={() => update({ quickFilterId: isActive ? null : chip.id })}
-              aria-pressed={isActive}
-              className={cn(
-                "rounded-full border px-3 py-1 text-xs font-medium transition-colors",
-                isActive
-                  ? "border-amber-600 bg-amber-100 text-amber-800"
-                  : "border-slate-300 text-slate-600 hover:bg-slate-50"
-              )}
-            >
-              {locale === "am" ? chip.labelAm : chip.labelEn}
-            </button>
-          );
-        })}
+        <div className="no-scrollbar -mx-4 flex gap-2 overflow-x-auto px-4 pb-1 snap-x sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0">
+          {QUICK_FILTER_CHIPS.map((chip) => {
+            const isActive = filters.quickFilterId === chip.id;
+            return (
+              <button
+                key={chip.id}
+                type="button"
+                onClick={() => update({ quickFilterId: isActive ? null : chip.id })}
+                aria-pressed={isActive}
+                className={cn(
+                  "min-h-[36px] shrink-0 touch-manipulation snap-start whitespace-nowrap rounded-full border px-3 py-1 text-xs font-medium transition-colors",
+                  isActive
+                    ? "border-amber-600 bg-amber-100 text-amber-800"
+                    : "border-slate-300 text-slate-600 hover:bg-slate-50"
+                )}
+              >
+                {locale === "am" ? chip.labelAm : chip.labelEn}
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       <div className="mt-4 flex items-center justify-between border-t border-slate-100 pt-4">

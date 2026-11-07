@@ -7,10 +7,12 @@ import { isSupportedLocale, type Locale } from "@/lib/utils";
 import { AppProviders } from "@/components/providers/AppProviders";
 import { TopUtilityBar } from "@/components/layout/TopUtilityBar";
 import { Navbar } from "@/components/layout/Navbar";
+import { MobileBottomNav } from "@/components/layout/MobileBottomNav";
 import { CartDrawer } from "@/components/books/CartDrawer";
 import { Footer } from "@/components/layout/Footer";
 import { GlobalPrayerModal } from "@/components/prayer/GlobalPrayerModal";
 import { JsonLdSchema } from "@/components/seo/JsonLdSchema";
+import { ClickSpark } from "@/components/react-bits/ClickSpark";
 import "../globals.css";
 
 const fontSans = Inter({
@@ -147,16 +149,20 @@ export default async function LocaleLayout({
       lang={locale}
       dir="ltr"
       className={`${fontSans.variable} ${fontSerif.variable} ${fontEthiopic.variable} ${fontPlayfair.variable} ${fontCinzel.variable} ${fontMontserrat.variable}`}
+      suppressHydrationWarning
     >
       <body className="bg-slate-50 font-sans text-slate-800 antialiased">
         <JsonLdSchema locale={locale} />
         <AppProviders>
-          <TopUtilityBar locale={locale} />
-          <Navbar locale={locale} />
-          {children}
-          <Footer locale={locale} />
-          <CartDrawer />
-          <GlobalPrayerModal />
+          <ClickSpark sparkColor="#60A5FA" sparkSize={10} sparkRadius={20} sparkCount={8} duration={400}>
+            <TopUtilityBar locale={locale} />
+            <Navbar locale={locale} />
+            {children}
+            <Footer locale={locale} />
+            <MobileBottomNav locale={locale} />
+            <CartDrawer />
+            <GlobalPrayerModal />
+          </ClickSpark>
         </AppProviders>
       </body>
     </html>

@@ -3,6 +3,7 @@ import { getDictionary } from "@/data/i18n";
 import { SYNOD_SUMMARY } from "@/data/locations";
 import type { Locale } from "@/lib/utils";
 import type { BranchLocation, BranchType } from "@/types/ministry";
+import { SpotlightCard } from "@/components/react-bits/SpotlightCard";
 
 const TYPE_LABELS: Record<Locale, Record<BranchType, string>> = {
   en: {
@@ -50,8 +51,9 @@ export function LocationCardGrid({ locale, locations, onOpenDetail }: LocationCa
       {locations.map((location) => {
         const synodEntry = SYNOD_SUMMARY.find((entry) => entry.synod === location.synod);
         return (
-          <div
+          <SpotlightCard
             key={location.id}
+            spotlightColor="rgba(37, 99, 235, 0.22)"
             className="flex flex-col rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"
           >
             <div className="flex flex-wrap items-center gap-2">
@@ -93,7 +95,7 @@ export function LocationCardGrid({ locale, locations, onOpenDetail }: LocationCa
             >
               {dict.locationsPage.serviceTimesMapContact}
             </button>
-          </div>
+          </SpotlightCard>
         );
       })}
     </div>

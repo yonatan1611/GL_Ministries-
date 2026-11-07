@@ -11,6 +11,7 @@ import { StayConnectedSignupSection } from "@/components/home/StayConnectedSignu
 import { DiscoverProductsBanner } from "@/components/home/DiscoverProductsBanner";
 import { UpcomingEventsSection } from "@/components/home/UpcomingEventsSection";
 import { ScriptureDividerBanner } from "@/components/home/ScriptureDividerBanner";
+import { AnimatedContent } from "@/components/react-bits/AnimatedContent";
 
 /**
  * Homepage, sequenced to replicate bennyhinn.org's exact top-to-bottom
@@ -36,16 +37,36 @@ export default async function LocaleHomePage({
   return (
     <main className="min-h-screen bg-slate-50">
       <HeroSection locale={locale} />
-      <SalvationBanner locale={locale} />
-      <WashingtonDcSpotlightSection locale={locale} />
-      <RecentHighlightsAndTeachings locale={locale} />
-      <MonthlyResourceOffer locale={locale} />
-      <HistoricVisitationSection locale={locale} />
-      <GlobalPrayerArmyAndScripture locale={locale} />
-      <StayConnectedSignupSection locale={locale} />
-      <DiscoverProductsBanner locale={locale} />
-      <UpcomingEventsSection locale={locale} />
-      <ScriptureDividerBanner locale={locale} />
+      <AnimatedContent distance={40} duration={0.7}>
+        <SalvationBanner locale={locale} />
+      </AnimatedContent>
+      <AnimatedContent distance={40} duration={0.7}>
+        <WashingtonDcSpotlightSection locale={locale} />
+      </AnimatedContent>
+      <AnimatedContent distance={40} duration={0.7}>
+        <RecentHighlightsAndTeachings locale={locale} />
+      </AnimatedContent>
+      <AnimatedContent distance={40} duration={0.7}>
+        <MonthlyResourceOffer locale={locale} />
+      </AnimatedContent>
+      <AnimatedContent distance={40} duration={0.7}>
+        <HistoricVisitationSection locale={locale} />
+      </AnimatedContent>
+      <AnimatedContent distance={40} duration={0.7}>
+        <GlobalPrayerArmyAndScripture locale={locale} />
+      </AnimatedContent>
+      <AnimatedContent distance={40} duration={0.7}>
+        <StayConnectedSignupSection locale={locale} />
+      </AnimatedContent>
+      <AnimatedContent distance={40} duration={0.7}>
+        <DiscoverProductsBanner locale={locale} />
+      </AnimatedContent>
+      <AnimatedContent distance={40} duration={0.7}>
+        <UpcomingEventsSection locale={locale} />
+      </AnimatedContent>
+      <AnimatedContent distance={40} duration={0.7}>
+        <ScriptureDividerBanner locale={locale} />
+      </AnimatedContent>
     </main>
   );
 }

@@ -4,6 +4,7 @@ import { getYoutubeThumbnailUrl, getYoutubeWatchUrl } from "@/lib/youtube";
 import { cn, type Locale } from "@/lib/utils";
 import type { Sermon } from "@/types/ministry";
 import { MinistryImage } from "@/components/ui/MinistryImage";
+import { SpotlightCard } from "@/components/react-bits/SpotlightCard";
 
 interface SermonCardGridProps {
   locale: Locale;
@@ -39,8 +40,9 @@ export function SermonCardGrid({ locale, sermons, activeSermonId, onSelectSermon
         const scripture = locale === "am" ? sermon.scriptureAm : sermon.scriptureEn;
 
         return (
-          <div
+          <SpotlightCard
             key={sermon.id}
+            spotlightColor="rgba(37, 99, 235, 0.22)"
             className={cn(
               "flex flex-col overflow-hidden rounded-2xl border shadow-sm transition-colors",
               isActive ? "border-amber-500 bg-amber-50/30" : "border-slate-200 bg-white"
@@ -130,7 +132,7 @@ export function SermonCardGrid({ locale, sermons, activeSermonId, onSelectSermon
                 )}
               </div>
             </div>
-          </div>
+          </SpotlightCard>
         );
       })}
     </div>

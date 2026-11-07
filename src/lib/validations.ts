@@ -332,3 +332,57 @@ export const HOME_GROUP_CITIES = [
   "Washington, D.C. / Alexandria, VA",
 ] as const;
 export type HomeGroupCity = (typeof HOME_GROUP_CITIES)[number];
+
+// ---------------------------------------------------------------------------
+// 8. Admin Portal — Add New Upcoming Event
+// ---------------------------------------------------------------------------
+
+export const EVENT_CATEGORIES = ["Conference", "Revival", "Leadership", "Youth & Worship"] as const;
+
+export const newEventSchema = z.object({
+  titleEn: sanitizedString(2, 160),
+  titleAm: sanitizedString(2, 160),
+  dateRangeEn: sanitizedString(2, 120),
+  dateRangeAm: sanitizedString(2, 120),
+  locationEn: sanitizedString(2, 160),
+  locationAm: sanitizedString(2, 160),
+  category: z.enum(EVENT_CATEGORIES),
+  descriptionEn: sanitizedString(10, 600),
+  descriptionAm: sanitizedString(10, 600),
+  isLiveStreamed: z.boolean().default(false),
+});
+
+export type NewEventInput = z.infer<typeof newEventSchema>;
+
+// ---------------------------------------------------------------------------
+// 9. Admin Portal — Add / Sync YouTube Sermons
+// ---------------------------------------------------------------------------
+
+export const SERMON_TOPICS = [
+  "Christian Growth",
+  "Holy Spirit",
+  "Hearing God's Voice",
+  "Revival & Repentance",
+  "Prophetic Archive",
+  "Discipleship",
+  "New Upload",
+] as const;
+
+/** Admin-portal "add a sermon by URL/ID" form. Everything but the
+ *  video reference is optional — `/api/sermons` fills in a missing
+ *  title/speaker from YouTube's own oEmbed endpoint (a sanctioned,
+ *  key-free metadata lookup, not scraping) rather than requiring the
+ *  office to retype it. */
+export const newSermonSchema = z.object({
+  youtubeUrlOrId: sanitizedString(5, 300),
+  titleEn: sanitizedString(0, 200).optional(),
+  titleAm: sanitizedString(0, 200).optional(),
+  speakerEn: sanitizedString(0, 120).optional(),
+  speakerAm: sanitizedString(0, 120).optional(),
+  topic: z.enum(SERMON_TOPICS).default("New Upload"),
+  yearLabel: sanitizedString(0, 20).optional(),
+  summaryEn: sanitizedString(0, 600).optional(),
+  summaryAm: sanitizedString(0, 600).optional(),
+});
+
+export type NewSermonInput = z.infer<typeof newSermonSchema>;

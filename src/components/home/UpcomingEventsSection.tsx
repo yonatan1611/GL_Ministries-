@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
-import { CalendarDays, HandHeart, MapPin, MapPinned, Radio, UsersRound, Wrench } from "lucide-react";
+import { CalendarDays, HandHeart, MapPin, MapPinned, Radio, Users, UsersRound, Wrench } from "lucide-react";
 import { getDictionary } from "@/data/i18n";
 import { UPCOMING_EVENTS_2026 } from "@/data/ministry-content";
 import type { ContactInquiryType, MinistryActionType } from "@/lib/validations";
@@ -12,6 +12,8 @@ import { EventRsvpModal } from "@/components/home/EventRsvpModal";
 import { MinistryActionModal } from "@/components/home/MinistryActionModal";
 import { MinistryContactModal } from "@/components/home/MinistryContactModal";
 import { usePrayerModal } from "@/components/providers/AppProviders";
+import { AnimatedContent } from "@/components/react-bits/AnimatedContent";
+import { SplitText } from "@/components/react-bits/SplitText";
 
 /**
  * "Upcoming Events" (`id="upcoming-events"`) plus the 4 restored
@@ -25,6 +27,28 @@ export function UpcomingEventsSection({ locale }: { locale: Locale }) {
   const [activeEvent, setActiveEvent] = useState<MinistryEvent | null>(null);
   const [activeAction, setActiveAction] = useState<MinistryActionType | null>(null);
   const [activeInquiry, setActiveInquiry] = useState<ContactInquiryType | null>(null);
+  const [registeredCounts, setRegisteredCounts] = useState<Record<string, number>>({});
+  // Seeded with the static list so there's no empty-state flash before
+  // the live fetch lands — the DB starts seeded from this same array,
+  // so they match until an admin adds a new event.
+  const [events, setEvents] = useState<MinistryEvent[]>(UPCOMING_EVENTS_2026);
+
+  async function refreshCounts() {
+    try {
+      const response = await fetch("/api/events");
+      const result = await response.json().catch(() => null);
+      if (result?.success) {
+        setRegisteredCounts(result.data.counts as Record<string, number>);
+        if (Array.isArray(result.data.events)) setEvents(result.data.events as MinistryEvent[]);
+      }
+    } catch {
+      // Live event list/counter is a progressive enhancement — fail silently.
+    }
+  }
+
+  useEffect(() => {
+    refreshCounts();
+  }, []);
 
   return (
     <>
@@ -32,15 +56,18 @@ export function UpcomingEventsSection({ locale }: { locale: Locale }) {
         <div className="mx-auto max-w-7xl">
           <div className="mx-auto max-w-2xl text-center">
             <h2 className="font-display text-2xl font-bold text-navy-900 sm:text-3xl">
-              {dict.eventsSection.sectionTitle}
+              <SplitText text={dict.eventsSection.sectionTitle} animateBy="words" as="span" />
             </h2>
             <p className="mt-3 text-sm text-slate-600 sm:text-base">{dict.eventsSection.sectionSubtitle}</p>
           </div>
 
           <div className="mt-10 grid grid-cols-1 gap-6 lg:grid-cols-3">
-            {UPCOMING_EVENTS_2026.map((event) => (
-              <div
+            {events.map((event, index) => (
+              <AnimatedContent
                 key={event.id}
+                distance={30}
+                duration={0.6}
+                delay={index * 0.1}
                 className="flex flex-col border border-[#E6DFD3] p-6 shadow-sm"
               >
                 <span className="inline-flex w-fit items-center rounded-full bg-navy-50 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-navy-700">
@@ -66,6 +93,15 @@ export function UpcomingEventsSection({ locale }: { locale: Locale }) {
                     {dict.eventsSection.liveStreamed}
                   </p>
                 )}
+                {Boolean(registeredCounts[event.id]) && (
+                  <p className="mt-2 flex items-center gap-1.5 text-xs font-semibold text-amber-700">
+                    <Users className="h-3.5 w-3.5" aria-hidden="true" />
+                    {dict.eventsSection.registeredCountTemplate.replace(
+                      "{count}",
+                      String(registeredCounts[event.id])
+                    )}
+                  </p>
+                )}
                 <button
                   type="button"
                   onClick={() => setActiveEvent(event)}
@@ -73,19 +109,24 @@ export function UpcomingEventsSection({ locale }: { locale: Locale }) {
                 >
                   {dict.buttons.rsvp}
                 </button>
-              </div>
+              </AnimatedContent>
             ))}
           </div>
         </div>
 
-        <EventRsvpModal locale={locale} event={activeEvent} onClose={() => setActiveEvent(null)} />
+        <EventRsvpModal
+          locale={locale}
+          event={activeEvent}
+          onClose={() => setActiveEvent(null)}
+          onSuccess={refreshCounts}
+        />
       </section>
 
       <section className="bg-navy-950 px-4 py-16 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-7xl">
           <div className="mx-auto max-w-2xl text-center">
             <h2 className="font-display text-2xl font-bold text-white sm:text-3xl">
-              {dict.actionCards.sectionTitle}
+              <SplitText text={dict.actionCards.sectionTitle} animateBy="words" as="span" />
             </h2>
             <p className="mt-3 text-sm text-navy-300 sm:text-base">{dict.actionCards.sectionSubtitle}</p>
           </div>

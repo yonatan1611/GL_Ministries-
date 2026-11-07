@@ -128,7 +128,7 @@ async function submitOrder(payload: Record<string, unknown>) {
   }
 
   return (
-    <div className="fixed inset-0 z-50">
+    <div className="fixed inset-0 z-50 flex items-end justify-center p-0 sm:items-center sm:p-4">
       <button
         type="button"
         aria-label={dict.cart.closeAria}
@@ -140,9 +140,10 @@ async function submitOrder(payload: Record<string, unknown>) {
         role="dialog"
         aria-modal="true"
         aria-label={dict.cart.title}
-        className="absolute inset-y-0 right-0 flex w-full max-w-md flex-col bg-white shadow-xl"
+        className="relative flex max-h-[90dvh] w-full max-w-lg flex-col overflow-hidden overscroll-contain rounded-t-2xl bg-white pb-[env(safe-area-inset-bottom)] shadow-2xl sm:rounded-2xl sm:pb-0"
       >
-        <div className="flex items-center justify-between border-b border-slate-200 px-5 py-4">
+        <span aria-hidden="true" className="mx-auto mb-1 mt-3 h-1.5 w-12 shrink-0 rounded-full bg-slate-300 sm:hidden" />
+        <div className="sticky top-0 z-10 flex items-center justify-between border-b border-slate-200 bg-white px-5 py-4">
           <h2 className="flex items-center gap-2 font-display text-lg font-bold text-navy-900">
             <ShoppingBag className="h-5 w-5 text-amber-600" aria-hidden="true" />
             {dict.cart.title}
@@ -151,7 +152,7 @@ async function submitOrder(payload: Record<string, unknown>) {
             type="button"
             onClick={() => setIsCartOpen(false)}
             aria-label={dict.cart.closeAria}
-            className="flex h-9 w-9 items-center justify-center rounded-lg text-slate-500 hover:bg-slate-100"
+            className="flex h-11 w-11 touch-manipulation items-center justify-center rounded-lg text-slate-500 transition-transform active:scale-[0.98] hover:bg-slate-100"
           >
             <X className="h-5 w-5" aria-hidden="true" />
           </button>
@@ -243,6 +244,7 @@ async function submitOrder(payload: Record<string, unknown>) {
                   <input
                     id="cart-name"
                     type="text"
+                    autoComplete="name"
                     value={form.customerName}
                     onChange={(e) => setForm((f) => ({ ...f, customerName: e.target.value }))}
                     className={cn(
@@ -259,6 +261,7 @@ async function submitOrder(payload: Record<string, unknown>) {
                   <input
                     id="cart-email"
                     type="email"
+                    autoComplete="email"
                     value={form.customerEmail}
                     onChange={(e) => setForm((f) => ({ ...f, customerEmail: e.target.value }))}
                     className={cn(

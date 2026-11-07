@@ -35,14 +35,25 @@ export function TopUtilityBar({ locale }: { locale: Locale }) {
 
   return (
     <div className="border-b border-blue-600/40 bg-navy-950 text-xs text-navy-100">
-      <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-2 px-4 py-1.5 sm:px-6 lg:px-8">
-        <div className="flex min-w-0 flex-wrap items-center gap-x-4 gap-y-1">
+      <div className="mx-auto flex max-w-7xl flex-nowrap items-center justify-between gap-2 px-4 py-1.5 sm:flex-wrap sm:px-6 lg:px-8">
+        <div className="flex min-w-0 flex-1 flex-wrap items-center gap-x-4 gap-y-1 sm:flex-initial">
           <span className="hidden font-display italic text-blue-200 md:inline">{dict.topBar.motto}</span>
-          <span className="flex items-center gap-1.5 text-navy-200">
-            <Phone className="h-3 w-3 text-amber-500" aria-hidden="true" />
-            <span className="font-semibold text-navy-300">{dict.topBar.usPrefix}</span>
+          <Link
+            href={`/${locale}/sermons`}
+            className="flex shrink-0 items-center gap-1 font-nav font-bold uppercase tracking-wide text-red-400"
+          >
+            <span aria-hidden="true" className="h-1.5 w-1.5 animate-pulse rounded-full bg-red-500" />
+            {dict.mobileNav.liveBadge}
+          </Link>
+          <a
+            href={`tel:${DC_PHONE}`}
+            aria-label={dict.mobileNav.callDcAria}
+            className="flex min-h-[32px] items-center gap-1.5 truncate text-navy-200 hover:text-amber-400"
+          >
+            <Phone className="h-3 w-3 shrink-0 text-amber-500" aria-hidden="true" />
+            <span className="hidden font-semibold text-navy-300 sm:inline">{dict.topBar.usPrefix}</span>
             {DC_PHONE}
-          </span>
+          </a>
           <a
             href={`mailto:${DC_EMAIL}`}
             className="hidden items-center gap-1.5 text-navy-200 hover:text-amber-400 lg:flex"
@@ -64,7 +75,7 @@ export function TopUtilityBar({ locale }: { locale: Locale }) {
           </a>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex shrink-0 items-center gap-3">
           {isSearchOpen ? (
             <form onSubmit={handleSearchSubmit} className="flex items-center gap-1">
               <input
@@ -74,13 +85,13 @@ export function TopUtilityBar({ locale }: { locale: Locale }) {
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder={dict.nav.searchPlaceholder}
                 aria-label={dict.nav.searchAria}
-                className="w-40 rounded border border-navy-700 bg-navy-900 px-2 py-1 text-xs text-white placeholder:text-navy-400 focus:border-amber-500 focus:outline-none sm:w-56"
+                className="w-40 rounded border border-navy-700 bg-navy-900 px-2 py-1 text-white placeholder:text-navy-400 focus:border-amber-500 focus:outline-none sm:w-56"
               />
               <button
                 type="button"
                 onClick={() => setIsSearchOpen(false)}
                 aria-label={dict.buttons.close}
-                className="flex h-6 w-6 items-center justify-center text-navy-300 hover:text-amber-400"
+                className="flex h-8 w-8 touch-manipulation items-center justify-center text-navy-300 hover:text-amber-400"
               >
                 <X className="h-3.5 w-3.5" aria-hidden="true" />
               </button>
@@ -89,13 +100,13 @@ export function TopUtilityBar({ locale }: { locale: Locale }) {
             <>
               <Link
                 href={`/${locale}#stay-connected`}
-                className="font-nav font-bold uppercase tracking-[0.12em] text-navy-200 hover:text-amber-400"
+                className="hidden font-nav font-bold uppercase tracking-[0.12em] text-navy-200 hover:text-amber-400 sm:inline"
               >
                 {dict.topBar.contactLabel}
               </Link>
               <Link
                 href={`/${locale}/give`}
-                className="rounded bg-crimson-600 px-3 py-1 font-nav font-bold uppercase tracking-[0.1em] text-white hover:bg-crimson-700"
+                className="touch-manipulation whitespace-nowrap rounded border border-crimson-500/40 bg-crimson-500/10 px-3 py-1 font-nav font-bold uppercase tracking-[0.1em] text-crimson-200 transition-transform hover:bg-crimson-500/20 active:scale-[0.98]"
               >
                 {dict.topBar.donateLabel}
               </Link>
@@ -109,7 +120,7 @@ export function TopUtilityBar({ locale }: { locale: Locale }) {
                 type="button"
                 onClick={() => setIsCartOpen(true)}
                 aria-label={dict.cart.openAria}
-                className="relative flex items-center text-navy-200 hover:text-amber-400"
+                className="relative hidden touch-manipulation items-center text-navy-200 hover:text-amber-400 sm:flex"
               >
                 <ShoppingBag className="h-4 w-4" aria-hidden="true" />
                 {totalItems > 0 && (
@@ -125,7 +136,7 @@ export function TopUtilityBar({ locale }: { locale: Locale }) {
                 type="button"
                 onClick={() => setIsSearchOpen(true)}
                 aria-label={dict.nav.searchAria}
-                className="flex items-center text-navy-200 hover:text-amber-400"
+                className="hidden touch-manipulation items-center text-navy-200 hover:text-amber-400 sm:flex"
               >
                 <Search className="h-4 w-4" aria-hidden="true" />
               </button>

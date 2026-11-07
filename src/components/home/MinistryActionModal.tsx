@@ -141,6 +141,7 @@ export function MinistryActionModal({
             <input
               id="action-name"
               type="text"
+              autoComplete="name"
               value={form.fullName}
               onChange={(e) => setForm((f) => ({ ...f, fullName: e.target.value }))}
               className={cn(
@@ -159,6 +160,7 @@ export function MinistryActionModal({
               <input
                 id="action-email"
                 type="email"
+                autoComplete="email"
                 value={form.email}
                 onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
                 className={cn(
@@ -175,6 +177,8 @@ export function MinistryActionModal({
               <input
                 id="action-phone"
                 type="tel"
+                inputMode="tel"
+                autoComplete="tel"
                 value={form.phone}
                 onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))}
                 className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"

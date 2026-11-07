@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { SERMONS } from "@/data/ministry-content";
 import type { Locale } from "@/lib/utils";
@@ -24,6 +24,7 @@ const VALID_TOPICS: readonly string[] = [
   "Revival & Repentance",
   "Prophetic Archive",
   "Discipleship",
+  "New Upload",
 ];
 
 function matchesSearch(sermon: Sermon, query: string): boolean {
@@ -48,10 +49,14 @@ export function SermonsPageClient({ locale }: { locale: Locale }) {
   const router = useRouter();
   const pathname = usePathname() ?? `/${locale}/sermons`;
 
-  const [activeSermonId, setActiveSermonId] = useState<string>(() => {
-    const requested = searchParams.get("sermon");
-    return requested && SERMONS.some((sermon) => sermon.id === requested) ? requested : DEFAULT_SERMON_ID;
-  });
+  // Trusts the query param directly rather than checking it against
+  // the static SERMONS import — `activeSermon` below falls back to the
+  // first live sermon if the id turns out not to exist, which also
+  // covers a deep link to a brand-new synced sermon before the live
+  // fetch has landed.
+  const [activeSermonId, setActiveSermonId] = useState<string>(
+    () => searchParams.get("sermon") || DEFAULT_SERMON_ID
+  );
   const [theaterMode, setTheaterMode] = useState<"ondemand" | "live">(() =>
     typeof window !== "undefined" && window.location.hash === "#live" ? "live" : "ondemand"
   );
@@ -63,19 +68,36 @@ export function SermonsPageClient({ locale }: { locale: Locale }) {
     return { ...EMPTY_SERMON_FILTERS, topic, search: requestedQuery };
   });
   const [activeInquiry, setActiveInquiry] = useState<ContactInquiryType | null>(null);
+  // Seeded with the curated static list so there's no empty-state flash
+  // before the live fetch lands — matches it exactly until an admin
+  // syncs/adds a sermon through the Admin Portal.
+  const [sermons, setSermons] = useState<Sermon[]>(SERMONS);
 
-  const activeSermon = SERMONS.find((sermon) => sermon.id === activeSermonId) ?? SERMONS[0];
+  useEffect(() => {
+    fetch("/api/sermons")
+      .then((response) => response.json())
+      .then((result) => {
+        if (result?.success && Array.isArray(result.data?.sermons)) {
+          setSermons(result.data.sermons as Sermon[]);
+        }
+      })
+      .catch(() => {
+        // Live sermon catalog is a progressive enhancement — fail silently.
+      });
+  }, []);
+
+  const activeSermon = sermons.find((sermon) => sermon.id === activeSermonId) ?? sermons[0];
 
   const filteredSermons = useMemo(
     () =>
-      SERMONS.filter(
+      sermons.filter(
         (sermon) =>
           matchesSearch(sermon, filters.search) &&
           (filters.topic === "all" || sermon.topic === filters.topic) &&
           (filters.speaker === "all" || sermon.speakerEn === filters.speaker) &&
           matchesQuickFilter(sermon, filters.quickFilterId)
       ),
-    [filters]
+    [sermons, filters]
   );
 
   function syncUrl(nextSermonId: string, nextMode: "ondemand" | "live") {
@@ -116,10 +138,11 @@ export function SermonsPageClient({ locale }: { locale: Locale }) {
 
       <SermonFilterBar
         locale={locale}
+        sermons={sermons}
         filters={filters}
         onChange={setFilters}
         filteredCount={filteredSermons.length}
-        totalCount={SERMONS.length}
+        totalCount={sermons.length}
       />
 
       <SermonCardGrid

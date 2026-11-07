@@ -3,10 +3,11 @@ import { rsvpSchema } from "@/lib/validations";
 import { RATE_LIMIT_PRESETS } from "@/lib/security/rate-limit";
 import { rateLimitGuard, readJsonBody, serverErrorResponse, validateBody } from "@/lib/api/guards";
 import { generateReferenceCode } from "@/lib/referenceCode";
-import { UPCOMING_EVENTS_2026 } from "@/data/ministry-content";
+import { insertRsvp, listEvents } from "@/lib/db";
 
-/** Event RSVP. Validates with `rsvpSchema` and confirms against a real
- *  upcoming event before returning a registration confirmation. */
+/** Event RSVP. Validates with `rsvpSchema`, confirms against a real
+ *  upcoming event, and persists a real record (`src/lib/db.ts`) so the
+ *  event's live registered-count badge reflects every RSVP. */
 export async function POST(request: Request) {
   const limited = rateLimitGuard(request, "event-rsvp", RATE_LIMIT_PRESETS.eventRsvp);
   if (limited) return limited;
@@ -19,12 +20,22 @@ export async function POST(request: Request) {
     if (!validated.ok) return validated.response;
     const rsvp = validated.data;
 
-    const event = UPCOMING_EVENTS_2026.find((candidate) => candidate.id === rsvp.eventId);
+    const events = await listEvents();
+    const event = events.find((candidate) => candidate.id === rsvp.eventId);
     if (!event) {
       return NextResponse.json({ success: false, error: "Unknown event reference." }, { status: 400 });
     }
 
     const referenceId = generateReferenceCode("GLM-RSVP");
+
+    await insertRsvp({
+      kind: "event",
+      eventId: event.id,
+      fullName: rsvp.fullName,
+      email: rsvp.email,
+      phone: rsvp.phone,
+      details: { attendanceMode: rsvp.attendanceMode, branchAffiliation: rsvp.branchAffiliation },
+    });
 
     return NextResponse.json(
       {

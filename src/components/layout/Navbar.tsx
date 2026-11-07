@@ -3,14 +3,18 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ChevronDown, Flame, Heart, Menu, X } from "lucide-react";
+import { ChevronDown, Flame, Heart, MapPin, Menu, Phone, X } from "lucide-react";
 import { getDictionary } from "@/data/i18n";
+import { DC_PHONE } from "@/data/locations";
 import { cn, type Locale } from "@/lib/utils";
 
 interface NavLink {
   href: string;
   label: string;
 }
+
+const DC_SANCTUARY_ADDRESS = "2401 Virginia Ave NW, Washington, DC 20037";
+const DC_DIRECTIONS_URL = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(DC_SANCTUARY_ADDRESS)}`;
 
 /**
  * Tier 2 of the bennyhinn.org-style header: a crisp white classic bar
@@ -64,6 +68,17 @@ export function Navbar({ locale }: { locale: Locale }) {
     setIsMobileOpen(false);
     setOpenDropdown(null);
   }, [pathname]);
+
+  // Lock the background page while the full-screen mobile drawer is
+  // open so it doesn't scroll underneath the overlay.
+  useEffect(() => {
+    if (!isMobileOpen) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [isMobileOpen]);
 
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
@@ -259,13 +274,13 @@ export function Navbar({ locale }: { locale: Locale }) {
         <nav
           id="mobile-navigation-menu"
           aria-label={dict.a11y.mobileNav}
-          className="border-t border-[#F0EAE1] bg-white px-4 py-3 lg:hidden"
+          className="fixed inset-0 z-30 overflow-y-auto overscroll-contain bg-white px-4 pb-28 pt-24 lg:hidden"
         >
-          <ul className="flex flex-col gap-1">
+          <ul className="flex flex-col gap-1.5">
             <li>
               <Link
                 href={`/${locale}`}
-                className="block rounded-lg px-3 py-2 font-nav text-sm font-bold uppercase tracking-wide text-[#222222] hover:bg-amber-50"
+                className="block touch-manipulation rounded-lg px-4 py-3 font-nav text-sm font-bold uppercase tracking-wide text-[#222222] transition-transform active:scale-[0.98] hover:bg-amber-50"
               >
                 {dict.nav.home}
               </Link>
@@ -276,7 +291,7 @@ export function Navbar({ locale }: { locale: Locale }) {
                 aria-expanded={mobileOpenGroup === "about"}
                 onClick={() => setMobileOpenGroup((g) => (g === "about" ? null : "about"))}
                 className={cn(
-                  "flex w-full items-center justify-between rounded-lg px-3 py-2 font-nav text-sm font-bold uppercase tracking-wide",
+                  "flex min-h-[44px] w-full touch-manipulation items-center justify-between rounded-lg px-4 py-3 font-nav text-sm font-bold uppercase tracking-wide transition-transform active:scale-[0.98]",
                   isAboutActive ? "bg-amber-50 text-amber-700" : "text-[#222222] hover:bg-amber-50"
                 )}
               >
@@ -290,7 +305,10 @@ export function Navbar({ locale }: { locale: Locale }) {
                 <ul className="ml-3 mt-1 flex flex-col gap-1 border-l border-[#F0EAE1] pl-3">
                   {aboutLinks.map((link) => (
                     <li key={link.href}>
-                      <Link href={link.href} className="block rounded-lg px-3 py-2 text-sm text-[#3A3A3A] hover:bg-amber-50">
+                      <Link
+                        href={link.href}
+                        className="block touch-manipulation rounded-lg px-4 py-3 text-sm text-[#3A3A3A] transition-transform active:scale-[0.98] hover:bg-amber-50"
+                      >
                         {link.label}
                       </Link>
                     </li>
@@ -301,7 +319,7 @@ export function Navbar({ locale }: { locale: Locale }) {
             <li>
               <Link
                 href={primaryLinks[0]!.href}
-                className="block rounded-lg px-3 py-2 font-nav text-sm font-bold uppercase tracking-wide text-[#222222] hover:bg-amber-50"
+                className="block touch-manipulation rounded-lg px-4 py-3 font-nav text-sm font-bold uppercase tracking-wide text-[#222222] transition-transform active:scale-[0.98] hover:bg-amber-50"
               >
                 {primaryLinks[0]!.label}
               </Link>
@@ -312,7 +330,7 @@ export function Navbar({ locale }: { locale: Locale }) {
                 aria-expanded={mobileOpenGroup === "ministry"}
                 onClick={() => setMobileOpenGroup((g) => (g === "ministry" ? null : "ministry"))}
                 className={cn(
-                  "flex w-full items-center justify-between rounded-lg px-3 py-2 font-nav text-sm font-bold uppercase tracking-wide",
+                  "flex min-h-[44px] w-full touch-manipulation items-center justify-between rounded-lg px-4 py-3 font-nav text-sm font-bold uppercase tracking-wide transition-transform active:scale-[0.98]",
                   isMinistryActive ? "bg-amber-50 text-amber-700" : "text-[#222222] hover:bg-amber-50"
                 )}
               >
@@ -326,7 +344,10 @@ export function Navbar({ locale }: { locale: Locale }) {
                 <ul className="ml-3 mt-1 flex flex-col gap-1 border-l border-[#F0EAE1] pl-3">
                   {ministryLinks.map((link) => (
                     <li key={link.href}>
-                      <Link href={link.href} className="block rounded-lg px-3 py-2 text-sm text-[#3A3A3A] hover:bg-amber-50">
+                      <Link
+                        href={link.href}
+                        className="block touch-manipulation rounded-lg px-4 py-3 text-sm text-[#3A3A3A] transition-transform active:scale-[0.98] hover:bg-amber-50"
+                      >
                         {link.label}
                       </Link>
                     </li>
@@ -338,7 +359,7 @@ export function Navbar({ locale }: { locale: Locale }) {
               <li key={link.href}>
                 <Link
                   href={link.href}
-                  className="block rounded-lg px-3 py-2 font-nav text-sm font-bold uppercase tracking-wide text-[#222222] hover:bg-amber-50"
+                  className="block touch-manipulation rounded-lg px-4 py-3 font-nav text-sm font-bold uppercase tracking-wide text-[#222222] transition-transform active:scale-[0.98] hover:bg-amber-50"
                 >
                   {link.label}
                 </Link>
@@ -347,13 +368,42 @@ export function Navbar({ locale }: { locale: Locale }) {
             <li className="pt-1">
               <Link
                 href={`/${locale}/give`}
-                className="flex items-center justify-center gap-1.5 rounded bg-bh-crimson-gradient px-4 py-2.5 font-nav text-sm font-bold uppercase tracking-wide text-white"
+                className="flex min-h-[44px] touch-manipulation items-center justify-center gap-1.5 rounded bg-bh-crimson-gradient px-4 py-3 font-nav text-sm font-bold uppercase tracking-wide text-white transition-transform active:scale-[0.98]"
               >
                 <Heart className="h-4 w-4" aria-hidden="true" />
                 {dict.nav.give}
               </Link>
             </li>
           </ul>
+
+          <div className="mt-6 flex flex-col gap-2 rounded-xl border border-[#F0EAE1] bg-amber-50/40 p-3">
+            <a
+              href={`tel:${DC_PHONE}`}
+              className="flex min-h-[44px] touch-manipulation items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-semibold text-[#222222] transition-transform active:scale-[0.98] hover:bg-amber-50"
+            >
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#1E40AF] text-white">
+                <Phone className="h-4 w-4" aria-hidden="true" />
+              </span>
+              <span>
+                {dict.a11y.callDcSanctuary}
+                <span className="block text-xs font-normal text-navy-400">{DC_PHONE}</span>
+              </span>
+            </a>
+            <a
+              href={DC_DIRECTIONS_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex min-h-[44px] touch-manipulation items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-semibold text-[#222222] transition-transform active:scale-[0.98] hover:bg-amber-50"
+            >
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-amber-600 text-white">
+                <MapPin className="h-4 w-4" aria-hidden="true" />
+              </span>
+              <span>
+                {dict.a11y.directionsToDc}
+                <span className="block text-xs font-normal text-navy-400">{DC_SANCTUARY_ADDRESS}</span>
+              </span>
+            </a>
+          </div>
         </nav>
       )}
     </header>

@@ -1,12 +1,16 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { BookOpen, Check, Copy, HeartHandshake } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { BookOpen, Check, Copy, HeartHandshake, Users } from "lucide-react";
 import { getDictionary } from "@/data/i18n";
 import { DAILY_DEVOTIONALS } from "@/data/ministry-content";
 import { cn, type Locale } from "@/lib/utils";
 import { useToast } from "@/components/providers/AppProviders";
 import { PrayerRequestForm } from "@/components/prayer/PrayerRequestForm";
+import { PrayerWall, type PrayerWallStats } from "@/components/home/PrayerWall";
+import { Particles } from "@/components/react-bits/Particles";
+import { SplitText } from "@/components/react-bits/SplitText";
+import { AnimatedContent } from "@/components/react-bits/AnimatedContent";
 
 /** Picks today's devotional by weekday if one is scheduled for today's
  *  date, otherwise falls back to the first entry in the series. */
@@ -31,6 +35,21 @@ export function GlobalPrayerArmyAndScripture({ locale }: { locale: Locale }) {
   const [activeId, setActiveId] = useState<string>(getTodaysDevotionalId());
   const [isPrayerConfirmed, setIsPrayerConfirmed] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [stats, setStats] = useState<PrayerWallStats | null>(null);
+
+  async function refreshStats() {
+    try {
+      const response = await fetch("/api/prayer");
+      const result = await response.json().catch(() => null);
+      if (result?.success) setStats(result.data as PrayerWallStats);
+    } catch {
+      // Live counter is a progressive enhancement — fail silently.
+    }
+  }
+
+  useEffect(() => {
+    refreshStats();
+  }, []);
 
   const active = useMemo(
     () => DAILY_DEVOTIONALS.find((devotional) => devotional.id === activeId) ?? DAILY_DEVOTIONALS[0]!,
@@ -62,7 +81,7 @@ export function GlobalPrayerArmyAndScripture({ locale }: { locale: Locale }) {
         {/* Left: Today's Key Scripture & A Prayer for Today */}
         <div id="todays-scripture">
           <h2 className="font-display text-2xl font-bold text-navy-900 sm:text-3xl">
-            {dict.dailyWord.sectionTitle}
+            <SplitText text={dict.dailyWord.sectionTitle} animateBy="words" as="span" />
           </h2>
           <p className="mt-3 text-sm text-slate-600 sm:text-base">{dict.dailyWord.sectionSubtitle}</p>
 
@@ -89,8 +108,15 @@ export function GlobalPrayerArmyAndScripture({ locale }: { locale: Locale }) {
             ))}
           </div>
 
-          <div className="mt-6 border-t-4 border-amber-600 bg-navy-950 p-6 text-white sm:p-8">
-            <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-amber-400">
+          <div className="relative mt-6 overflow-hidden border-t-4 border-amber-600 bg-navy-950 p-6 text-white sm:p-8">
+            <Particles
+              className="absolute inset-0"
+              particleColors={["#60A5FA", "#93C5FD", "#FFFFFF"]}
+              particleCount={60}
+              speed={0.15}
+              moveParticlesOnHover
+            />
+            <div className="relative flex flex-wrap items-center justify-between gap-2 text-xs text-amber-400">
               <span className="font-semibold uppercase tracking-wide">{dict.dailyWord.todayLabel}</span>
               <span>{formattedDate}</span>
             </div>
@@ -141,11 +167,20 @@ export function GlobalPrayerArmyAndScripture({ locale }: { locale: Locale }) {
         <div id="global-prayer-army">
           <HeartHandshake className="h-8 w-8 text-amber-600" aria-hidden="true" />
           <h2 className="mt-4 font-display text-2xl font-bold text-navy-900 sm:text-3xl">
-            {dict.prayerArmySection.sectionTitle}
+            <SplitText text={dict.prayerArmySection.sectionTitle} animateBy="words" as="span" />
           </h2>
           <p className="mt-3 text-sm leading-relaxed text-slate-600 sm:text-base">
             {dict.prayerArmySection.sectionSubtitle}
           </p>
+          {stats && stats.totalPrayerArmyMembers > 0 && (
+            <p className="mt-3 flex items-center gap-1.5 text-sm font-semibold text-amber-700">
+              <Users className="h-4 w-4" aria-hidden="true" />
+              {dict.prayerArmySection.memberCountTemplate.replace(
+                "{count}",
+                stats.totalPrayerArmyMembers.toLocaleString(locale === "am" ? "am-ET" : "en-US")
+              )}
+            </p>
+          )}
           <div className="mt-4 flex items-center gap-2 text-sm font-semibold text-amber-700">
             <BookOpen className="h-4 w-4" aria-hidden="true" />
             <span>
@@ -153,7 +188,7 @@ export function GlobalPrayerArmyAndScripture({ locale }: { locale: Locale }) {
             </span>
           </div>
 
-          <div className="mt-6 border border-[#E6DFD3] bg-white p-6 shadow-md sm:p-7">
+          <AnimatedContent distance={30} duration={0.6} className="mt-6 border border-[#E6DFD3] bg-white p-6 shadow-md sm:p-7">
             {isPrayerConfirmed ? (
               <div className="flex flex-col items-center gap-3 py-6 text-center">
                 <HeartHandshake className="h-10 w-10 text-emerald-600" aria-hidden="true" />
@@ -172,11 +207,16 @@ export function GlobalPrayerArmyAndScripture({ locale }: { locale: Locale }) {
             ) : (
               <PrayerRequestForm
                 locale={locale}
-                onSuccess={() => setIsPrayerConfirmed(true)}
+                onSuccess={() => {
+                  setIsPrayerConfirmed(true);
+                  refreshStats();
+                }}
                 idPrefix="prayer-army"
               />
             )}
-          </div>
+          </AnimatedContent>
+
+          <PrayerWall locale={locale} stats={stats} />
         </div>
       </div>
     </section>

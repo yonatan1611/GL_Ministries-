@@ -8,6 +8,10 @@ import { postJson } from "@/lib/http";
 import { cn, type Locale } from "@/lib/utils";
 import { Modal } from "@/components/ui/Modal";
 import { useToast } from "@/components/providers/AppProviders";
+import { Aurora } from "@/components/react-bits/Aurora";
+import { SplitText } from "@/components/react-bits/SplitText";
+import { GradientText } from "@/components/react-bits/GradientText";
+import { Magnet } from "@/components/react-bits/Magnet";
 
 interface GuideRequestForm {
   fullName: string;
@@ -82,19 +86,32 @@ export function SalvationBanner({ locale }: { locale: Locale }) {
   return (
     <section
       id="salvation"
-      className="border-y-2 border-blue-600/60 bg-gradient-to-r from-[#0F172A] via-[#1E293B] to-[#0F172A] px-4 py-10 text-center sm:px-6 lg:px-8"
+      className="relative overflow-hidden border-y-2 border-blue-600/60 bg-gradient-to-r from-[#0F172A] via-[#1E293B] to-[#0F172A] px-4 py-10 text-center sm:px-6 lg:px-8"
     >
-      <p className="font-crest text-sm font-bold uppercase tracking-[0.3em] text-amber-400">{dict.salvation.label}</p>
-      <h2 className="mx-auto mt-3 max-w-2xl font-display text-2xl font-bold text-white sm:text-3xl">
-        {dict.salvation.headline}
-      </h2>
-      <button
-        type="button"
-        onClick={() => setIsModalOpen(true)}
-        className="mt-6 rounded border border-blue-400/50 bg-brand-logo-gradient px-8 py-3.5 font-nav text-sm font-extrabold uppercase tracking-wider text-white shadow-lg hover:brightness-110"
-      >
-        {dict.salvation.ctaButton}
-      </button>
+      <Aurora
+        className="absolute inset-0 opacity-40 mix-blend-screen"
+        colorStops={["#091528", "#1B365D", "#2563EB", "#1E40AF"]}
+        amplitude={1.1}
+        blend={0.55}
+        speed={0.6}
+      />
+      <div className="relative">
+        <p className="font-crest text-sm font-bold uppercase tracking-[0.3em] text-amber-400">{dict.salvation.label}</p>
+        <h2 className="mx-auto mt-3 max-w-2xl font-display text-2xl font-bold text-white sm:text-3xl">
+          <SplitText text={dict.salvation.headline} animateBy="words" as="span" />
+        </h2>
+        <Magnet padding={40} magnetStrength={3} className="mt-6 inline-block">
+          <button
+            type="button"
+            onClick={() => setIsModalOpen(true)}
+            className="rounded border border-blue-400/50 bg-brand-logo-gradient px-8 py-3.5 font-nav text-sm font-extrabold uppercase tracking-wider shadow-lg hover:brightness-110"
+          >
+            <GradientText colors={["#60A5FA", "#FFFFFF", "#38BDF8", "#60A5FA"]} animationSpeed={6}>
+              {dict.salvation.ctaButton}
+            </GradientText>
+          </button>
+        </Magnet>
+      </div>
 
       <Modal
         isOpen={isModalOpen}
@@ -146,6 +163,7 @@ export function SalvationBanner({ locale }: { locale: Locale }) {
                   <input
                     id="salvation-name"
                     type="text"
+                    autoComplete="name"
                     value={form.fullName}
                     onChange={(e) => setForm((f) => ({ ...f, fullName: e.target.value }))}
                     className={cn(
@@ -163,6 +181,7 @@ export function SalvationBanner({ locale }: { locale: Locale }) {
                     <input
                       id="salvation-email"
                       type="email"
+                      autoComplete="email"
                       value={form.email}
                       onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
                       className={cn(
@@ -179,6 +198,8 @@ export function SalvationBanner({ locale }: { locale: Locale }) {
                     <input
                       id="salvation-phone"
                       type="tel"
+                      inputMode="tel"
+                      autoComplete="tel"
                       value={form.phone}
                       onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))}
                       className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"

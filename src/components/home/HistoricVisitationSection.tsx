@@ -3,6 +3,17 @@ import { getDictionary } from "@/data/i18n";
 import { IMPACT_STATS, MINISTRY_IMAGES } from "@/data/social-media";
 import type { Locale } from "@/lib/utils";
 import { MinistryImage } from "@/components/ui/MinistryImage";
+import { CountUp } from "@/components/react-bits/CountUp";
+import { Particles } from "@/components/react-bits/Particles";
+import { SplitText } from "@/components/react-bits/SplitText";
+import { AnimatedContent } from "@/components/react-bits/AnimatedContent";
+
+/** "43+", "32", "100,000+" -> { to: 43, suffix: "+" } / { to: 100000, suffix: "+", separator: "," }. */
+function parseStatValue(value: string): { to: number; suffix: string; separator: string } {
+  const numericPart = value.replace(/[^0-9]/g, "");
+  const suffix = value.replace(/[0-9,]/g, "");
+  return { to: Number(numericPart), suffix, separator: value.includes(",") ? "," : "" };
+}
 
 /**
  * "The Historic Divine Visitation of the Holy Spirit in Ethiopia" — a
@@ -25,11 +36,18 @@ export function HistoricVisitationSection({ locale }: { locale: Locale }) {
           className="object-cover opacity-25"
         />
         <div className="absolute inset-0 bg-bh-stage-radial" />
+        <Particles
+          className="absolute inset-0"
+          particleColors={["#60A5FA", "#93C5FD", "#FFFFFF"]}
+          particleCount={60}
+          speed={0.15}
+          moveParticlesOnHover
+        />
       </div>
 
       <div className="relative mx-auto max-w-4xl text-center">
         <h2 className="font-display text-2xl font-bold italic text-white sm:text-3xl lg:text-4xl">
-          {dict.historicVisitation.headline}
+          <SplitText text={dict.historicVisitation.headline} animateBy="words" as="span" />
         </h2>
         <div className="section-divider" aria-hidden="true">
           <span className="section-divider-diamond">◆</span>
@@ -37,17 +55,24 @@ export function HistoricVisitationSection({ locale }: { locale: Locale }) {
       </div>
 
       <div className="relative mx-auto mt-12 grid max-w-5xl grid-cols-2 gap-6 sm:grid-cols-4">
-        {featuredStats.map((stat) => (
-          <div key={stat.id} className="text-center">
-            <p className="font-display text-4xl font-extrabold text-blue-400 sm:text-5xl">{stat.value}</p>
-            <p className="mt-2 font-nav text-xs font-bold uppercase tracking-[0.1em] text-white sm:text-sm">
-              {locale === "am" ? stat.labelAm : stat.labelEn}
-            </p>
-            <p className="mt-1.5 text-[11px] leading-relaxed text-navy-300">
-              {locale === "am" ? stat.detailAm : stat.detailEn}
-            </p>
-          </div>
-        ))}
+        {featuredStats.map((stat, index) => {
+          const parsed = parseStatValue(stat.value);
+          return (
+            <AnimatedContent key={stat.id} distance={24} duration={0.6} delay={index * 0.1}>
+              <div className="text-center">
+                <p className="font-display text-4xl font-extrabold text-blue-400 sm:text-5xl">
+                  <CountUp to={parsed.to} suffix={parsed.suffix} separator={parsed.separator} duration={2} />
+                </p>
+                <p className="mt-2 font-nav text-xs font-bold uppercase tracking-[0.1em] text-white sm:text-sm">
+                  {locale === "am" ? stat.labelAm : stat.labelEn}
+                </p>
+                <p className="mt-1.5 text-[11px] leading-relaxed text-navy-300">
+                  {locale === "am" ? stat.detailAm : stat.detailEn}
+                </p>
+              </div>
+            </AnimatedContent>
+          );
+        })}
       </div>
 
       <div className="relative mt-12 flex flex-wrap items-center justify-center gap-4">

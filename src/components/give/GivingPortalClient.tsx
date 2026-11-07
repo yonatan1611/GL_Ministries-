@@ -34,6 +34,7 @@ import { useToast } from "@/components/providers/AppProviders";
 import { MinistryImage } from "@/components/ui/MinistryImage";
 import { StewardshipReceiptModal, type GivingReceiptData } from "@/components/give/StewardshipReceiptModal";
 import { InteractivePaymentGatewayModal } from "@/components/give/InteractivePaymentGatewayModal";
+import { AnimatedContent } from "@/components/react-bits/AnimatedContent";
 import { STRIPE_IS_LIVE } from "@/lib/stripe-public";
 
 type Frequency = "one-time" | "monthly" | "annual";
@@ -201,7 +202,7 @@ export function GivingPortalClient({ locale }: { locale: Locale }) {
         {MONTHLY_OFFER_BOOK && (
           <div
             id="partnership"
-            className="flex flex-col gap-6 rounded-2xl border border-amber-300 bg-amber-50 p-6 shadow-sm sm:flex-row sm:items-center"
+            className="flex flex-col items-center gap-6 rounded-2xl border border-amber-300 bg-amber-50 p-6 text-center shadow-sm sm:flex-row sm:items-center sm:text-left"
           >
             {MONTHLY_OFFER_BOOK.coverImageUrl && (
               <div className="relative h-40 w-28 shrink-0 overflow-hidden rounded-xl border border-amber-500/40 shadow-md">
@@ -215,13 +216,13 @@ export function GivingPortalClient({ locale }: { locale: Locale }) {
               </div>
             )}
             <div className="flex-1">
-              <h2 className="flex items-center gap-2 font-display text-lg font-bold text-navy-900 sm:text-xl">
+              <h2 className="flex items-center justify-center gap-2 font-display text-lg font-bold text-navy-900 sm:justify-start sm:text-xl">
                 <Gift className="h-5 w-5 shrink-0 text-amber-600" aria-hidden="true" />
                 {dict.give.partnershipBannerTitle}
               </h2>
               <p className="mt-2 text-sm leading-relaxed text-slate-600">{dict.give.partnershipBannerBody}</p>
 
-              <label className="mt-4 flex items-start gap-2.5 rounded-lg border border-amber-300 bg-white p-3 text-sm text-slate-700">
+              <label className="mt-4 flex items-start gap-2.5 rounded-lg border border-amber-300 bg-white p-3 text-left text-sm text-slate-700">
                 <input
                   type="checkbox"
                   checked={claimMonthlyBookOffer}
@@ -246,7 +247,7 @@ export function GivingPortalClient({ locale }: { locale: Locale }) {
         <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
           <div className="mt-6">
             <p className="text-sm font-semibold text-navy-800">{dict.give.amountSectionLabel}</p>
-            <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-5">
+            <div className="mt-3 grid grid-cols-3 gap-2.5 sm:grid-cols-5 sm:gap-2">
               {USD_PRESETS.map((preset) => (
                 <button
                   key={preset}
@@ -254,7 +255,7 @@ export function GivingPortalClient({ locale }: { locale: Locale }) {
                   onClick={() => handlePresetClick(preset)}
                   aria-pressed={!isCustomAmount && amount === preset}
                   className={cn(
-                    "rounded-lg border px-3 py-2.5 text-sm font-semibold",
+                    "min-h-[48px] touch-manipulation rounded-lg border px-3 py-2.5 text-sm font-semibold transition-transform active:scale-[0.98]",
                     !isCustomAmount && amount === preset
                       ? "border-amber-600 bg-amber-50 text-amber-800"
                       : "border-slate-300 text-slate-600 hover:bg-slate-50"
@@ -278,6 +279,7 @@ export function GivingPortalClient({ locale }: { locale: Locale }) {
                 <input
                   id="give-custom-amount"
                   type="number"
+                  inputMode="numeric"
                   min={1}
                   placeholder={dict.give.customAmountLabel}
                   value={customAmountInput}
@@ -398,6 +400,7 @@ export function GivingPortalClient({ locale }: { locale: Locale }) {
               <input
                 id="give-name"
                 type="text"
+                autoComplete="name"
                 value={form.donorName}
                 onChange={(e) => setForm((f) => ({ ...f, donorName: e.target.value }))}
                 className={cn(
@@ -414,6 +417,7 @@ export function GivingPortalClient({ locale }: { locale: Locale }) {
               <input
                 id="give-email"
                 type="email"
+                autoComplete="email"
                 value={form.donorEmail}
                 onChange={(e) => setForm((f) => ({ ...f, donorEmail: e.target.value }))}
                 className={cn(
@@ -430,6 +434,8 @@ export function GivingPortalClient({ locale }: { locale: Locale }) {
               <input
                 id="give-phone"
                 type="tel"
+                inputMode="tel"
+                autoComplete="tel"
                 value={form.donorPhone}
                 onChange={(e) => setForm((f) => ({ ...f, donorPhone: e.target.value }))}
                 className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
@@ -468,7 +474,7 @@ export function GivingPortalClient({ locale }: { locale: Locale }) {
 
       {/* Right column: trust, impact, and mail-in giving */}
       <div className="flex flex-col gap-6">
-        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+        <AnimatedContent distance={30} duration={0.6} className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
           <p className="font-display text-base font-bold text-navy-900">{dict.give.impactTitle}</p>
           <div className="mt-4 flex flex-col gap-4">
             {[
@@ -485,17 +491,17 @@ export function GivingPortalClient({ locale }: { locale: Locale }) {
               </div>
             ))}
           </div>
-        </div>
+        </AnimatedContent>
 
-        <div className="rounded-2xl border border-navy-800 bg-navy-950 p-6 text-white">
+        <AnimatedContent distance={30} duration={0.6} delay={0.1} className="rounded-2xl border border-navy-800 bg-navy-950 p-6 text-white">
           <div className="flex items-center gap-2">
             <ShieldCheck className="h-5 w-5 text-amber-400" aria-hidden="true" />
             <p className="font-display text-base font-bold">{dict.give.taxBadgeTitle}</p>
           </div>
           <p className="mt-2 text-sm leading-relaxed text-slate-300">{dict.give.taxBadgeBody}</p>
-        </div>
+        </AnimatedContent>
 
-        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+        <AnimatedContent distance={30} duration={0.6} delay={0.2} className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
           <p className="font-display text-base font-bold text-navy-900">{dict.give.checkWireTitle}</p>
 
           <div className="mt-4 border-t border-slate-100 pt-4">
@@ -536,7 +542,7 @@ export function GivingPortalClient({ locale }: { locale: Locale }) {
               {HQ_EMAIL}
             </a>
           </div>
-        </div>
+        </AnimatedContent>
       </div>
 
       <StewardshipReceiptModal locale={locale} receipt={receipt} onClose={() => setReceipt(null)} />

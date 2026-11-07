@@ -12,6 +12,13 @@ import { cn, type Locale } from "@/lib/utils";
 import { MinistryImage } from "@/components/ui/MinistryImage";
 import { VideoModal } from "@/components/ui/VideoModal";
 import { usePrayerModal } from "@/components/providers/AppProviders";
+import { Aurora } from "@/components/react-bits/Aurora";
+import { LightRays } from "@/components/react-bits/LightRays";
+import { BlurText } from "@/components/react-bits/BlurText";
+import { GradientText } from "@/components/react-bits/GradientText";
+import { ShinyText } from "@/components/react-bits/ShinyText";
+import { Magnet } from "@/components/react-bits/Magnet";
+import { SpotlightCard } from "@/components/react-bits/SpotlightCard";
 
 type BackgroundMode = "video" | "dc" | "global" | "youtube";
 
@@ -237,13 +244,25 @@ export function HeroSection({ locale }: { locale: Locale }) {
           </div>
         )}
 
+        {/* Layer 2c: worship-sanctuary stage lighting — a slow aurora
+            wash plus soft god-rays, screen-blended over the video so the
+            backdrop feels like a lit stage rather than washing it out. */}
+        <Aurora
+          className="absolute inset-0 opacity-50 mix-blend-screen"
+          colorStops={["#091528", "#1B365D", "#2563EB", "#1E40AF"]}
+          amplitude={1.1}
+          blend={0.55}
+          speed={0.6}
+        />
+        <LightRays className="absolute inset-0 opacity-70" color="#60A5FA" rayCount={6} />
+
         {/* Layer 3: Royal Navy stage vignette so the typography and
             sanctuary card stay high-contrast over any backdrop */}
         <div className="absolute inset-0 bg-gradient-to-r from-[#091528]/80 via-[#0F2342]/45 to-[#091528]/35" />
       </div>
 
       {/* Background mode switcher controls */}
-      <div className="absolute bottom-5 right-4 z-10 flex gap-2 sm:right-6 lg:right-8">
+      <div className="absolute bottom-3 right-3 z-10 flex max-w-[calc(100%-1.5rem)] gap-1.5 overflow-x-auto sm:bottom-5 sm:right-6 sm:max-w-none sm:gap-2 lg:right-8">
         {BACKGROUND_OPTIONS.map((option) => (
           <button
             key={option.mode}
@@ -251,7 +270,8 @@ export function HeroSection({ locale }: { locale: Locale }) {
             onClick={() => setBackground(option.mode)}
             aria-pressed={background === option.mode}
             className={cn(
-              "rounded-full border px-3 py-1.5 font-nav text-[11px] font-bold uppercase tracking-wider transition-colors",
+              "shrink-0 truncate rounded-full border px-2.5 py-1 font-nav text-[10px] font-bold uppercase tracking-wider transition-colors sm:px-3 sm:py-1.5 sm:text-[11px]",
+              "max-w-[76px] sm:max-w-none",
               background === option.mode
                 ? "border-blue-400 bg-blue-600/90 text-white"
                 : "border-white/30 bg-black/30 text-white/80 hover:bg-black/50"
@@ -262,41 +282,59 @@ export function HeroSection({ locale }: { locale: Locale }) {
         ))}
       </div>
 
-      <div className="relative mx-auto flex max-w-7xl flex-col gap-10 px-4 py-16 sm:px-6 lg:flex-row lg:items-center lg:gap-12 lg:px-8 lg:py-20">
+      <div className="relative mx-auto flex max-w-7xl flex-col gap-8 px-4 py-8 sm:gap-10 sm:px-6 sm:py-14 lg:flex-row lg:items-center lg:gap-12 lg:px-8 lg:py-20">
         {/* Left column: headline & CTAs */}
         <div className="max-w-2xl">
-          <span className="inline-block rounded-full border border-blue-400/40 bg-blue-600/20 px-4 py-1.5 font-nav text-[11px] font-bold uppercase tracking-[0.15em] text-blue-200">
-            {dict.hero.badge}
+          <span className="inline-block rounded-xl border border-blue-400/40 bg-blue-600/20 px-4 py-1.5 font-nav text-[10px] font-bold uppercase leading-relaxed tracking-[0.1em] sm:rounded-full sm:text-[11px] sm:tracking-[0.15em]">
+            <ShinyText text={dict.hero.badge} speed={3} />
           </span>
 
-          <h1 className="mt-5 font-display text-3xl font-bold leading-tight text-white sm:text-4xl lg:text-5xl">
-            {dict.hero.headlinePrefix}{" "}
-            <span className="font-display italic text-blue-400">{dict.hero.headlineAccent}</span>{" "}
-            {dict.hero.headlineSuffix}
+          <h1 className="mt-5 font-display text-2xl font-bold leading-[1.2] text-white sm:text-4xl lg:text-5xl">
+            <BlurText text={dict.hero.headlinePrefix} animateBy="words" direction="top" delay={80} as="span" />{" "}
+            <GradientText
+              colors={["#60A5FA", "#FFFFFF", "#38BDF8", "#60A5FA"]}
+              animationSpeed={6}
+              animateIn
+              className="font-display italic"
+            >
+              {dict.hero.headlineAccent}
+            </GradientText>{" "}
+            <BlurText
+              text={dict.hero.headlineSuffix}
+              animateBy="words"
+              direction="top"
+              delay={80}
+              startDelay={dict.hero.headlinePrefix.split(" ").length * 80 + 300}
+              as="span"
+            />
           </h1>
 
           <p className="mt-6 max-w-xl text-base leading-relaxed text-navy-100 sm:text-lg">
             {dict.hero.subtitle}
           </p>
 
-          <div className="mt-8 flex flex-wrap items-center gap-4">
-            <button
-              type="button"
-              onClick={openPrayerModal}
-              className="rounded-lg border border-blue-400/50 bg-brand-logo-gradient px-7 py-4 font-nav text-sm font-extrabold uppercase tracking-wider text-white shadow-xl hover:brightness-110"
-            >
-              {dict.hero.ctaSecondary}
-            </button>
-            <Link
-              href={`/${locale}/give`}
-              className="rounded-lg border border-red-400/40 bg-bh-crimson-gradient px-7 py-4 font-nav text-sm font-extrabold uppercase tracking-wider text-white shadow-xl hover:brightness-110"
-            >
-              {dict.hero.ctaPrimary}
-            </Link>
+          <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4">
+            <Magnet padding={40} magnetStrength={3} className="w-full sm:w-auto">
+              <button
+                type="button"
+                onClick={openPrayerModal}
+                className="flex w-full touch-manipulation items-center justify-center rounded-lg border border-blue-400/50 bg-brand-logo-gradient px-7 py-3.5 font-nav text-sm font-extrabold uppercase tracking-wider text-white shadow-xl transition-transform hover:brightness-110 active:scale-[0.98] sm:w-auto sm:py-4"
+              >
+                {dict.hero.ctaSecondary}
+              </button>
+            </Magnet>
+            <Magnet padding={40} magnetStrength={3} className="w-full sm:w-auto">
+              <Link
+                href={`/${locale}/give`}
+                className="flex w-full touch-manipulation items-center justify-center rounded-lg border border-red-400/30 bg-red-500/10 px-7 py-3.5 font-nav text-sm font-extrabold uppercase tracking-wider text-red-100 backdrop-blur-md transition-transform hover:bg-red-500/20 active:scale-[0.98] sm:w-auto sm:py-4"
+              >
+                {dict.hero.ctaPrimary}
+              </Link>
+            </Magnet>
             <button
               type="button"
               onClick={() => setIsWatchOpen(true)}
-              className="flex items-center gap-2 rounded-lg border border-white/30 bg-white/10 px-7 py-4 font-nav text-sm font-extrabold uppercase tracking-wider text-white backdrop-blur-md hover:bg-white/20"
+              className="flex w-full touch-manipulation items-center justify-center gap-2 rounded-lg border border-white/30 bg-white/10 px-7 py-3.5 font-nav text-sm font-extrabold uppercase tracking-wider text-white backdrop-blur-md transition-transform hover:bg-white/20 active:scale-[0.98] sm:w-auto sm:py-4"
             >
               <PlayCircle className="h-5 w-5 animate-pulse text-blue-300" aria-hidden="true" />
               {dict.hero.ctaWatch}
@@ -305,7 +343,10 @@ export function HeroSection({ locale }: { locale: Locale }) {
         </div>
 
         {/* Right column: Washington, D.C. sanctuary + global network card */}
-        <div className="w-full max-w-md rounded-2xl border-2 border-blue-500/40 bg-[#0F2342]/90 p-6 shadow-2xl backdrop-blur-md lg:ml-auto">
+        <SpotlightCard
+          spotlightColor="rgba(37, 99, 235, 0.22)"
+          className="w-full max-w-md rounded-2xl border-2 border-blue-500/40 bg-[#0F2342]/90 p-4 shadow-2xl backdrop-blur-md sm:p-6 lg:ml-auto"
+        >
           <div className="flex items-center gap-3">
             <div className="flex -space-x-3">
               <div className="relative h-14 w-14 overflow-hidden rounded-full border-2 border-blue-400/60">
@@ -361,15 +402,29 @@ export function HeroSection({ locale }: { locale: Locale }) {
                 <p className="mt-0.5">{DC_ADMIN_OFFICE_ADDRESS}</p>
               </div>
             </div>
-            <p>{dict.schedule.dcSunday}</p>
-            <p>{dict.schedule.dcWednesday}</p>
+            <div className="grid grid-cols-2 gap-2">
+              <div className="rounded-lg border border-blue-500/30 bg-blue-500/10 p-2 text-center">
+                <p className="text-[10px] font-bold uppercase tracking-wide text-blue-300">
+                  {dict.schedule.dcSundayShort}
+                </p>
+                <p className="mt-0.5 text-xs leading-snug">{dict.schedule.dcSunday}</p>
+              </div>
+              <div className="rounded-lg border border-blue-500/30 bg-blue-500/10 p-2 text-center">
+                <p className="text-[10px] font-bold uppercase tracking-wide text-blue-300">
+                  {dict.schedule.dcWednesdayShort}
+                </p>
+                <p className="mt-0.5 text-xs leading-snug">{dict.schedule.dcWednesday}</p>
+              </div>
+            </div>
             <div className="flex gap-2.5">
               <Phone className="mt-0.5 h-4 w-4 shrink-0 text-blue-300" aria-hidden="true" />
               <div>
                 <p className="text-xs font-semibold uppercase tracking-wide text-blue-300">
                   {dict.hero.cardContactLabel}
                 </p>
-                <p className="mt-0.5">{DC_PHONE}</p>
+                <a href={`tel:${DC_PHONE}`} className="mt-0.5 block min-h-[32px] touch-manipulation hover:underline">
+                  {DC_PHONE}
+                </a>
                 <a href={`mailto:${DC_EMAIL}`} className="mt-0.5 flex items-center gap-1.5 hover:underline">
                   <Mail className="h-3.5 w-3.5 shrink-0 text-blue-300" aria-hidden="true" />
                   {DC_EMAIL}
@@ -378,40 +433,47 @@ export function HeroSection({ locale }: { locale: Locale }) {
             </div>
           </div>
 
-          <div className="mt-4 flex flex-wrap gap-3">
+          <div className="mt-4 grid grid-cols-2 gap-3">
+            <a
+              href={`tel:${DC_PHONE}`}
+              className="flex min-h-[44px] touch-manipulation items-center justify-center gap-1.5 rounded-lg bg-blue-600 px-4 py-2 text-xs font-bold uppercase tracking-wide text-white transition-transform hover:bg-blue-500 active:scale-[0.98]"
+            >
+              <Phone className="h-3.5 w-3.5" aria-hidden="true" />
+              {dict.hero.cardContactLabel}
+            </a>
             <a
               href={DC_DIRECTIONS_URL}
               target="_blank"
               rel="noopener noreferrer"
-              className="rounded-lg bg-blue-600 px-4 py-2 text-xs font-bold uppercase tracking-wide text-white hover:bg-blue-500"
+              className="flex min-h-[44px] touch-manipulation items-center justify-center gap-1.5 rounded-lg border border-blue-400/50 px-4 py-2 text-xs font-bold uppercase tracking-wide text-blue-100 transition-transform hover:bg-blue-500/20 active:scale-[0.98]"
             >
               {dict.hero.cardDirectionsCta}
             </a>
-            <Link
-              href={`/${locale}#visit-dc`}
-              className="rounded-lg border border-blue-400/50 px-4 py-2 text-xs font-bold uppercase tracking-wide text-blue-100 hover:bg-blue-500/20"
-            >
-              {dict.hero.cardVisitCta}
-            </Link>
           </div>
+          <Link
+            href={`/${locale}#visit-dc`}
+            className="mt-2 flex min-h-[44px] touch-manipulation items-center justify-center rounded-lg border border-blue-400/30 px-4 py-2 text-xs font-bold uppercase tracking-wide text-blue-100 transition-transform hover:bg-blue-500/20 active:scale-[0.98]"
+          >
+            {dict.hero.cardVisitCta}
+          </Link>
 
           <div className="mt-5 border-t border-blue-500/30 pt-4">
             <p className="text-xs font-semibold uppercase tracking-wide text-blue-300">
               {dict.hero.cardNetworkTitle}
             </p>
-            <div className="mt-2.5 flex flex-wrap gap-2">
+            <div className="no-scrollbar mt-2.5 flex gap-2 overflow-x-auto pb-1 snap-x sm:flex-wrap sm:overflow-visible">
               {GLOBAL_NETWORK_SYNODS.map((entry) => (
                 <Link
                   key={entry.synod}
                   href={`/${locale}/locations?synod=${encodeURIComponent(entry.synod)}`}
-                  className="rounded-full border border-blue-400/40 bg-blue-500/10 px-3 py-1.5 text-xs font-semibold text-blue-100 hover:bg-blue-500/30"
+                  className="shrink-0 touch-manipulation snap-start whitespace-nowrap rounded-full border border-blue-400/40 bg-blue-500/10 px-3 py-1.5 text-xs font-semibold text-blue-100 transition-transform hover:bg-blue-500/30 active:scale-[0.98]"
                 >
                   {locale === "am" ? entry.labelAm : entry.labelEn} ({entry.branchCount})
                 </Link>
               ))}
             </div>
           </div>
-        </div>
+        </SpotlightCard>
       </div>
 
       <VideoModal

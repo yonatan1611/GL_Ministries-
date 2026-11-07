@@ -107,6 +107,7 @@ export function StayConnectedSignupSection({ locale }: { locale: Locale }) {
               <input
                 id="sc-first-name"
                 type="text"
+                autoComplete="given-name"
                 required
                 value={form.firstName}
                 onChange={(e) => setForm((f) => ({ ...f, firstName: e.target.value }))}
@@ -124,6 +125,7 @@ export function StayConnectedSignupSection({ locale }: { locale: Locale }) {
               <input
                 id="sc-last-name"
                 type="text"
+                autoComplete="family-name"
                 required
                 value={form.lastName}
                 onChange={(e) => setForm((f) => ({ ...f, lastName: e.target.value }))}
@@ -143,6 +145,7 @@ export function StayConnectedSignupSection({ locale }: { locale: Locale }) {
             <input
               id="sc-email"
               type="email"
+              autoComplete="email"
               required
               value={form.email}
               onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
@@ -161,6 +164,8 @@ export function StayConnectedSignupSection({ locale }: { locale: Locale }) {
             <input
               id="sc-phone"
               type="tel"
+              inputMode="tel"
+              autoComplete="tel"
               value={form.phone}
               onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))}
               className="w-full rounded border border-slate-300 px-3 py-2 text-sm"

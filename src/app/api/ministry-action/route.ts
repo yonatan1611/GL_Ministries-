@@ -4,6 +4,7 @@ import { RATE_LIMIT_PRESETS } from "@/lib/security/rate-limit";
 import { rateLimitGuard, readJsonBody, serverErrorResponse, validateBody } from "@/lib/api/guards";
 import { generateReferenceCode } from "@/lib/referenceCode";
 import { HQ_EMAIL, DC_EMAIL } from "@/data/locations";
+import { insertRsvp } from "@/lib/db";
 
 /**
  * Backs the homepage's Volunteer / Rural Outreach / Home Groups action
@@ -28,6 +29,14 @@ export async function POST(request: Request) {
 
     const routedTo = action.actionType === "Outreach" ? HQ_EMAIL : DC_EMAIL;
     const referenceId = generateReferenceCode("GLM-ACTION");
+
+    await insertRsvp({
+      kind: action.actionType === "New Believer" ? "salvation" : "ministry-action",
+      fullName: action.fullName,
+      email: action.email,
+      phone: action.phone,
+      details: { actionType: action.actionType, city: action.city, note: action.note, routedTo },
+    });
 
     return NextResponse.json(
       {

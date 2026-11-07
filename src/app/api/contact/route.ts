@@ -4,11 +4,14 @@ import { RATE_LIMIT_PRESETS } from "@/lib/security/rate-limit";
 import { rateLimitGuard, readJsonBody, serverErrorResponse, validateBody } from "@/lib/api/guards";
 import { generateReferenceCode } from "@/lib/referenceCode";
 import { HQ_EMAIL, DC_EMAIL } from "@/data/locations";
+import { insertRsvp } from "@/lib/db";
 
 /**
  * Prayer request / pastoral counseling / ministry-team / general
- * contact form. Validates with `contactPrayerSchema` and routes the
- * inquiry to the Addis Ababa HQ or Washington, D.C. office inbox.
+ * contact form (also backs the "Plan Your Visit" CTA, submitted as a
+ * General Inquiry). Validates with `contactPrayerSchema`, routes the
+ * inquiry to the Addis Ababa HQ or Washington, D.C. office inbox, and
+ * persists a real record so it's visible in the Admin Portal.
  */
 export async function POST(request: Request) {
   const limited = rateLimitGuard(request, "contact", RATE_LIMIT_PRESETS.contact);
@@ -24,6 +27,14 @@ export async function POST(request: Request) {
 
     const routedTo = inquiry.targetOffice === "addis@glministries.org" ? HQ_EMAIL : DC_EMAIL;
     const referenceId = generateReferenceCode("GLM-MSG");
+
+    await insertRsvp({
+      kind: "contact-inquiry",
+      fullName: inquiry.fullName,
+      email: inquiry.email,
+      phone: inquiry.phone,
+      details: { inquiryType: inquiry.inquiryType, targetOffice: inquiry.targetOffice, message: inquiry.message },
+    });
 
     return NextResponse.json(
       {

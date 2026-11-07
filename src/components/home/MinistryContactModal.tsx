@@ -157,6 +157,7 @@ export function MinistryContactModal({
             <input
               id="contact-name"
               type="text"
+              autoComplete="name"
               value={form.fullName}
               onChange={(e) => setForm((f) => ({ ...f, fullName: e.target.value }))}
               className={cn(
@@ -174,6 +175,7 @@ export function MinistryContactModal({
             <input
               id="contact-email"
               type="email"
+              autoComplete="email"
               value={form.email}
               onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
               className={cn(
@@ -191,6 +193,8 @@ export function MinistryContactModal({
             <input
               id="contact-phone"
               type="tel"
+              inputMode="tel"
+              autoComplete="tel"
               value={form.phone}
               onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))}
               className={cn(

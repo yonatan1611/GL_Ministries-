@@ -104,6 +104,17 @@ export const RATE_LIMIT_PRESETS = {
   /** PDF book/eBook download (token-gated, but still worth a floor
    *  against brute-forcing a token). */
   booksDownload: { limit: 20, windowMs: 10 * 60 * 1000 } satisfies RateLimitOptions,
+  /** Public "🙏 I Prayed for This" tally click — generous, since it's a
+   *  low-stakes one-click engagement, not a form submission. */
+  prayerIncrement: { limit: 40, windowMs: 10 * 60 * 1000 } satisfies RateLimitOptions,
+  /** Read-only live counters (prayer army stats, event registered
+   *  counts) — generous, but still worth a floor. */
+  liveCounters: { limit: 60, windowMs: 5 * 60 * 1000 } satisfies RateLimitOptions,
+  /** Admin Portal passcode attempts — intentionally tight, since the
+   *  passcode is a short shared PIN rather than a full password. */
+  adminLogin: { limit: 8, windowMs: 15 * 60 * 1000 } satisfies RateLimitOptions,
+  /** Admin Portal data reads/writes once authenticated. */
+  adminAction: { limit: 60, windowMs: 5 * 60 * 1000 } satisfies RateLimitOptions,
 } as const;
 
 /**
