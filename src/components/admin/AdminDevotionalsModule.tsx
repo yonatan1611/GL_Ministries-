@@ -2,8 +2,6 @@
 
 import { useState } from "react";
 import { Loader2, Pencil, Plus, Star, Trash2, X } from "lucide-react";
-import type { Locale } from "@/lib/utils";
-import { cn } from "@/lib/utils";
 import type { DailyDevotional } from "@/types/ministry";
 
 type FormState = {
@@ -59,12 +57,16 @@ function toForm(devotional: DailyDevotional): FormState {
   };
 }
 
-export function AdminDevotionalsTab({
-  locale,
+/**
+ * Daily Scripture Devotional Studio: a live preview card showing
+ * exactly how "Today's Key Scripture" currently renders on the
+ * homepage, a 1-click "Set as Active" button on any saved devotional,
+ * and a full add/edit/delete studio.
+ */
+export function AdminDevotionalsModule({
   devotionals,
   onChanged,
 }: {
-  locale: Locale;
   devotionals: DailyDevotional[];
   onChanged: () => void;
 }) {
@@ -75,6 +77,7 @@ export function AdminDevotionalsTab({
   const [busyId, setBusyId] = useState<string | null>(null);
 
   const sorted = [...devotionals].sort((a, b) => Number(b.isFeaturedToday) - Number(a.isFeaturedToday));
+  const activeDevotional = sorted.find((d) => d.isFeaturedToday) ?? sorted[0];
 
   function startEdit(devotional: DailyDevotional) {
     setEditingId(devotional.id);
@@ -174,8 +177,29 @@ export function AdminDevotionalsTab({
 
   return (
     <div className="flex flex-col gap-8">
+      <h1 className="font-display text-xl font-bold text-navy-900">Daily Scripture Devotional Studio</h1>
+
+      {/* Live preview of the homepage "Today's Key Scripture" panel */}
+      {activeDevotional && (
+        <div>
+          <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
+            Live Preview — How This Looks on the Homepage Right Now
+          </p>
+          <div className="max-w-xl rounded-2xl border border-navy-800 bg-navy-950 p-6 text-white">
+            <p className="text-xs font-semibold uppercase tracking-wide text-amber-400">{activeDevotional.dateLabel}</p>
+            <h3 className="mt-1 font-display text-lg font-bold">{activeDevotional.titleEn}</h3>
+            <p className="mt-1 text-sm font-semibold text-blue-300">{activeDevotional.scriptureRefEn}</p>
+            <p className="mt-3 border-l-2 border-blue-500/40 pl-3 text-sm italic text-slate-200">
+              {activeDevotional.verseTextEn}
+            </p>
+            <p className="mt-3 text-xs leading-relaxed text-slate-400">{activeDevotional.reflectionEn}</p>
+            <p className="mt-3 text-xs text-slate-500">— {activeDevotional.authorEn}</p>
+          </div>
+        </div>
+      )}
+
       <div>
-        <p className="text-sm font-semibold text-navy-900">Daily Scripture Devotionals</p>
+        <p className="text-sm font-semibold text-navy-900">All Devotionals</p>
         <p className="mt-1 text-xs text-slate-500">
           The devotional marked <span className="font-semibold text-emerald-700">★ ACTIVE TODAY&apos;S SCRIPTURE</span> is
           shown first on the homepage&apos;s &quot;Today&apos;s Key Scripture&quot; panel.
@@ -188,10 +212,11 @@ export function AdminDevotionalsTab({
             {sorted.map((devotional) => (
               <div
                 key={devotional.id}
-                className={cn(
-                  "flex flex-col gap-2 rounded-xl border bg-white p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between",
-                  devotional.isFeaturedToday ? "border-emerald-400 ring-1 ring-emerald-200" : "border-slate-200"
-                )}
+                className={
+                  devotional.isFeaturedToday
+                    ? "flex flex-col gap-2 rounded-xl border border-emerald-400 bg-white p-4 shadow-sm ring-1 ring-emerald-200 sm:flex-row sm:items-center sm:justify-between"
+                    : "flex flex-col gap-2 rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between"
+                }
               >
                 <div className="min-w-0">
                   <div className="flex flex-wrap items-center gap-2">
@@ -204,7 +229,7 @@ export function AdminDevotionalsTab({
                     <span className="text-xs font-medium text-slate-500">{devotional.dateLabel}</span>
                   </div>
                   <p className="mt-1 truncate font-medium text-navy-900">
-                    {locale === "am" && devotional.titleAm ? devotional.titleAm : devotional.titleEn || "(Untitled)"}
+                    {devotional.titleEn || "(Untitled)"}
                   </p>
                   <p className="text-xs text-slate-500">{devotional.scriptureRefEn}</p>
                 </div>

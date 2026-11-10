@@ -2,8 +2,8 @@ import { NextResponse } from "next/server";
 import { rateLimitGuard, readJsonBody, serverErrorResponse, validateBody } from "@/lib/api/guards";
 import { RATE_LIMIT_PRESETS } from "@/lib/security/rate-limit";
 import { hasAdminSession } from "@/lib/adminAuth";
-import { findSermonByYoutubeId, insertSermon, listSermons } from "@/lib/db";
-import { newSermonSchema } from "@/lib/validations";
+import { deleteSermon, findSermonByYoutubeId, insertSermon, listSermons, updateSermon } from "@/lib/db";
+import { newSermonSchema, updateSermonSchema } from "@/lib/validations";
 import { extractYoutubeVideoId, fetchYoutubeOEmbed } from "@/lib/youtube";
 import { slugify } from "@/lib/utils";
 
@@ -82,6 +82,60 @@ export async function POST(request: Request) {
     });
 
     return NextResponse.json({ success: true, message: "Sermon added.", data: sermon }, { status: 200 });
+  } catch {
+    return serverErrorResponse();
+  }
+}
+
+/** Admin-only: edits an existing sermon's details (title, speaker,
+ *  topic, channel, scripture, summary) or toggles its homepage
+ *  "featured" flag. */
+export async function PUT(request: Request) {
+  const limited = rateLimitGuard(request, "admin-action", RATE_LIMIT_PRESETS.adminAction);
+  if (limited) return limited;
+
+  if (!(await hasAdminSession())) {
+    return NextResponse.json({ success: false, error: "Not signed in." }, { status: 401 });
+  }
+
+  const parsed = await readJsonBody(request);
+  if (!parsed.ok) return parsed.response;
+
+  try {
+    const validated = validateBody(updateSermonSchema, parsed.body);
+    if (!validated.ok) return validated.response;
+
+    const { id, ...patch } = validated.data;
+    const updated = await updateSermon(id, patch);
+    if (!updated) {
+      return NextResponse.json({ success: false, error: "Unknown sermon." }, { status: 404 });
+    }
+    return NextResponse.json({ success: true, message: "Sermon updated.", data: updated }, { status: 200 });
+  } catch {
+    return serverErrorResponse();
+  }
+}
+
+/** Admin-only: removes a sermon from the catalog by `id` (query param). */
+export async function DELETE(request: Request) {
+  const limited = rateLimitGuard(request, "admin-action", RATE_LIMIT_PRESETS.adminAction);
+  if (limited) return limited;
+
+  if (!(await hasAdminSession())) {
+    return NextResponse.json({ success: false, error: "Not signed in." }, { status: 401 });
+  }
+
+  const id = new URL(request.url).searchParams.get("id");
+  if (!id) {
+    return NextResponse.json({ success: false, error: "Missing sermon id." }, { status: 400 });
+  }
+
+  try {
+    const deleted = await deleteSermon(id);
+    if (!deleted) {
+      return NextResponse.json({ success: false, error: "Unknown sermon." }, { status: 404 });
+    }
+    return NextResponse.json({ success: true, message: "Sermon deleted." }, { status: 200 });
   } catch {
     return serverErrorResponse();
   }

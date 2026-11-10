@@ -1,10 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { LockKeyhole, LogOut, RefreshCcw } from "lucide-react";
+import { LockKeyhole, Sparkles } from "lucide-react";
 import { getDictionary } from "@/data/i18n";
 import type { Locale } from "@/lib/utils";
-import { cn } from "@/lib/utils";
 import type {
   BookOrderRecord,
   DonationRecord,
@@ -12,14 +11,16 @@ import type {
   RsvpRecord,
   SubscriberRecord,
 } from "@/lib/db";
-import type { Book, DailyDevotional, MinistryEvent, Sermon } from "@/types/ministry";
-import { AdminDonationsTab } from "@/components/admin/AdminDonationsTab";
-import { AdminPrayerTab } from "@/components/admin/AdminPrayerTab";
-import { AdminBooksTab } from "@/components/admin/AdminBooksTab";
-import { AdminEventsTab } from "@/components/admin/AdminEventsTab";
-import { AdminSubscribersTab } from "@/components/admin/AdminSubscribersTab";
-import { AdminSermonsTab } from "@/components/admin/AdminSermonsTab";
-import { AdminDevotionalsTab } from "@/components/admin/AdminDevotionalsTab";
+import type { Book, BranchLocation, DailyDevotional, MinistryEvent, Sermon } from "@/types/ministry";
+import { AdminShell, type AdminModuleId, type DateRangeFilter } from "@/components/admin/AdminShell";
+import { AdminOverviewModule } from "@/components/admin/AdminOverviewModule";
+import { AdminGivingModule } from "@/components/admin/AdminGivingModule";
+import { AdminBooksModule } from "@/components/admin/AdminBooksModule";
+import { AdminDevotionalsModule } from "@/components/admin/AdminDevotionalsModule";
+import { AdminSermonsModule } from "@/components/admin/AdminSermonsModule";
+import { AdminPrayerModule } from "@/components/admin/AdminPrayerModule";
+import { AdminEventsModule } from "@/components/admin/AdminEventsModule";
+import { AdminBranchesAndSubscribersModule } from "@/components/admin/AdminBranchesAndSubscribersModule";
 
 export interface AdminSnapshot {
   donations: DonationRecord[];
@@ -31,16 +32,22 @@ export interface AdminSnapshot {
   events: MinistryEvent[];
   sermons: Sermon[];
   dailyDevotionals: DailyDevotional[];
+  locations: BranchLocation[];
 }
 
-type TabId = "donations" | "prayer" | "books" | "events" | "subscribers" | "sermons" | "devotionals";
+/** The real, documented default passcode (`src/lib/adminAuth.ts` /
+ *  `ADMIN_PASSCODE` in `src/lib/env.server.ts`) — shown as a 1-click
+ *  demo sign-in button so a client reviewing the dashboard doesn't
+ *  need to be told or retype it. */
+const DEMO_PASSCODE = "2026";
 
 /**
- * Passcode-gated Ministry Admin Portal shell — login form, tab nav,
- * and the single aggregated `GET /api/admin/data` fetch every tab
- * reads from. Tabs mutate through their own endpoints and call
- * `refresh()` afterward so every view reflects the real, current
- * state of `data/glm-database.json`.
+ * Passcode-gated Ministry Admin Portal shell — login form (with a
+ * 1-click demo sign-in), the single aggregated `GET /api/admin/data`
+ * fetch every module reads from, and the `AdminShell` sidebar/top-bar
+ * layout + module router. Modules mutate through their own endpoints
+ * and call `refresh()` afterward so every view reflects the real,
+ * current state of `data/glm-database.json`.
  */
 export function AdminPortalClient({
   locale,
@@ -56,7 +63,8 @@ export function AdminPortalClient({
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [snapshot, setSnapshot] = useState<AdminSnapshot | null>(null);
   const [isLoadingData, setIsLoadingData] = useState(false);
-  const [activeTab, setActiveTab] = useState<TabId>("donations");
+  const [activeModule, setActiveModule] = useState<AdminModuleId>("overview");
+  const [dateRange, setDateRange] = useState<DateRangeFilter>("all");
 
   async function refresh() {
     setIsLoadingData(true);
@@ -78,15 +86,14 @@ export function AdminPortalClient({
     if (isAuthenticated) refresh();
   }, [isAuthenticated]);
 
-  async function handleLogin(event: React.FormEvent) {
-    event.preventDefault();
+  async function submitPasscode(value: string) {
     setLoginError(null);
     setIsLoggingIn(true);
     try {
       const response = await fetch("/api/admin/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ passcode }),
+        body: JSON.stringify({ passcode: value }),
       });
       if (!response.ok) {
         setLoginError(dict.admin.loginError);
@@ -99,6 +106,11 @@ export function AdminPortalClient({
     } finally {
       setIsLoggingIn(false);
     }
+  }
+
+  async function handleLogin(event: React.FormEvent) {
+    event.preventDefault();
+    await submitPasscode(passcode);
   }
 
   async function handleLogout() {
@@ -140,95 +152,86 @@ export function AdminPortalClient({
           >
             {dict.admin.loginButton}
           </button>
+
+          <div className="my-4 flex items-center gap-3 text-xs text-slate-400">
+            <span className="h-px flex-1 bg-slate-200" />
+            or
+            <span className="h-px flex-1 bg-slate-200" />
+          </div>
+
+          <button
+            type="button"
+            onClick={() => submitPasscode(DEMO_PASSCODE)}
+            disabled={isLoggingIn}
+            className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-blue-300 bg-blue-50 px-4 py-2.5 text-sm font-semibold text-blue-800 hover:bg-blue-100 disabled:opacity-60"
+          >
+            <Sparkles className="h-4 w-4" aria-hidden="true" />
+            1-Click Demo Admin Login (PIN: {DEMO_PASSCODE})
+          </button>
         </form>
       </main>
     );
   }
 
-  const tabs: { id: TabId; label: string }[] = [
-    { id: "donations", label: dict.admin.tabDonations },
-    { id: "prayer", label: dict.admin.tabPrayer },
-    { id: "books", label: dict.admin.tabBooks },
-    { id: "events", label: dict.admin.tabEvents },
-    { id: "subscribers", label: dict.admin.tabSubscribers },
-    { id: "sermons", label: dict.admin.tabSermons },
-    { id: "devotionals", label: dict.admin.tabDevotionals },
-  ];
+  if (!snapshot) {
+    return (
+      <main className="flex min-h-screen items-center justify-center bg-slate-50">
+        <p className="text-sm text-slate-500">{dict.admin.loadingLabel}</p>
+      </main>
+    );
+  }
 
   return (
-    <main className="min-h-screen bg-slate-50 pb-20">
-      <div className="bg-navy-900 px-4 py-6 sm:px-6 lg:px-8">
-        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3">
-          <h1 className="font-display text-lg font-bold text-white sm:text-xl">{dict.admin.pageTitle}</h1>
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={refresh}
-              disabled={isLoadingData}
-              className="flex items-center gap-1.5 rounded-lg border border-navy-700 px-3 py-2 text-xs font-semibold text-navy-200 hover:bg-navy-800 disabled:opacity-60"
-            >
-              <RefreshCcw className={cn("h-3.5 w-3.5", isLoadingData && "animate-spin")} aria-hidden="true" />
-              {dict.admin.loadingLabel}
-            </button>
-            <button
-              type="button"
-              onClick={handleLogout}
-              className="flex items-center gap-1.5 rounded-lg bg-amber-600 px-3 py-2 text-xs font-semibold text-white hover:bg-amber-700"
-            >
-              <LogOut className="h-3.5 w-3.5" aria-hidden="true" />
-              {dict.admin.logoutButton}
-            </button>
-          </div>
-        </div>
-
-        <div className="mx-auto mt-5 flex max-w-7xl flex-wrap gap-2">
-          {tabs.map((tab) => (
-            <button
-              key={tab.id}
-              type="button"
-              onClick={() => setActiveTab(tab.id)}
-              aria-pressed={activeTab === tab.id}
-              className={cn(
-                "rounded-full px-4 py-1.5 text-xs font-semibold uppercase tracking-wide",
-                activeTab === tab.id ? "bg-amber-600 text-white" : "bg-navy-800 text-navy-200 hover:bg-navy-700"
-              )}
-            >
-              {tab.label}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-        {!snapshot ? (
-          <p className="text-sm text-slate-500">{dict.admin.loadingLabel}</p>
-        ) : (
-          <>
-            {activeTab === "donations" && <AdminDonationsTab locale={locale} donations={snapshot.donations} />}
-            {activeTab === "prayer" && (
-              <AdminPrayerTab locale={locale} prayerRequests={snapshot.prayerRequests} onChanged={refresh} />
-            )}
-            {activeTab === "books" && (
-              <AdminBooksTab
-                locale={locale}
-                bookOrders={snapshot.bookOrders}
-                books={snapshot.books}
-                onChanged={refresh}
-              />
-            )}
-            {activeTab === "events" && (
-              <AdminEventsTab locale={locale} rsvps={snapshot.rsvps} events={snapshot.events} onChanged={refresh} />
-            )}
-            {activeTab === "subscribers" && <AdminSubscribersTab locale={locale} subscribers={snapshot.subscribers} />}
-            {activeTab === "sermons" && (
-              <AdminSermonsTab locale={locale} sermons={snapshot.sermons} onChanged={refresh} />
-            )}
-            {activeTab === "devotionals" && (
-              <AdminDevotionalsTab locale={locale} devotionals={snapshot.dailyDevotionals} onChanged={refresh} />
-            )}
-          </>
-        )}
-      </div>
-    </main>
+    <AdminShell
+      locale={locale}
+      snapshot={snapshot}
+      activeModule={activeModule}
+      onModuleChange={setActiveModule}
+      onRefresh={refresh}
+      isLoadingData={isLoadingData}
+      onLogout={handleLogout}
+      dateRange={dateRange}
+      onDateRangeChange={setDateRange}
+    >
+      {activeModule === "overview" && (
+        <AdminOverviewModule snapshot={snapshot} dateRange={dateRange} onModuleChange={setActiveModule} />
+      )}
+      {activeModule === "giving" && (
+        <AdminGivingModule locale={locale} donations={snapshot.donations} dateRange={dateRange} onChanged={refresh} />
+      )}
+      {activeModule === "books" && (
+        <AdminBooksModule
+          locale={locale}
+          bookOrders={snapshot.bookOrders}
+          books={snapshot.books}
+          onChanged={refresh}
+        />
+      )}
+      {activeModule === "devotionals" && (
+        <AdminDevotionalsModule devotionals={snapshot.dailyDevotionals} onChanged={refresh} />
+      )}
+      {activeModule === "sermons" && (
+        <AdminSermonsModule locale={locale} sermons={snapshot.sermons} onChanged={refresh} />
+      )}
+      {activeModule === "prayer" && (
+        <AdminPrayerModule
+          locale={locale}
+          prayerRequests={snapshot.prayerRequests}
+          rsvps={snapshot.rsvps}
+          onChanged={refresh}
+        />
+      )}
+      {activeModule === "events" && (
+        <AdminEventsModule locale={locale} rsvps={snapshot.rsvps} events={snapshot.events} onChanged={refresh} />
+      )}
+      {activeModule === "branches" && (
+        <AdminBranchesAndSubscribersModule
+          locale={locale}
+          locations={snapshot.locations}
+          subscribers={snapshot.subscribers}
+          onChanged={refresh}
+        />
+      )}
+    </AdminShell>
   );
 }

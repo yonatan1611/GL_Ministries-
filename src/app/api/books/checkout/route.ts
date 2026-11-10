@@ -1,9 +1,10 @@
 import { NextResponse } from "next/server";
-import { bookOrderSchema } from "@/lib/validations";
+import { bookOrderSchema, updateBookOrderFulfillmentSchema } from "@/lib/validations";
 import { RATE_LIMIT_PRESETS } from "@/lib/security/rate-limit";
 import { rateLimitGuard, readJsonBody, serverErrorResponse, validateBody } from "@/lib/api/guards";
 import { generateReferenceCode } from "@/lib/referenceCode";
 import { isSupportedLocale } from "@/lib/utils";
+import { hasAdminSession } from "@/lib/adminAuth";
 import { insertBookOrder, listBooks, updateBookOrder, type BookOrderItem } from "@/lib/db";
 import { createBookCheckoutSession, isStripeLiveConfigured } from "@/lib/stripe";
 import type { Book } from "@/types/ministry";
@@ -132,6 +133,36 @@ export async function POST(request: Request) {
       },
       { status: 200 }
     );
+  } catch {
+    return serverErrorResponse();
+  }
+}
+
+/** Admin-only: updates a print order's office-set packing/shipping
+ *  status (Pending Shipping -> Shipped -> Completed) from the Admin
+ *  Portal's Book Orders table. A manual staff flag — there's no real
+ *  carrier/tracking integration behind it. */
+export async function PATCH(request: Request) {
+  const limited = rateLimitGuard(request, "admin-action", RATE_LIMIT_PRESETS.adminAction);
+  if (limited) return limited;
+
+  if (!(await hasAdminSession())) {
+    return NextResponse.json({ success: false, error: "Not signed in." }, { status: 401 });
+  }
+
+  const parsed = await readJsonBody(request);
+  if (!parsed.ok) return parsed.response;
+
+  try {
+    const validated = validateBody(updateBookOrderFulfillmentSchema, parsed.body);
+    if (!validated.ok) return validated.response;
+
+    const { id, fulfillmentStatus } = validated.data;
+    const updated = await updateBookOrder({ id }, { fulfillmentStatus });
+    if (!updated) {
+      return NextResponse.json({ success: false, error: "Unknown order." }, { status: 404 });
+    }
+    return NextResponse.json({ success: true, message: "Fulfillment status updated.", data: updated }, { status: 200 });
   } catch {
     return serverErrorResponse();
   }

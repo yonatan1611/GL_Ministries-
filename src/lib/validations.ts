@@ -390,6 +390,24 @@ export const newSermonSchema = z.object({
 
 export type NewSermonInput = z.infer<typeof newSermonSchema>;
 
+/** Admin-portal "Edit"/"Feature" on an existing sermon catalog row. */
+export const updateSermonSchema = z.object({
+  id: z.string().min(1, "Missing sermon id."),
+  titleEn: sanitizedString(0, 200).optional(),
+  titleAm: sanitizedString(0, 200).optional(),
+  speakerEn: sanitizedString(0, 120).optional(),
+  speakerAm: sanitizedString(0, 120).optional(),
+  topic: z.enum(SERMON_TOPICS).optional(),
+  channelSource: z.enum(["DC", "ETHIOPIA"]).optional(),
+  yearLabel: sanitizedString(0, 20).optional(),
+  scriptureEn: sanitizedString(0, 160).optional(),
+  scriptureAm: sanitizedString(0, 160).optional(),
+  summaryEn: sanitizedString(0, 600).optional(),
+  summaryAm: sanitizedString(0, 600).optional(),
+  featured: z.boolean().optional(),
+});
+export type UpdateSermonInput = z.infer<typeof updateSermonSchema>;
+
 // ---------------------------------------------------------------------------
 // 10. Admin Portal — Full Book Catalog Management (Add / Edit / Delete)
 // ---------------------------------------------------------------------------
@@ -458,3 +476,67 @@ export const updateDevotionalSchema = devotionalFieldsSchema.partial().extend({
   id: z.string().min(1, "Missing devotional id."),
 });
 export type UpdateDevotionalInput = z.infer<typeof updateDevotionalSchema>;
+
+// ---------------------------------------------------------------------------
+// 12. Admin Portal — Branch Directory (Add / Edit / Delete)
+// ---------------------------------------------------------------------------
+
+export const SYNOD_REGIONS = ["Addis Ababa", "East Showa", "Eastern Ethiopia", "USA"] as const;
+export const BRANCH_TYPES = [
+  "Headquarters Church",
+  "Synod Center",
+  "Branch Church",
+  "Outreach Station",
+  "Outreach Stations",
+  "North America Branch",
+] as const;
+
+const locationFieldsSchema = z.object({
+  synod: z.enum(SYNOD_REGIONS),
+  nameEn: sanitizedString(2, 160),
+  nameAm: sanitizedString(0, 160).optional(),
+  city: sanitizedString(1, 120),
+  type: z.enum(BRANCH_TYPES),
+  detailsEn: sanitizedString(0, 600).optional(),
+  detailsAm: sanitizedString(0, 600).optional(),
+  address: sanitizedString(1, 240),
+  phone: sanitizedString(1, 40),
+  email: emailField,
+  serviceTimesEn: sanitizedString(1, 300),
+  serviceTimesAm: sanitizedString(0, 300).optional(),
+});
+
+export const newLocationSchema = locationFieldsSchema;
+export type NewLocationInput = z.infer<typeof newLocationSchema>;
+
+export const updateLocationSchema = locationFieldsSchema.partial().extend({
+  id: z.string().min(1, "Missing branch id."),
+});
+export type UpdateLocationInput = z.infer<typeof updateLocationSchema>;
+
+// ---------------------------------------------------------------------------
+// 13. Admin Portal — Manual / Offline Gift Entry & Donation Status
+// ---------------------------------------------------------------------------
+
+export const manualDonationSchema = z.object({
+  donorName: sanitizedString(2, 120),
+  donorEmail: emailField,
+  amountUsd: z.number().positive().finite(),
+  frequency: z.enum(["one-time", "monthly", "annual"]),
+  fund: z.enum(DONATION_FUNDS),
+  paymentMethod: z.enum(DONATION_PAYMENT_METHODS),
+  prayerNote: sanitizedString(0, 1000).optional(),
+});
+export type ManualDonationInput = z.infer<typeof manualDonationSchema>;
+
+export const updateDonationStatusSchema = z.object({
+  id: z.string().min(1, "Missing donation id."),
+  status: z.enum(["pending", "completed"]),
+});
+export type UpdateDonationStatusInput = z.infer<typeof updateDonationStatusSchema>;
+
+export const updateBookOrderFulfillmentSchema = z.object({
+  id: z.string().min(1, "Missing order id."),
+  fulfillmentStatus: z.enum(["pending", "shipped", "completed"]),
+});
+export type UpdateBookOrderFulfillmentInput = z.infer<typeof updateBookOrderFulfillmentSchema>;

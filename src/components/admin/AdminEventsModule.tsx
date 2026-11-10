@@ -36,7 +36,23 @@ const EMPTY_FORM: FormState = {
   isLiveStreamed: false,
 };
 
-export function AdminEventsTab({
+type KindFilter = "all" | RsvpRecord["kind"];
+const KIND_LABELS: Record<RsvpRecord["kind"], string> = {
+  event: "Event RSVPs",
+  "plan-your-visit": "Plan Your Visit (2401 Virginia Ave NW)",
+  "ministry-action": "Volunteer / Outreach / Home Groups",
+  salvation: "Salvation Decisions",
+  "contact-inquiry": "Contact Inquiries",
+};
+
+/**
+ * Events, RSVPs, Volunteer & D.C. Visit Manager: the existing
+ * add/edit-event form, plus a registration table filterable by RSVP
+ * kind — Event RSVPs, Plan-Your-Visit guests, Volunteer/Outreach/Home
+ * Group signups (`ministry-action`), Salvation decisions, and general
+ * Contact Inquiries all live in the same `rsvps` collection.
+ */
+export function AdminEventsModule({
   locale,
   rsvps,
   events,
@@ -51,8 +67,13 @@ export function AdminEventsTab({
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
   const [errors, setErrors] = useState<Partial<Record<keyof FormState, string>>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [kindFilter, setKindFilter] = useState<KindFilter>("all");
 
-  const sorted = useMemo(() => [...rsvps].sort((a, b) => b.createdAt.localeCompare(a.createdAt)), [rsvps]);
+  const filtered = useMemo(
+    () => (kindFilter === "all" ? rsvps : rsvps.filter((r) => r.kind === kindFilter)),
+    [rsvps, kindFilter]
+  );
+  const sorted = useMemo(() => [...filtered].sort((a, b) => b.createdAt.localeCompare(a.createdAt)), [filtered]);
   const eventTitleById = useMemo(() => {
     const map: Record<string, string> = {};
     for (const event of events) map[event.id] = locale === "am" ? event.titleAm : event.titleEn;
@@ -130,8 +151,27 @@ export function AdminEventsTab({
 
   return (
     <div className="flex flex-col gap-8">
+      <h1 className="font-display text-xl font-bold text-navy-900">Events, RSVPs, Volunteers & D.C. Visits</h1>
+
       <div className="flex flex-col gap-4">
-        <div className="flex items-center justify-end">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex flex-wrap gap-2">
+            {(["all", "event", "plan-your-visit", "ministry-action", "salvation", "contact-inquiry"] as KindFilter[]).map(
+              (kind) => (
+                <button
+                  key={kind}
+                  type="button"
+                  onClick={() => setKindFilter(kind)}
+                  className={cn(
+                    "rounded-full border px-3 py-1.5 text-xs font-bold",
+                    kindFilter === kind ? "border-navy-900 bg-navy-900 text-white" : "border-slate-300 text-slate-600 hover:bg-slate-50"
+                  )}
+                >
+                  {kind === "all" ? `All (${rsvps.length})` : `${KIND_LABELS[kind]} (${rsvps.filter((r) => r.kind === kind).length})`}
+                </button>
+              )
+            )}
+          </div>
           <button
             type="button"
             onClick={handleExport}
@@ -197,7 +237,7 @@ export function AdminEventsTab({
           {field("titleAm", "Title (Amharic)")}
           {field("dateRangeEn", "Date Range (English)")}
           {field("dateRangeAm", "Date Range (Amharic)")}
-          {field("locationEn", "Location (English)")}
+          {field("locationEn", "Location (English) — e.g. Washington, D.C. Sanctuary")}
           {field("locationAm", "Location (Amharic)")}
           <div>
             <label htmlFor="admin-event-category" className="mb-1 block text-xs font-medium text-slate-600">

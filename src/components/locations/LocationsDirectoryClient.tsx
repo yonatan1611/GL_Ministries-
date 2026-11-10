@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { MapPin, Search, X } from "lucide-react";
 import { getDictionary } from "@/data/i18n";
@@ -39,17 +39,34 @@ export function LocationsDirectoryClient({ locale }: { locale: Locale }) {
   const [activeLocation, setActiveLocation] = useState<BranchLocation | null>(null);
   const [activeInquiry, setActiveInquiry] = useState<ContactInquiryType | null>(null);
   const [visitOffice, setVisitOffice] = useState<(typeof CONTACT_TARGET_OFFICES)[number] | undefined>();
+  // Seeded with the curated static list so there's no empty-state flash
+  // before the live fetch lands — matches it exactly until an admin
+  // edits/adds a branch through the Admin Portal.
+  const [locations, setLocations] = useState<BranchLocation[]>(LOCATIONS);
+
+  useEffect(() => {
+    fetch("/api/locations")
+      .then((response) => response.json())
+      .then((result) => {
+        if (result?.success && Array.isArray(result.data?.locations)) {
+          setLocations(result.data.locations as BranchLocation[]);
+        }
+      })
+      .catch(() => {
+        // Live branch directory is a progressive enhancement — fail silently.
+      });
+  }, []);
 
   const filtered = useMemo(
     () =>
-      LOCATIONS.filter(
+      locations.filter(
         (location) =>
           (synodFilter === "all" || location.synod === synodFilter) &&
           (typeFilter === "all" ||
             (typeFilter === "rural" ? RURAL_TYPES.includes(location.type) : !RURAL_TYPES.includes(location.type))) &&
           matchesSearch(location, search)
       ),
-    [synodFilter, typeFilter, search]
+    [locations, synodFilter, typeFilter, search]
   );
 
   const isFilterActive = synodFilter !== "all" || typeFilter !== "all" || search.trim() !== "";
@@ -136,7 +153,7 @@ export function LocationsDirectoryClient({ locale }: { locale: Locale }) {
           <p className="text-xs text-slate-500">
             {dict.locationsPage.showingCountTemplate
               .replace("{count}", String(filtered.length))
-              .replace("{total}", String(LOCATIONS.length))}
+              .replace("{total}", String(locations.length))}
           </p>
           {isFilterActive && (
             <button

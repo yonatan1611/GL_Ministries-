@@ -64,6 +64,11 @@ export interface BookOrderRecord {
   items: BookOrderItem[];
   totalUsd: number;
   paymentStatus: "pending" | "completed";
+  /** Office-set packing/shipping status for print orders — a manual
+   *  staff flag (no real carrier/tracking integration), distinct from
+   *  `paymentStatus`. Absent/`"pending"` on digital-only (PDF) orders,
+   *  which have nothing to ship. */
+  fulfillmentStatus?: "pending" | "shipped" | "completed";
   stripeSessionId?: string;
   createdAt: string;
   completedAt?: string;
@@ -231,12 +236,13 @@ export async function insertDonation(
 }
 
 export async function updateDonation(
-  match: { referenceCode?: string; stripeSessionId?: string },
+  match: { id?: string; referenceCode?: string; stripeSessionId?: string },
   patch: Partial<DonationRecord>
 ): Promise<DonationRecord | null> {
   return mutate((db) => {
     const donation = db.donations.find(
       (d) =>
+        (match.id && d.id === match.id) ||
         (match.referenceCode && d.referenceCode === match.referenceCode) ||
         (match.stripeSessionId && d.stripeSessionId === match.stripeSessionId)
     );
@@ -260,6 +266,30 @@ export async function findDonation(match: {
   );
 }
 
+/** Admin Portal "+ Record Manual / Offline Check Gift" — logs a real
+ *  Sunday-offering check or wire transfer the office received outside
+ *  Stripe into the same unified ledger, pre-marked `completed` (staff
+ *  are recording money already in hand, not awaiting a webhook). */
+export async function insertManualDonation(
+  record: Omit<DonationRecord, "id" | "createdAt" | "completedAt" | "status" | "claimedMonthlyOffer"> & {
+    createdAt?: string;
+  }
+): Promise<DonationRecord> {
+  return mutate((db) => {
+    const now = new Date().toISOString();
+    const donation: DonationRecord = {
+      ...record,
+      id: randomUUID(),
+      status: "completed",
+      claimedMonthlyOffer: false,
+      createdAt: record.createdAt ?? now,
+      completedAt: now,
+    };
+    db.donations.push(donation);
+    return donation;
+  });
+}
+
 // ---------------------------------------------------------------------------
 // Book Orders
 // ---------------------------------------------------------------------------
@@ -279,12 +309,13 @@ export async function insertBookOrder(
 }
 
 export async function updateBookOrder(
-  match: { orderNumber?: string; stripeSessionId?: string },
+  match: { id?: string; orderNumber?: string; stripeSessionId?: string },
   patch: Partial<BookOrderRecord>
 ): Promise<BookOrderRecord | null> {
   return mutate((db) => {
     const order = db.bookOrders.find(
       (o) =>
+        (match.id && o.id === match.id) ||
         (match.orderNumber && o.orderNumber === match.orderNumber) ||
         (match.stripeSessionId && o.stripeSessionId === match.stripeSessionId)
     );
@@ -475,6 +506,25 @@ export async function findSermonByYoutubeId(youtubeId: string): Promise<Sermon |
   return db.sermons.find((sermon) => sermon.youtubeId === youtubeId) ?? null;
 }
 
+/** Admin-portal "Edit"/"Feature" on the sermon catalog table. */
+export async function updateSermon(id: string, patch: Partial<Sermon>): Promise<Sermon | null> {
+  return mutate((db) => {
+    const sermon = db.sermons.find((s) => s.id === id);
+    if (!sermon) return null;
+    Object.assign(sermon, patch);
+    return sermon;
+  });
+}
+
+/** Admin-portal "Delete" on the sermon catalog table. */
+export async function deleteSermon(id: string): Promise<boolean> {
+  return mutate((db) => {
+    const before = db.sermons.length;
+    db.sermons = db.sermons.filter((s) => s.id !== id);
+    return db.sermons.length < before;
+  });
+}
+
 // ---------------------------------------------------------------------------
 // Books (catalog — live-editable from the Admin Portal)
 // ---------------------------------------------------------------------------
@@ -626,5 +676,65 @@ export async function deleteDevotional(id: string): Promise<boolean> {
       if (mostRecent) mostRecent.isFeaturedToday = true;
     }
     return true;
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Branch Locations (32+1 directory — live-editable from the Admin Portal)
+// ---------------------------------------------------------------------------
+
+/** Live branch directory — the source of truth `/[locale]/locations`
+ *  reads from, seeded once from `LOCATIONS` and then fully editable
+ *  (service times, contact info, or a brand-new branch) through the
+ *  Admin Portal without touching source files. */
+export async function listLocations(): Promise<BranchLocation[]> {
+  const db = await getDb();
+  return db.locations;
+}
+
+function slugifyLocation(input: string): string {
+  const base = input
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+  return base || randomUUID();
+}
+
+export async function addLocation(
+  input: Omit<BranchLocation, "id" | "slug"> & { slug?: string }
+): Promise<BranchLocation> {
+  return mutate((db) => {
+    const baseSlug = slugifyLocation(input.slug || input.nameEn);
+    let slug = baseSlug;
+    let suffix = 2;
+    while (db.locations.some((l) => l.slug === slug)) {
+      slug = `${baseSlug}-${suffix}`;
+      suffix += 1;
+    }
+    const location: BranchLocation = { ...input, id: randomUUID(), slug };
+    db.locations.push(location);
+    return location;
+  });
+}
+
+export async function updateLocation(
+  id: string,
+  patch: Partial<Omit<BranchLocation, "id">>
+): Promise<BranchLocation | null> {
+  return mutate((db) => {
+    const location = db.locations.find((l) => l.id === id);
+    if (!location) return null;
+    Object.assign(location, patch);
+    return location;
+  });
+}
+
+/** Removes a branch from the live directory. Returns `false` if the id
+ *  didn't match anything. */
+export async function deleteLocation(id: string): Promise<boolean> {
+  return mutate((db) => {
+    const before = db.locations.length;
+    db.locations = db.locations.filter((l) => l.id !== id);
+    return db.locations.length < before;
   });
 }
