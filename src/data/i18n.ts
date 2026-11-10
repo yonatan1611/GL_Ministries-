@@ -27,6 +27,7 @@ export interface UiDictionary {
     donateLabel: string;
     contactLabel: string;
     productsLabel: string;
+    sanctuaryLabel: string;
   };
   nav: {
     home: string;
@@ -60,30 +61,29 @@ export interface UiDictionary {
   };
   hero: {
     badge: string;
-    headlinePrefix: string;
-    headlineAccent: string;
-    headlineSuffix: string;
+    headline: string;
     subtitle: string;
     ctaPrimary: string;
     ctaSecondary: string;
     ctaWatch: string;
-    mediaSlideWorshipLabel: string;
-    mediaSlideDcLabel: string;
-    mediaSlideGlobalLabel: string;
-    mediaSlideYoutubeLabel: string;
-    cardFounderRole: string;
-    cardPastorRole: string;
-    cardSanctuaryLabel: string;
-    cardAdminOfficeLabel: string;
-    cardContactLabel: string;
-    cardDirectionsCta: string;
-    cardVisitCta: string;
-    cardNetworkTitle: string;
     slideAriaTemplate: string;
     prevSlideAria: string;
     nextSlideAria: string;
     watchModalTitle: string;
     closeVideoAria: string;
+  };
+  /** The calm, 3-item glass bar along the Hero's bottom edge — see
+   *  `HeroBottomInfoStrip`. The detailed leadership photos, admin
+   *  office address, and synod pills this replaces still live in the
+   *  `#visit-dc` section (`dcSpotlight`) and `/locations`, reachable via
+   *  this strip's two links, so nothing is actually lost. */
+  heroStrip: {
+    sanctuaryLabel: string;
+    scheduleLabel: string;
+    globalLabel: string;
+    globalValue: string;
+    planVisitCta: string;
+    exploreLocationsCta: string;
   };
   schedule: {
     hqTitle: string;
@@ -363,6 +363,12 @@ export interface UiDictionary {
     pauseAria: string;
     followEverywhereLabel: string;
     watchFacebookLive: string;
+    channelFilterLabel: string;
+    channelAllLabel: string;
+    channelDcLabel: string;
+    channelEthiopiaLabel: string;
+    subscribeDcChannel: string;
+    subscribeEthiopiaChannel: string;
     topics: Record<
       | "Christian Growth"
       | "Holy Spirit"
@@ -611,6 +617,7 @@ export interface UiDictionary {
     tabEvents: string;
     tabSubscribers: string;
     tabSermons: string;
+    tabDevotionals: string;
     exportCsvButton: string;
     filterAllFunds: string;
     noDataLabel: string;
@@ -629,6 +636,7 @@ export interface UiDictionary {
     addSermonButton: string;
     sermonAddedToast: string;
     youtubeUrlLabel: string;
+    addSermonChannelLabel: string;
   };
   a11y: {
     skipToContent: string;
@@ -661,6 +669,7 @@ export const DICTIONARY: Record<Locale, UiDictionary> = {
       donateLabel: "Donate Now",
       contactLabel: "Contact",
       productsLabel: "Products",
+      sanctuaryLabel: "Washington, D.C. Sanctuary",
     },
     nav: {
       home: "Home",
@@ -693,32 +702,26 @@ export const DICTIONARY: Record<Locale, UiDictionary> = {
       callDcAria: "Call the Washington, D.C. sanctuary",
     },
     hero: {
-      badge: "Gospel Light International Church • Washington, D.C. & Global Network (32+1 Branches)",
-      headlinePrefix: "Shining the Saving Light of Jesus Christ from",
-      headlineAccent: "Washington, D.C.",
-      headlineSuffix: "to Ethiopia & the Nations",
+      badge: "Gospel Light International Church • Washington, D.C.",
+      headline: "A Sanctuary of Worship, Prayer & Truth in the Nation's Capital",
       subtitle:
-        "Birthed in Washington, D.C. in 1989 through Apostle Daniel Makonnen and pastored locally at 2401 Virginia Ave NW by Senior Pastor Aberham Bedasso—uniting our D.C., Maryland, and Virginia congregation with 32 thriving branch churches across Ethiopia.",
+        "Gathering every Sunday in Washington, D.C. and connecting 32 branch churches across Ethiopia in the love of Christ.",
       ctaPrimary: "Donate Now",
       ctaSecondary: "Prayer Requests",
-      ctaWatch: "Watch Full Worship & Sermons",
-      mediaSlideWorshipLabel: "Worship & Choir",
-      mediaSlideDcLabel: "Washington, D.C. Sanctuary",
-      mediaSlideGlobalLabel: "Global Revival & Community",
-      mediaSlideYoutubeLabel: "Live YouTube Stream",
-      cardFounderRole: "Founder & President",
-      cardPastorRole: "Senior Pastor, Washington, D.C.",
-      cardSanctuaryLabel: "Sanctuary Address",
-      cardAdminOfficeLabel: "U.S. Admin Office",
-      cardContactLabel: "Direct Contact",
-      cardDirectionsCta: "Get Directions",
-      cardVisitCta: "Plan Your Visit to D.C.",
-      cardNetworkTitle: "Connected Global Network — All 32 Ethiopian Branches",
+      ctaWatch: "Watch Latest Washington, D.C. Service",
       slideAriaTemplate: "Slide {n} of {total}",
       prevSlideAria: "Previous slide",
       nextSlideAria: "Next slide",
       watchModalTitle: "Worship & Sermons",
       closeVideoAria: "Close video",
+    },
+    heroStrip: {
+      sanctuaryLabel: "Washington, D.C. Sanctuary",
+      scheduleLabel: "Worship Schedule",
+      globalLabel: "Global Family",
+      globalValue: "Washington, D.C. Flagship + 32 Ethiopian Branches",
+      planVisitCta: "Plan Your Visit",
+      exploreLocationsCta: "Explore Locations",
     },
     schedule: {
       hqTitle: "Aware International HQ (Addis Ababa)",
@@ -793,7 +796,7 @@ export const DICTIONARY: Record<Locale, UiDictionary> = {
       readMoreBody:
         "Apostle Daniel Makonnen and the pastoral team across Addis Ababa, East Showa, and Eastern Ethiopia report growing attendance at midweek prayer and revival services, with many congregations adding extra chairs and overflow seating. Leadership credits sustained intercession through the Global Prayer Army and a renewed emphasis on discipleship for the momentum — and is calling the whole network to steward it through fasting, prayer, and the Word.",
       teachingsTitle: "Latest Teachings",
-      watchAllCta: "Watch All 22+ Teachings",
+      watchAllCta: "Watch All 38+ Sermons →",
     },
     eventsSection: {
       sectionTitle: "2026–2027 Conferences & Gatherings",
@@ -1038,7 +1041,7 @@ export const DICTIONARY: Record<Locale, UiDictionary> = {
       liveNowBadge: "LIVE NOW",
       offlineBadge: "Offline",
       nextBroadcastLabel: "Next Broadcast",
-      watchYoutube: "Watch on YouTube (@AwareGospelLightEthiopia)",
+      watchYoutube: "Watch on YouTube",
       subscribeYoutube: "Subscribe on YouTube",
       listenAudioStream: "Listen Audio-Only",
       submitPrayerComment: "Submit a Live Prayer Comment",
@@ -1049,6 +1052,12 @@ export const DICTIONARY: Record<Locale, UiDictionary> = {
       pauseAria: "Pause",
       followEverywhereLabel: "Follow Everywhere",
       watchFacebookLive: "Watch on Facebook Live",
+      channelFilterLabel: "Channel",
+      channelAllLabel: "All Broadcasts",
+      channelDcLabel: "Gospel Light Church, DC",
+      channelEthiopiaLabel: "Addis Ababa HQ",
+      subscribeDcChannel: "Subscribe — Gospel Light Church, DC",
+      subscribeEthiopiaChannel: "Subscribe — Aware Gospel Light Ethiopia",
       topics: {
         "Christian Growth": "Christian Growth",
         "Holy Spirit": "Holy Spirit",
@@ -1326,12 +1335,14 @@ export const DICTIONARY: Record<Locale, UiDictionary> = {
       addEventButton: "Add Event",
       eventAddedToast: "Event added — now live on the homepage.",
       totalLabel: "Total",
-      syncYoutubeButton: "Sync Latest Videos from YouTube",
+      syncYoutubeButton: "Sync Latest Videos (DC + Ethiopia)",
       syncingLabel: "Syncing...",
       addSermonTitle: "Add a Sermon by URL",
       addSermonButton: "Add Sermon",
       sermonAddedToast: "Sermon added — now live on the Sermons page.",
       youtubeUrlLabel: "YouTube URL or Video ID",
+      addSermonChannelLabel: "Channel",
+      tabDevotionals: "Daily Scripture & Devotionals",
     },
     a11y: {
       skipToContent: "Skip to main content",
@@ -1362,6 +1373,7 @@ export const DICTIONARY: Record<Locale, UiDictionary> = {
       donateLabel: "ይለግሱ",
       contactLabel: "አግኙን",
       productsLabel: "ምርቶች",
+      sanctuaryLabel: "ዋሽንግተን ዲሲ ቤተመቅደስ",
     },
     nav: {
       home: "ዋና ገጽ",
@@ -1394,32 +1406,25 @@ export const DICTIONARY: Record<Locale, UiDictionary> = {
       callDcAria: "የዋሽንግተን ዲሲ ቤተመቅደስን ይደውሉ",
     },
     hero: {
-      badge: "የወንጌል ብርሃን ዓለም አቀፍ ቤተክርስቲያን • ዋሽንግተን ዲሲ እና በኢትዮጵያ 32 አጥቢያዎች",
-      headlinePrefix: "ከ",
-      headlineAccent: "ዋሽንግተን ዲሲ",
-      headlineSuffix: "እስከ ኢትዮጵያና ዓለም ዙሪያ የኢየሱስ ክርስቶስን የማዳን ብርሃን ማብራት",
-      subtitle:
-        "በ1989 ዓ.ም. በሐዋሪያው ዳንኤል መኮንን በዋሽንግተን ዲሲ የተወለደችና በ2401 Virginia Ave NW በፓስተር አብርሃም በዳሶ የምትመራ አጥቢያችን — የዲሲ፣ የሜሪላንድና የቫርጂኒያ ጉባኤያችንን ከ32ቱ የኢትዮጵያ አጥቢያዎች ጋር አንድ ያደርጋል።",
+      badge: "የወንጌል ብርሃን ዓለም አቀፍ ቤተክርስቲያን • ዋሽንግተን ዲሲ",
+      headline: "በዋሽንግተን ዲሲ የአምልኮ፣ የጸሎት እና የእውነት መቅደስ",
+      subtitle: "በዋሽንግተን ዲሲ እና በኢትዮጵያ በሚገኙ 32 አጥቢያዎች በክርስቶስ ፍቅር የምንሰበሰብ ቤተሰብ።",
       ctaPrimary: "አሁን ይለግሱ",
       ctaSecondary: "የጸሎት ጥያቄ ያቅርቡ",
-      ctaWatch: "ሙሉ አምልኮና ስብከት ይከታተሉ",
-      mediaSlideWorshipLabel: "አምልኮና ዝማሬ",
-      mediaSlideDcLabel: "የዋሽንግተን ዲሲ ቤተመቅደስ",
-      mediaSlideGlobalLabel: "ዓለም አቀፍ ተሃድሶና ማህበረሰብ",
-      mediaSlideYoutubeLabel: "ቀጥታ የYouTube ስርጭት",
-      cardFounderRole: "መስራችና ፕሬዝዳንት",
-      cardPastorRole: "ዋና ፓስተር፣ ዋሽንግተን ዲሲ",
-      cardSanctuaryLabel: "የቤተመቅደስ አድራሻ",
-      cardAdminOfficeLabel: "የአሜሪካ አስተዳደር ቢሮ",
-      cardContactLabel: "ቀጥታ ግንኙነት",
-      cardDirectionsCta: "አቅጣጫ ያግኙ",
-      cardVisitCta: "ዲሲን ለመጎብኘት ያቅዱ",
-      cardNetworkTitle: "የተገናኘ ዓለም አቀፍ መረብ — ሁሉም 32 የኢትዮጵያ አጥቢያዎች",
+      ctaWatch: "የቅርብ ጊዜውን የዋሽንግተን ዲሲ አገልግሎት ይከታተሉ",
       slideAriaTemplate: "ስላይድ {n} ከ{total}",
       prevSlideAria: "ያለፈው ስላይድ",
       nextSlideAria: "የሚቀጥለው ስላይድ",
       watchModalTitle: "አምልኮና ስብከት",
       closeVideoAria: "ቪዲዮውን ይዝጉ",
+    },
+    heroStrip: {
+      sanctuaryLabel: "የዋሽንግተን ዲሲ ቤተመቅደስ",
+      scheduleLabel: "የአምልኮ መርሃግብር",
+      globalLabel: "ዓለም አቀፍ ቤተሰብ",
+      globalValue: "ዋሽንግተን ዲሲ ዋና አጥቢያ + 32 የኢትዮጵያ አጥቢያዎች",
+      planVisitCta: "ጉብኝትዎን ያቅዱ",
+      exploreLocationsCta: "አጥቢያዎችን ይመልከቱ",
     },
     schedule: {
       hqTitle: "አዋሬ ዓለም አቀፍ ዋና ቢሮ (አዲስ አበባ)",
@@ -1492,7 +1497,7 @@ export const DICTIONARY: Record<Locale, UiDictionary> = {
       readMoreBody:
         "ሐዋሪያው ዳንኤል መኮንንና በአዲስ አበባ፣ በምስራቅ ሸዋና በምስራቅ ኢትዮጵያ ያለው የፓስተሮች ቡድን ለሳምንት አጋማሽ ጸሎትና ተሃድሶ አገልግሎቶች እያደገ ያለውን ጉባኤ ይመለከታሉ፤ ብዙ አጥቢያዎችም ተጨማሪ መቀመጫ እየጨመሩ ነው። አመራሩ ይህን ለቀጣይነት ባለው የጸሎት ሠራዊት ምልጃና ለደቀ መዝሙርነት ትኩረት እንደ ምክንያት ይጠቅሳል — እንዲሁም መላውን መረብ በፆም፣ በጸሎትና በቃሉ አማካኝነት ይህን እንቅስቃሴ እንዲጠብቅ ይጠራል።",
       teachingsTitle: "የቅርብ ጊዜ ትምህርቶች",
-      watchAllCta: "ከ22+ ትምህርቶች ሁሉንም ይከታተሉ",
+      watchAllCta: "ከ38+ ስብከቶች ሁሉንም ይከታተሉ →",
     },
     eventsSection: {
       sectionTitle: "2026–2027 ጉባኤዎችና መሰባሰቦች",
@@ -1734,7 +1739,7 @@ export const DICTIONARY: Record<Locale, UiDictionary> = {
       liveNowBadge: "አሁን በቀጥታ",
       offlineBadge: "ከመስመር ውጭ",
       nextBroadcastLabel: "ቀጣይ ስርጭት",
-      watchYoutube: "በYouTube ይከታተሉ (@AwareGospelLightEthiopia)",
+      watchYoutube: "በYouTube ይከታተሉ",
       subscribeYoutube: "በYouTube ይመዝገቡ",
       listenAudioStream: "ድምጽ ብቻ ያድምጡ",
       submitPrayerComment: "የቀጥታ ጸሎት አስተያየት ያስገቡ",
@@ -1745,6 +1750,12 @@ export const DICTIONARY: Record<Locale, UiDictionary> = {
       pauseAria: "አቁም",
       followEverywhereLabel: "በሁሉም መድረኮች ይከተሉን",
       watchFacebookLive: "በFacebook Live ይከታተሉ",
+      channelFilterLabel: "ቻናል",
+      channelAllLabel: "ሁሉም ስርጭቶች",
+      channelDcLabel: "ጎስፔል ላይት ቤተክርስቲያን ዲሲ",
+      channelEthiopiaLabel: "አዋሬ ዋና ቢሮ",
+      subscribeDcChannel: "ይመዝገቡ — ጎስፔል ላይት ቤተክርስቲያን ዲሲ",
+      subscribeEthiopiaChannel: "ይመዝገቡ — አዋሬ ወንጌል ብርሃን ኢትዮጵያ",
       topics: {
         "Christian Growth": "የክርስትና እድገት",
         "Holy Spirit": "መንፈስ ቅዱስ",
@@ -2014,12 +2025,14 @@ export const DICTIONARY: Record<Locale, UiDictionary> = {
       addEventButton: "ጉባኤ ጨምር",
       eventAddedToast: "ጉባኤው ታክሏል — አሁን በድረ-ገጹ ላይ ይታያል።",
       totalLabel: "ድምር",
-      syncYoutubeButton: "ከYouTube የቅርብ ጊዜ ቪዲዮዎችን አመሳስል",
+      syncYoutubeButton: "የቅርብ ጊዜ ቪዲዮዎችን አመሳስል (ዲሲ + ኢትዮጵያ)",
       syncingLabel: "በማመሳሰል ላይ...",
       addSermonTitle: "ስብከት በሊንክ ጨምር",
       addSermonButton: "ስብከት ጨምር",
       sermonAddedToast: "ስብከቱ ታክሏል — አሁን በስብከቶች ገጽ ላይ ይታያል።",
       youtubeUrlLabel: "የYouTube ሊንክ ወይም የቪዲዮ መለያ",
+      addSermonChannelLabel: "ቻናል",
+      tabDevotionals: "የቀን መጽሐፍ ቅዱስ ጥቅስና ትምህርት",
     },
     a11y: {
       skipToContent: "ወደ ዋናው ይዘት ዝለል",

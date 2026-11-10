@@ -12,13 +12,14 @@ import type {
   RsvpRecord,
   SubscriberRecord,
 } from "@/lib/db";
-import type { Book, MinistryEvent, Sermon } from "@/types/ministry";
+import type { Book, DailyDevotional, MinistryEvent, Sermon } from "@/types/ministry";
 import { AdminDonationsTab } from "@/components/admin/AdminDonationsTab";
 import { AdminPrayerTab } from "@/components/admin/AdminPrayerTab";
 import { AdminBooksTab } from "@/components/admin/AdminBooksTab";
 import { AdminEventsTab } from "@/components/admin/AdminEventsTab";
 import { AdminSubscribersTab } from "@/components/admin/AdminSubscribersTab";
 import { AdminSermonsTab } from "@/components/admin/AdminSermonsTab";
+import { AdminDevotionalsTab } from "@/components/admin/AdminDevotionalsTab";
 
 export interface AdminSnapshot {
   donations: DonationRecord[];
@@ -29,9 +30,10 @@ export interface AdminSnapshot {
   books: Book[];
   events: MinistryEvent[];
   sermons: Sermon[];
+  dailyDevotionals: DailyDevotional[];
 }
 
-type TabId = "donations" | "prayer" | "books" | "events" | "subscribers" | "sermons";
+type TabId = "donations" | "prayer" | "books" | "events" | "subscribers" | "sermons" | "devotionals";
 
 /**
  * Passcode-gated Ministry Admin Portal shell — login form, tab nav,
@@ -150,6 +152,7 @@ export function AdminPortalClient({
     { id: "events", label: dict.admin.tabEvents },
     { id: "subscribers", label: dict.admin.tabSubscribers },
     { id: "sermons", label: dict.admin.tabSermons },
+    { id: "devotionals", label: dict.admin.tabDevotionals },
   ];
 
   return (
@@ -219,6 +222,9 @@ export function AdminPortalClient({
             {activeTab === "subscribers" && <AdminSubscribersTab locale={locale} subscribers={snapshot.subscribers} />}
             {activeTab === "sermons" && (
               <AdminSermonsTab locale={locale} sermons={snapshot.sermons} onChanged={refresh} />
+            )}
+            {activeTab === "devotionals" && (
+              <AdminDevotionalsTab locale={locale} devotionals={snapshot.dailyDevotionals} onChanged={refresh} />
             )}
           </>
         )}

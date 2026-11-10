@@ -1,9 +1,9 @@
 import { randomUUID } from "node:crypto";
 import { promises as fs } from "node:fs";
 import path from "node:path";
-import { BOOKS, SERMONS, UPCOMING_EVENTS_2026 } from "@/data/ministry-content";
+import { BOOKS, DAILY_DEVOTIONALS, SERMONS, UPCOMING_EVENTS_2026 } from "@/data/ministry-content";
 import { LOCATIONS } from "@/data/locations";
-import type { Book, BranchLocation, MinistryEvent, Sermon } from "@/types/ministry";
+import type { Book, BranchLocation, DailyDevotional, MinistryEvent, Sermon } from "@/types/ministry";
 import type { DonationFund, DonationPaymentMethod } from "@/lib/validations";
 
 /**
@@ -119,7 +119,7 @@ interface Database {
   locations: BranchLocation[];
   sermons: Sermon[];
   events: MinistryEvent[];
-  dailyDevotionals: unknown[];
+  dailyDevotionals: DailyDevotional[];
 }
 
 function seedDatabase(): Database {
@@ -133,7 +133,7 @@ function seedDatabase(): Database {
     locations: LOCATIONS,
     sermons: SERMONS,
     events: UPCOMING_EVENTS_2026,
-    dailyDevotionals: [],
+    dailyDevotionals: DAILY_DEVOTIONALS,
   };
 }
 
@@ -499,5 +499,132 @@ export async function updateBook(id: string, patch: Partial<Book>): Promise<Book
     }
     Object.assign(book, patch);
     return book;
+  });
+}
+
+function slugify(input: string): string {
+  const base = input
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+  return base || randomUUID();
+}
+
+/** Admin-portal "+ Add Book to Store" — same `isMonthlySpecialOffer`
+ *  exclusivity rule as `updateBook`. The slug is derived from the
+ *  English title (de-duplicated with a numeric suffix if it collides)
+ *  so every book gets a stable, readable URL without the office
+ *  having to type one. */
+export async function addBook(
+  input: Omit<Book, "id" | "slug" | "createdAt"> & { slug?: string }
+): Promise<Book> {
+  return mutate((db) => {
+    if (input.isMonthlySpecialOffer === true) {
+      for (const other of db.books) other.isMonthlySpecialOffer = false;
+    }
+    const baseSlug = slugify(input.slug || input.titleEn);
+    let slug = baseSlug;
+    let suffix = 2;
+    while (db.books.some((b) => b.slug === slug)) {
+      slug = `${baseSlug}-${suffix}`;
+      suffix += 1;
+    }
+    const book: Book = {
+      ...input,
+      id: randomUUID(),
+      slug,
+      inStock: input.inStock ?? true,
+      createdAt: new Date().toISOString(),
+    };
+    db.books.push(book);
+    return book;
+  });
+}
+
+/** Removes a book from the live catalog. Returns `false` if the id
+ *  didn't match anything. */
+export async function deleteBook(id: string): Promise<boolean> {
+  return mutate((db) => {
+    const before = db.books.length;
+    db.books = db.books.filter((b) => b.id !== id);
+    return db.books.length < before;
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Daily Scripture Devotionals (live-editable from the Admin Portal)
+// ---------------------------------------------------------------------------
+
+/** Live devotional list — the source of truth the homepage "Today's
+ *  Key Scripture" panel reads from, seeded once from `DAILY_DEVOTIONALS`
+ *  and then fully editable through the Admin Portal. The devotional
+ *  flagged `isFeaturedToday` is always sorted first. */
+export async function listDevotionals(): Promise<DailyDevotional[]> {
+  const db = await getDb();
+  return [...db.dailyDevotionals].sort((a, b) => Number(b.isFeaturedToday) - Number(a.isFeaturedToday));
+}
+
+/** Admin-portal "Save & Publish Devotional" — same single-featured-item
+ *  exclusivity rule as `updateBook`/`addBook`. */
+export async function addDevotional(
+  input: Omit<DailyDevotional, "id" | "updatedAt">
+): Promise<DailyDevotional> {
+  return mutate((db) => {
+    if (input.isFeaturedToday === true) {
+      for (const other of db.dailyDevotionals) other.isFeaturedToday = false;
+    }
+    const devotional: DailyDevotional = {
+      ...input,
+      id: randomUUID(),
+      updatedAt: new Date().toISOString(),
+    };
+    db.dailyDevotionals.push(devotional);
+    return devotional;
+  });
+}
+
+export async function updateDevotional(
+  id: string,
+  patch: Partial<Omit<DailyDevotional, "id">>
+): Promise<DailyDevotional | null> {
+  return mutate((db) => {
+    const devotional = db.dailyDevotionals.find((d) => d.id === id);
+    if (!devotional) return null;
+    if (patch.isFeaturedToday === true) {
+      for (const other of db.dailyDevotionals) other.isFeaturedToday = false;
+    }
+    Object.assign(devotional, patch, { updatedAt: new Date().toISOString() });
+    return devotional;
+  });
+}
+
+/** One-click "Set as Today's Active Scripture" — unsets every other
+ *  devotional first, so exactly one is ever featured. */
+export async function setFeaturedDevotional(id: string): Promise<DailyDevotional | null> {
+  return mutate((db) => {
+    const devotional = db.dailyDevotionals.find((d) => d.id === id);
+    if (!devotional) return null;
+    for (const other of db.dailyDevotionals) other.isFeaturedToday = false;
+    devotional.isFeaturedToday = true;
+    devotional.updatedAt = new Date().toISOString();
+    return devotional;
+  });
+}
+
+/** Deletes a devotional, refusing to remove the last remaining entry
+ *  so the homepage always has at least one Scripture to show. If the
+ *  deleted entry was the featured one, the next-most-recently-updated
+ *  entry automatically becomes featured instead. */
+export async function deleteDevotional(id: string): Promise<boolean> {
+  return mutate((db) => {
+    if (db.dailyDevotionals.length <= 1) return false;
+    const target = db.dailyDevotionals.find((d) => d.id === id);
+    if (!target) return false;
+    db.dailyDevotionals = db.dailyDevotionals.filter((d) => d.id !== id);
+    if (target.isFeaturedToday && !db.dailyDevotionals.some((d) => d.isFeaturedToday)) {
+      const [mostRecent] = [...db.dailyDevotionals].sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
+      if (mostRecent) mostRecent.isFeaturedToday = true;
+    }
+    return true;
   });
 }

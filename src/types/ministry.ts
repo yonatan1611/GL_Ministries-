@@ -66,6 +66,12 @@ export interface Sermon {
   scriptureEn?: string;
   topic: SermonTopic;
   yearLabel: string;
+  /** Which official YouTube channel this upload is from — `DC` for
+   *  `@gospellightchurchdc6393` (Washington, D.C. / Alexandria, VA),
+   *  `ETHIOPIA` for `@AwareGospelLightEthiopia` (Addis Ababa HQ). Drives
+   *  the sermons-page channel switcher and the dual-channel subscribe
+   *  cards. */
+  channelSource: "DC" | "ETHIOPIA";
   /** Only set for titles with a verified runtime; no fabricated
    *  placeholder duration. */
   duration?: string;
@@ -96,19 +102,28 @@ export interface Book {
   synopsisEn: string;
   synopsisAm: string;
   topics: string[];
-  /** Real scanned cover photo, when we have one; falls back to the
-   *  typographic GLM Press cover in `BookCard` when absent. */
+  /** Real scanned cover photo, an admin-uploaded file, or a pasted
+   *  external URL; falls back to the typographic GLM Press cover in
+   *  `BookCard` when absent. */
   coverImageUrl?: string;
   /** Highlighted as this month's Partner Resource Offer on `/give` and
    *  in the footer — at most one book should carry this at a time. */
   isMonthlySpecialOffer?: boolean;
+  /** Defaults to `true` when absent — set `false` from the Admin
+   *  Portal to hide a title from checkout without deleting it. */
+  inStock?: boolean;
+  /** ISO timestamp set when the Admin Portal adds the book; absent on
+   *  the original source-seeded catalog. */
+  createdAt?: string;
 }
 
-/** A single day's reading in the Benny Hinn-style Daily Scripture module. */
+/** A single entry in the Benny Hinn-style Daily Scripture module,
+ *  fully editable from the Admin Portal. */
 export interface DailyDevotional {
   id: string;
-  /** ISO date (`YYYY-MM-DD`) this devotional is scheduled for. */
-  date: string;
+  /** Free-text date/label shown above the verse, e.g. "November 9,
+   *  2026" or "Today's Word" — not parsed, just displayed. */
+  dateLabel: string;
   titleEn: string;
   titleAm: string;
   scriptureRefEn: string;
@@ -121,6 +136,11 @@ export interface DailyDevotional {
   prayerDeclarationAm: string;
   authorEn: string;
   authorAm: string;
+  /** At most one devotional should carry this at a time — the Admin
+   *  Portal unsets every other entry when this one is set. The
+   *  homepage "Today's Key Scripture" panel shows this entry first. */
+  isFeaturedToday: boolean;
+  updatedAt: string;
 }
 
 /** A single "Storytelling by the Numbers" impact metric. */

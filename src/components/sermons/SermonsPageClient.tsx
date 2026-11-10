@@ -8,6 +8,7 @@ import type { Sermon, SermonTopic } from "@/types/ministry";
 import { MediaTheater } from "@/components/sermons/MediaTheater";
 import {
   EMPTY_SERMON_FILTERS,
+  matchesChannelFilter,
   matchesQuickFilter,
   SermonFilterBar,
   type SermonFilters,
@@ -95,7 +96,8 @@ export function SermonsPageClient({ locale }: { locale: Locale }) {
           matchesSearch(sermon, filters.search) &&
           (filters.topic === "all" || sermon.topic === filters.topic) &&
           (filters.speaker === "all" || sermon.speakerEn === filters.speaker) &&
-          matchesQuickFilter(sermon, filters.quickFilterId)
+          matchesQuickFilter(sermon, filters.quickFilterId) &&
+          matchesChannelFilter(sermon, filters.channel)
       ),
     [sermons, filters]
   );

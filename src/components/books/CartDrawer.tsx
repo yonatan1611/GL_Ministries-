@@ -9,7 +9,7 @@ import { postJson } from "@/lib/http";
 import { cn, getLocaleFromPathname } from "@/lib/utils";
 import { MINISTRY_IMAGES } from "@/data/social-media";
 import { useCart, useToast, type CartItem } from "@/components/providers/AppProviders";
-import { MinistryImage } from "@/components/ui/MinistryImage";
+import { BookCoverImage } from "@/components/books/BookCoverImage";
 import { InteractivePaymentGatewayModal } from "@/components/give/InteractivePaymentGatewayModal";
 import { STRIPE_IS_LIVE } from "@/lib/stripe-public";
 
@@ -169,11 +169,10 @@ async function submitOrder(payload: Record<string, unknown>) {
                   className="flex gap-3 border-b border-slate-100 pb-4 last:border-0"
                 >
                   <div className="relative h-16 w-12 shrink-0 overflow-hidden rounded-md border border-amber-500/30 bg-navy-900">
-                    <MinistryImage
+                    <BookCoverImage
                       src={item.coverImageUrl ?? MINISTRY_IMAGES.bookHearingGodsVoiceCover}
                       alt=""
                       fill
-                      sizes="48px"
                       className="object-cover"
                     />
                   </div>

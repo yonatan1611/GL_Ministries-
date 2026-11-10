@@ -3,7 +3,7 @@ import { BookOpen, Check, Gift } from "lucide-react";
 import { getDictionary } from "@/data/i18n";
 import { listBooks } from "@/lib/db";
 import type { Locale } from "@/lib/utils";
-import { MinistryImage } from "@/components/ui/MinistryImage";
+import { BookCoverImage } from "@/components/books/BookCoverImage";
 import { Aurora } from "@/components/react-bits/Aurora";
 import { ShinyText } from "@/components/react-bits/ShinyText";
 import { TiltedCard } from "@/components/react-bits/TiltedCard";
@@ -46,7 +46,7 @@ export async function MonthlyResourceOffer({ locale }: { locale: Locale }) {
           <div className="absolute inset-0 scale-125 rounded-full bg-amber-500/20 blur-3xl" aria-hidden="true" />
           <div className="relative h-full w-full -rotate-3 overflow-hidden rounded-xl border border-amber-500/50 shadow-2xl">
             {offerBook.coverImageUrl ? (
-              <MinistryImage src={offerBook.coverImageUrl} alt={title} fill sizes="208px" className="object-cover" />
+              <BookCoverImage src={offerBook.coverImageUrl} alt={title} fill className="object-cover" />
             ) : (
               <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-navy-800 to-navy-950">
                 <BookOpen className="h-10 w-10 text-amber-300" aria-hidden="true" />

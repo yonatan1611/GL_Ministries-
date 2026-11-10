@@ -50,11 +50,17 @@ interface Speaker {
   am: string;
 }
 
+export type ChannelFilter = "all" | "DC" | "ETHIOPIA";
+
 export interface SermonFilters {
   search: string;
   topic: SermonTopic | "all";
   speaker: string | "all";
   quickFilterId: string | null;
+  /** Which official YouTube channel to show — defaults to "all"
+   *  ("All Broadcasts"), with "DC" (Gospel Light Church, DC) featured
+   *  first in the tab bar as the primary North American channel. */
+  channel: ChannelFilter;
 }
 
 export const EMPTY_SERMON_FILTERS: SermonFilters = {
@@ -62,14 +68,20 @@ export const EMPTY_SERMON_FILTERS: SermonFilters = {
   topic: "all",
   speaker: "all",
   quickFilterId: null,
+  channel: "all",
 };
+
+export function matchesChannelFilter(sermon: Sermon, channel: ChannelFilter): boolean {
+  return channel === "all" || sermon.channelSource === channel;
+}
 
 export function isFiltersActive(filters: SermonFilters): boolean {
   return (
     filters.search.trim() !== "" ||
     filters.topic !== "all" ||
     filters.speaker !== "all" ||
-    filters.quickFilterId !== null
+    filters.quickFilterId !== null ||
+    filters.channel !== "all"
   );
 }
 
@@ -104,8 +116,36 @@ export function SermonFilterBar({ locale, sermons, filters, onChange, filteredCo
     onChange({ ...filters, ...partial });
   }
 
+  const channelCount = (channel: ChannelFilter) =>
+    channel === "all" ? sermons.length : sermons.filter((sermon) => sermon.channelSource === channel).length;
+
+  const CHANNEL_TABS: { id: ChannelFilter; label: string }[] = [
+    { id: "all", label: `${dict.sermonsPage.channelAllLabel} (${channelCount("all")})` },
+    { id: "DC", label: `🇺🇸 ${dict.sermonsPage.channelDcLabel} (${channelCount("DC")})` },
+    { id: "ETHIOPIA", label: `🇪🇹 ${dict.sermonsPage.channelEthiopiaLabel} (${channelCount("ETHIOPIA")})` },
+  ];
+
   return (
     <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+      <div className="mb-4 flex flex-wrap gap-2 border-b border-slate-100 pb-4">
+        {CHANNEL_TABS.map((tab) => (
+          <button
+            key={tab.id}
+            type="button"
+            onClick={() => update({ channel: tab.id })}
+            aria-pressed={filters.channel === tab.id}
+            className={cn(
+              "rounded-full border px-4 py-2 text-xs font-bold transition-colors",
+              filters.channel === tab.id
+                ? "border-navy-900 bg-navy-900 text-white"
+                : "border-slate-300 text-slate-600 hover:bg-slate-50"
+            )}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
+
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
         <div className="relative flex-1">
           <Search

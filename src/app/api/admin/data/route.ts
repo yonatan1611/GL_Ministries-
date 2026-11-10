@@ -7,9 +7,10 @@ import { getDb } from "@/lib/db";
 /**
  * Single aggregated read for the whole Admin Portal — donations, book
  * orders, prayer requests (including confidential ones staff need to
- * see), subscribers, RSVPs/ministry actions, and the current book
- * catalog. The dataset is small (a JSON-file DB), so one combined read
- * is simpler and cheaper than six separate round-trips for six tabs.
+ * see), subscribers, RSVPs/ministry actions, the current book catalog,
+ * and the Daily Scripture devotional list. The dataset is small (a
+ * JSON-file DB), so one combined read is simpler and cheaper than
+ * seven separate round-trips for seven tabs.
  */
 export async function GET(request: Request) {
   const limited = rateLimitGuard(request, "admin-data", RATE_LIMIT_PRESETS.adminAction);
@@ -34,6 +35,7 @@ export async function GET(request: Request) {
           books: db.books,
           events: db.events,
           sermons: db.sermons,
+          dailyDevotionals: db.dailyDevotionals,
         },
       },
       { status: 200 }

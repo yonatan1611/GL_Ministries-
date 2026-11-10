@@ -2,10 +2,11 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { ChevronDown, Flame, Heart, MapPin, Menu, Phone, X } from "lucide-react";
+import { usePathname, useRouter } from "next/navigation";
+import { ChevronDown, Flame, Heart, MapPin, Menu, Phone, Search, X } from "lucide-react";
 import { getDictionary } from "@/data/i18n";
 import { DC_PHONE } from "@/data/locations";
+import { resolveSiteSearchHref } from "@/lib/siteSearch";
 import { cn, type Locale } from "@/lib/utils";
 
 interface NavLink {
@@ -27,11 +28,22 @@ const DC_DIRECTIONS_URL = `https://www.google.com/maps/search/?api=1&query=${enc
 export function Navbar({ locale }: { locale: Locale }) {
   const dict = getDictionary(locale);
   const pathname = usePathname() ?? `/${locale}`;
+  const router = useRouter();
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [openDropdown, setOpenDropdown] = useState<"about" | "ministry" | null>(null);
   const [mobileOpenGroup, setMobileOpenGroup] = useState<"about" | "ministry" | null>(null);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   const aboutRef = useRef<HTMLDivElement>(null);
   const ministryRef = useRef<HTMLDivElement>(null);
+
+  function handleSearchSubmit(event: React.FormEvent) {
+    event.preventDefault();
+    if (!searchQuery.trim()) return;
+    router.push(resolveSiteSearchHref(locale, searchQuery));
+    setIsSearchOpen(false);
+    setSearchQuery("");
+  }
 
   const aboutLinks: NavLink[] = [
     { href: `/${locale}/about#apostle-daniel`, label: dict.about.navApostle },
@@ -134,7 +146,7 @@ export function Navbar({ locale }: { locale: Locale }) {
           aria-controls={`${id}-dropdown-menu`}
           onClick={() => setOpenDropdown((current) => (current === id ? null : id))}
           className={cn(
-            "flex items-center gap-1 border-b-[3px] border-transparent py-1 font-nav text-[13px] font-bold uppercase tracking-[0.1em] transition-colors",
+            "flex items-center gap-1 border-b-[3px] border-transparent py-1 font-nav text-sm font-medium transition-colors",
             isGroupActive ? "border-amber-600 text-amber-700" : "text-[#222222] hover:border-amber-600 hover:text-amber-700"
           )}
         >
@@ -188,12 +200,12 @@ export function Navbar({ locale }: { locale: Locale }) {
           </span>
         </Link>
 
-        <nav aria-label={dict.a11y.primaryNav} className="hidden items-center gap-6 lg:flex">
+        <nav aria-label={dict.a11y.primaryNav} className="hidden items-center gap-2 lg:flex lg:gap-5">
           <Link
             href={`/${locale}`}
             aria-current={pathname === `/${locale}` ? "page" : undefined}
             className={cn(
-              "border-b-[3px] border-transparent py-1 font-nav text-[13px] font-bold uppercase tracking-[0.1em] transition-colors",
+              "border-b-[3px] border-transparent py-1 font-nav text-sm font-medium transition-colors",
               pathname === `/${locale}`
                 ? "border-amber-600 text-amber-700"
                 : "text-[#222222] hover:border-amber-600 hover:text-amber-700"
@@ -214,7 +226,7 @@ export function Navbar({ locale }: { locale: Locale }) {
             href={primaryLinks[0]!.href}
             aria-current={isActive(primaryLinks[0]!.href) ? "page" : undefined}
             className={cn(
-              "border-b-[3px] border-transparent py-1 font-nav text-[13px] font-bold uppercase tracking-[0.1em] transition-colors",
+              "border-b-[3px] border-transparent py-1 font-nav text-sm font-medium transition-colors",
               isActive(primaryLinks[0]!.href)
                 ? "border-amber-600 text-amber-700"
                 : "text-[#222222] hover:border-amber-600 hover:text-amber-700"
@@ -237,7 +249,7 @@ export function Navbar({ locale }: { locale: Locale }) {
               href={link.href}
               aria-current={isActive(link.href) ? "page" : undefined}
               className={cn(
-                "border-b-[3px] border-transparent py-1 font-nav text-[13px] font-bold uppercase tracking-[0.1em] transition-colors",
+                "border-b-[3px] border-transparent py-1 font-nav text-sm font-medium transition-colors",
                 isActive(link.href)
                   ? "border-amber-600 text-amber-700"
                   : "text-[#222222] hover:border-amber-600 hover:text-amber-700"
@@ -249,6 +261,37 @@ export function Navbar({ locale }: { locale: Locale }) {
         </nav>
 
         <div className="flex items-center gap-2 sm:gap-3">
+          {isSearchOpen ? (
+            <form onSubmit={handleSearchSubmit} className="hidden items-center gap-1 sm:flex">
+              <input
+                type="search"
+                autoFocus
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder={dict.nav.searchPlaceholder}
+                aria-label={dict.nav.searchAria}
+                className="w-40 rounded border border-slate-300 px-2 py-1.5 text-sm text-[#222222] focus:border-amber-500 focus:outline-none sm:w-52"
+              />
+              <button
+                type="button"
+                onClick={() => setIsSearchOpen(false)}
+                aria-label={dict.buttons.close}
+                className="flex h-9 w-9 touch-manipulation items-center justify-center text-[#222222] hover:text-amber-700"
+              >
+                <X className="h-4 w-4" aria-hidden="true" />
+              </button>
+            </form>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setIsSearchOpen(true)}
+              aria-label={dict.nav.searchAria}
+              className="hidden touch-manipulation items-center text-[#222222] hover:text-amber-700 sm:flex"
+            >
+              <Search className="h-4 w-4" aria-hidden="true" />
+            </button>
+          )}
+
           <Link
             href={`/${locale}/give`}
             className="hidden items-center gap-1.5 rounded bg-bh-crimson-gradient px-5 py-2.5 font-nav text-xs font-bold uppercase tracking-[0.12em] text-white shadow-sm hover:brightness-110 sm:flex"
@@ -276,6 +319,24 @@ export function Navbar({ locale }: { locale: Locale }) {
           aria-label={dict.a11y.mobileNav}
           className="fixed inset-0 z-30 overflow-y-auto overscroll-contain bg-white px-4 pb-28 pt-24 lg:hidden"
         >
+          <form onSubmit={handleSearchSubmit} className="mb-3 flex items-center gap-2">
+            <input
+              type="search"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder={dict.nav.searchPlaceholder}
+              aria-label={dict.nav.searchAria}
+              className="min-h-[44px] w-full rounded-lg border border-slate-300 px-3 text-sm text-[#222222] focus:border-amber-500 focus:outline-none"
+            />
+            <button
+              type="submit"
+              aria-label={dict.nav.searchAria}
+              className="flex h-11 w-11 shrink-0 touch-manipulation items-center justify-center rounded-lg bg-amber-50 text-amber-700"
+            >
+              <Search className="h-4 w-4" aria-hidden="true" />
+            </button>
+          </form>
+
           <ul className="flex flex-col gap-1.5">
             <li>
               <Link

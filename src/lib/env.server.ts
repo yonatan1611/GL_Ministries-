@@ -37,6 +37,23 @@ const serverEnvSchema = z.object({
   // client: only used server-side to verify `/api/admin/login` and to
   // sign the admin session cookie.
   ADMIN_PASSCODE: z.string().min(1).default("2026"),
+
+  // YouTube Data API v3 key — optional. Without it, `youtube-sync.ts`
+  // falls back to each channel's free public RSS feed for new-upload
+  // sync (15 most recent uploads, no live-status lookup) and the
+  // "LIVE NOW" badge falls back to the fixed weekly clock schedule in
+  // `broadcastSchedule.ts`. With it configured, new-upload sync reads
+  // full paginated history via the Data API, and the real
+  // `search.list?eventType=live` endpoint can confirm whether either
+  // channel is actually broadcasting right now.
+  YOUTUBE_API_KEY: z.string().optional().default(""),
+
+  // Shared secret Vercel Cron attaches as `Authorization: Bearer
+  // <value>` on scheduled invocations (see vercel.json's `crons` and
+  // `src/lib/cronAuth.ts`). Left blank by default so the cron sync
+  // endpoint refuses every request until this is deliberately set —
+  // never defaults to "open".
+  CRON_SECRET: z.string().optional().default(""),
 });
 
 function loadServerEnv() {
@@ -44,6 +61,8 @@ function loadServerEnv() {
     STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY,
     STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET,
     ADMIN_PASSCODE: process.env.ADMIN_PASSCODE,
+    YOUTUBE_API_KEY: process.env.YOUTUBE_API_KEY,
+    CRON_SECRET: process.env.CRON_SECRET,
   });
 
   if (!parsed.success) {

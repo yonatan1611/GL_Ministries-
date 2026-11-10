@@ -3,42 +3,36 @@
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Mail, MapPin, Phone, PlayCircle } from "lucide-react";
+import { PlayCircle } from "lucide-react";
 import { getDictionary } from "@/data/i18n";
-import { FACEBOOK_PAGES, MINISTRY_IMAGES, MINISTRY_VIDEO_IDS } from "@/data/social-media";
-import { DC_EMAIL, DC_PHONE, SYNOD_SUMMARY } from "@/data/locations";
+import { MINISTRY_VIDEO_IDS } from "@/data/social-media";
 import { getYoutubeAutoplayEmbedUrl, getYoutubeBackgroundEmbedUrl } from "@/lib/youtube";
 import { cn, type Locale } from "@/lib/utils";
-import { MinistryImage } from "@/components/ui/MinistryImage";
 import { VideoModal } from "@/components/ui/VideoModal";
+import { HeroBottomInfoStrip } from "@/components/layout/HeroBottomInfoStrip";
 import { usePrayerModal } from "@/components/providers/AppProviders";
-import { Aurora } from "@/components/react-bits/Aurora";
-import { LightRays } from "@/components/react-bits/LightRays";
 import { BlurText } from "@/components/react-bits/BlurText";
-import { GradientText } from "@/components/react-bits/GradientText";
-import { ShinyText } from "@/components/react-bits/ShinyText";
 import { Magnet } from "@/components/react-bits/Magnet";
-import { SpotlightCard } from "@/components/react-bits/SpotlightCard";
 
-type BackgroundMode = "video" | "dc" | "global" | "youtube";
+/** The "Watch Latest Washington, D.C. Service" modal leads with
+ *  Gospel Light Church, DC's live service broadcasts, then the
+ *  Ethiopia HQ worship video, via YouTube's `playlist` param — so the
+ *  modal still surfaces both channels without a second button. */
+const WATCH_PLAYLIST_IDS = [
+  MINISTRY_VIDEO_IDS.dcHeIsWorthy,
+  MINISTRY_VIDEO_IDS.dcSeasonLordLookedUpon,
+  MINISTRY_VIDEO_IDS.dcGiveMeThisLivingWater,
+  MINISTRY_VIDEO_IDS.worshipChoir,
+];
+const WATCH_EMBED_URL = `${getYoutubeAutoplayEmbedUrl(MINISTRY_VIDEO_IDS.dcHeIsWorthy)}&playlist=${WATCH_PLAYLIST_IDS.join(",")}`;
 
-const WATCH_EMBED_URL = getYoutubeAutoplayEmbedUrl(MINISTRY_VIDEO_IDS.worshipChoir);
-
-/** Full-bleed ambient YouTube loop, used only as the automatic fallback
- *  when the self-hosted `<video>` fails to load (or the visitor asks
- *  for it via the "Switch to Live YouTube Stream" pill) — never on
- *  first paint. */
+/** Full-bleed ambient YouTube loop — the automatic fallback only when
+ *  the self-hosted `<video>` fails to load, never on first paint. */
 const YOUTUBE_BACKGROUND_URL = `${getYoutubeBackgroundEmbedUrl(MINISTRY_VIDEO_IDS.worshipChoir, [
   MINISTRY_VIDEO_IDS.worshipChoir,
   MINISTRY_VIDEO_IDS.crusadeRevival,
   MINISTRY_VIDEO_IDS.pastoralTime,
 ])}&iv_load_policy=3&enablejsapi=1&vq=hd1080`;
-
-const DC_SANCTUARY_ADDRESS = "2401 Virginia Ave NW, Washington, DC 20037";
-const DC_ADMIN_OFFICE_ADDRESS = "85 South Bragg St, Suite 200, Alexandria, VA 22312";
-const DC_DIRECTIONS_URL = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(DC_SANCTUARY_ADDRESS)}`;
-
-const GLOBAL_NETWORK_SYNODS = SYNOD_SUMMARY.filter((entry) => entry.synod !== "USA");
 
 /** Local, true-HD (1280x720 `maxresdefault`) hero photos (see
  *  `public/images/hero/`) used by the Ken Burns crossfade base layer —
@@ -62,23 +56,24 @@ interface NetworkInformationLike {
 }
 
 /**
- * Cinematic, full-bleed Media Hero with a zero-latency, true-HD
- * background: a local Ken Burns photo crossfade (real 1280x720
- * `maxresdefault` stills, never a blurry 480x360 `hqdefault`
- * thumbnail) renders instantly on frame one, and a self-hosted,
- * muted, real-motion `<video>` loop is visible over it immediately —
- * with an automatic (or visitor-triggered) fallback to a full-bleed,
- * cropped ambient YouTube stream if the local clip ever fails to
- * load. The on-demand "Watch Full Worship & Sermons" modal is the
- * only other place a YouTube iframe appears. A Washington, D.C.-
- * flagship headline with the ministry's three signature CTAs and an
- * interactive leadership + sanctuary-schedule card bridge straight
- * into the 32-branch Ethiopian synod network.
+ * Calm, cinema-grade Media Hero: the same zero-latency, true-HD
+ * background (a local Ken Burns photo crossfade with a self-hosted,
+ * muted, real-motion `<video>` loop over it, and an automatic
+ * ambient-YouTube fallback if the local clip ever fails to load) as
+ * before, kept clearly visible (`opacity-70`) under only a light
+ * deep-navy vignette — just enough to keep the overlaid text legible
+ * without dimming the worship video into the background, with no
+ * WebGL shaders layered on top of it. A single,
+ * centered welcome: one quiet pill, one dignified headline (one
+ * gentle `BlurText` entrance, no flashing or orbiting effects), a
+ * short subtitle, and two calm buttons plus one quiet watch link — the
+ * detailed sanctuary/leadership/network content that used to crowd
+ * this section now lives in the `HeroBottomInfoStrip` below and the
+ * `#visit-dc` section just past the fold.
  */
 export function HeroSection({ locale }: { locale: Locale }) {
   const dict = getDictionary(locale);
   const { openPrayerModal } = usePrayerModal();
-  const [background, setBackground] = useState<BackgroundMode>("video");
   const [isWatchOpen, setIsWatchOpen] = useState(false);
   const [slideIndex, setSlideIndex] = useState(0);
   const [mounted, setMounted] = useState(false);
@@ -87,7 +82,7 @@ export function HeroSection({ locale }: { locale: Locale }) {
   const [showYoutubeFallback, setShowYoutubeFallback] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
 
-  // Layer 1: advance the Ken Burns photo crossfade every 6s.
+  // Advance the Ken Burns photo crossfade every 6s.
   useEffect(() => {
     const timer = setInterval(() => {
       setSlideIndex((current) => (current + 1) % KEN_BURNS_SLIDES.length);
@@ -95,8 +90,8 @@ export function HeroSection({ locale }: { locale: Locale }) {
     return () => clearInterval(timer);
   }, []);
 
-  // Layer 2: skip the self-hosted video loop on data-saver / 2G
-  // connections so the photo crossfade alone carries the background.
+  // Skip the self-hosted video loop on data-saver / 2G connections so
+  // the photo crossfade alone carries the background.
   useEffect(() => {
     const connection = (navigator as Navigator & { connection?: NetworkInformationLike }).connection;
     if (connection?.saveData || connection?.effectiveType === "2g" || connection?.effectiveType === "slow-2g") {
@@ -115,7 +110,7 @@ export function HeroSection({ locale }: { locale: Locale }) {
   // autoplay work.
   useEffect(() => {
     const videoEl = videoRef.current;
-    if (background === "video" && allowVideo && !videoFailed && videoEl) {
+    if (allowVideo && !videoFailed && videoEl) {
       videoEl.muted = true;
       const playPromise = videoEl.play();
       if (playPromise) {
@@ -127,32 +122,24 @@ export function HeroSection({ locale }: { locale: Locale }) {
         });
       }
     }
-  }, [background, allowVideo, videoFailed]);
+  }, [allowVideo, videoFailed]);
 
-  const showYoutubeBackground = background === "youtube" || showYoutubeFallback;
   // Once the self-hosted video is actually up and playing, it should
   // fully replace the Ken Burns photo crossfade underneath — not sit
   // blended on top of it.
-  const videoActive = background === "video" && allowVideo && !videoFailed && mounted;
-
-  const BACKGROUND_OPTIONS: { mode: BackgroundMode; label: string }[] = [
-    { mode: "video", label: dict.hero.mediaSlideWorshipLabel },
-    { mode: "dc", label: dict.hero.mediaSlideDcLabel },
-    { mode: "global", label: dict.hero.mediaSlideGlobalLabel },
-    { mode: "youtube", label: dict.hero.mediaSlideYoutubeLabel },
-  ];
+  const videoActive = allowVideo && !videoFailed && mounted;
 
   return (
-    <section className="relative min-h-[640px] overflow-hidden bg-[#091528] text-white lg:min-h-[720px]">
-      {/* Background media */}
+    <section className="relative overflow-hidden bg-[#091528] text-white">
+      {/* Background media, dimmed to a calm, reverent backdrop */}
       <div className="absolute inset-0">
         {/* Layer 1: instant local Ken Burns photo crossfade — fades
             fully out once the self-hosted video takes over, instead of
             staying blended underneath it. */}
         <div
           className={cn(
-            "absolute inset-0 transition-opacity duration-1000",
-            videoActive ? "opacity-0" : "opacity-100"
+            "absolute inset-0 opacity-70 transition-opacity duration-1000",
+            videoActive ? "opacity-0" : "opacity-70"
           )}
         >
           {KEN_BURNS_SLIDES.map((src, index) => (
@@ -176,11 +163,9 @@ export function HeroSection({ locale }: { locale: Locale }) {
           ))}
         </div>
 
-        {/* Layer 2: self-hosted HD video loop — visible immediately
-            (not gated behind a `canplaythrough` event, which may never
-            fire for a short cached clip) so real motion video is
-            guaranteed on first paint instead of a static image. */}
-        {background === "video" && allowVideo && !videoFailed && (
+        {/* Layer 2: self-hosted HD video loop, kept clearly visible
+            (opacity-70) rather than dimmed into an atmospheric blur. */}
+        {allowVideo && !videoFailed && (
           <video
             ref={videoRef}
             autoPlay
@@ -194,8 +179,8 @@ export function HeroSection({ locale }: { locale: Locale }) {
               setShowYoutubeFallback(true);
             }}
             className={cn(
-              "absolute inset-0 h-full w-full object-cover transition-opacity duration-1000",
-              mounted ? "opacity-100" : "opacity-0"
+              "absolute inset-0 h-full w-full object-cover opacity-70 transition-opacity duration-1000",
+              mounted ? "opacity-70" : "opacity-0"
             )}
           >
             <source src="/videos/hero-worship-loop.webm" type="video/webm" />
@@ -204,277 +189,73 @@ export function HeroSection({ locale }: { locale: Locale }) {
         )}
 
         {/* Layer 2b: full-bleed ambient YouTube stream — only when the
-            visitor explicitly asks for it, or the local video failed
-            to load. Cropped to a true "object-fit: cover" via the
-            oversized width/min-height trick below, hiding YouTube's
-            own letterboxing at any viewport size. */}
-        {showYoutubeBackground && (
+            local clip fails to load. Cropped to a true "object-fit:
+            cover" via the oversized width/min-height trick below,
+            hiding YouTube's own letterboxing at any viewport size. */}
+        {showYoutubeFallback && (
           <div className="absolute inset-0 overflow-hidden" aria-hidden="true">
             <iframe
               src={YOUTUBE_BACKGROUND_URL}
-              title={dict.hero.mediaSlideWorshipLabel}
+              title={dict.hero.watchModalTitle}
               tabIndex={-1}
               allow="autoplay; encrypted-media"
-              className="pointer-events-none absolute left-1/2 top-1/2 w-[177.77vh] min-w-full min-h-[56.25vw] -translate-x-1/2 -translate-y-1/2 opacity-55"
+              className="pointer-events-none absolute left-1/2 top-1/2 w-[177.77vh] min-w-full min-h-[56.25vw] -translate-x-1/2 -translate-y-1/2 opacity-70"
             />
           </div>
         )}
 
-        {background === "dc" && (
-          <div className="absolute inset-0">
-            <Image
-              src="/images/hero/pastor-aberham-dc.jpg"
-              alt=""
-              fill
-              sizes="100vw"
-              className="object-cover opacity-70"
-            />
-          </div>
-        )}
-
-        {background === "global" && (
-          <div className="absolute inset-0">
-            <Image
-              src="/images/hero/hero-hd-3.jpg"
-              alt=""
-              fill
-              sizes="100vw"
-              className="object-cover opacity-70"
-            />
-          </div>
-        )}
-
-        {/* Layer 2c: worship-sanctuary stage lighting — a slow aurora
-            wash plus soft god-rays, screen-blended over the video so the
-            backdrop feels like a lit stage rather than washing it out. */}
-        <Aurora
-          className="absolute inset-0 opacity-50 mix-blend-screen"
-          colorStops={["#091528", "#1B365D", "#2563EB", "#1E40AF"]}
-          amplitude={1.1}
-          blend={0.55}
-          speed={0.6}
-        />
-        <LightRays className="absolute inset-0 opacity-70" color="#60A5FA" rayCount={6} />
-
-        {/* Layer 3: Royal Navy stage vignette so the typography and
-            sanctuary card stay high-contrast over any backdrop */}
-        <div className="absolute inset-0 bg-gradient-to-r from-[#091528]/80 via-[#0F2342]/45 to-[#091528]/35" />
+        {/* Soft, deep-navy vignette — just enough at the top and
+            bottom to keep the pill/headline and bottom strip legible,
+            while staying light in the middle so the worship video
+            itself stays clearly visible. */}
+        <div className="absolute inset-0 bg-gradient-to-b from-[#091528]/55 via-[#091528]/20 to-[#091528]/70" />
       </div>
 
-      {/* Background mode switcher controls */}
-      <div className="absolute bottom-3 right-3 z-10 flex max-w-[calc(100%-1.5rem)] gap-1.5 overflow-x-auto sm:bottom-5 sm:right-6 sm:max-w-none sm:gap-2 lg:right-8">
-        {BACKGROUND_OPTIONS.map((option) => (
-          <button
-            key={option.mode}
-            type="button"
-            onClick={() => setBackground(option.mode)}
-            aria-pressed={background === option.mode}
-            className={cn(
-              "shrink-0 truncate rounded-full border px-2.5 py-1 font-nav text-[10px] font-bold uppercase tracking-wider transition-colors sm:px-3 sm:py-1.5 sm:text-[11px]",
-              "max-w-[76px] sm:max-w-none",
-              background === option.mode
-                ? "border-blue-400 bg-blue-600/90 text-white"
-                : "border-white/30 bg-black/30 text-white/80 hover:bg-black/50"
-            )}
-          >
-            {option.label}
-          </button>
-        ))}
-      </div>
+      {/* Centered, open, sanctuary-style welcome */}
+      <div className="relative z-10 mx-auto flex min-h-[78vh] max-w-4xl flex-col items-center justify-center px-4 py-20 text-center sm:py-28 lg:py-36">
+        <span className="mb-6 rounded-full border border-white/15 bg-white/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.2em] text-blue-200 backdrop-blur-md">
+          {dict.hero.badge}
+        </span>
 
-      <div className="relative mx-auto flex max-w-7xl flex-col gap-8 px-4 py-8 sm:gap-10 sm:px-6 sm:py-14 lg:flex-row lg:items-center lg:gap-12 lg:px-8 lg:py-20">
-        {/* Left column: headline & CTAs */}
-        <div className="max-w-2xl">
-          <span className="inline-block rounded-xl border border-blue-400/40 bg-blue-600/20 px-4 py-1.5 font-nav text-[10px] font-bold uppercase leading-relaxed tracking-[0.1em] sm:rounded-full sm:text-[11px] sm:tracking-[0.15em]">
-            <ShinyText text={dict.hero.badge} speed={3} />
-          </span>
+        <h1 className="mb-6 font-display text-3xl font-bold leading-[1.18] tracking-tight text-white sm:text-5xl lg:text-6xl">
+          <BlurText text={dict.hero.headline} animateBy="words" direction="top" delay={60} duration={0.8} />
+        </h1>
 
-          <h1 className="mt-5 font-display text-2xl font-bold leading-[1.2] text-white sm:text-4xl lg:text-5xl">
-            <BlurText text={dict.hero.headlinePrefix} animateBy="words" direction="top" delay={80} as="span" />{" "}
-            <GradientText
-              colors={["#60A5FA", "#FFFFFF", "#38BDF8", "#60A5FA"]}
-              animationSpeed={6}
-              animateIn
-              className="font-display italic"
-            >
-              {dict.hero.headlineAccent}
-            </GradientText>{" "}
-            <BlurText
-              text={dict.hero.headlineSuffix}
-              animateBy="words"
-              direction="top"
-              delay={80}
-              startDelay={dict.hero.headlinePrefix.split(" ").length * 80 + 300}
-              as="span"
-            />
-          </h1>
+        <p className="mb-10 max-w-2xl text-base font-normal leading-relaxed text-slate-200/90 sm:text-xl">
+          {dict.hero.subtitle}
+        </p>
 
-          <p className="mt-6 max-w-xl text-base leading-relaxed text-navy-100 sm:text-lg">
-            {dict.hero.subtitle}
-          </p>
-
-          <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4">
-            <Magnet padding={40} magnetStrength={3} className="w-full sm:w-auto">
-              <button
-                type="button"
-                onClick={openPrayerModal}
-                className="flex w-full touch-manipulation items-center justify-center rounded-lg border border-blue-400/50 bg-brand-logo-gradient px-7 py-3.5 font-nav text-sm font-extrabold uppercase tracking-wider text-white shadow-xl transition-transform hover:brightness-110 active:scale-[0.98] sm:w-auto sm:py-4"
-              >
-                {dict.hero.ctaSecondary}
-              </button>
-            </Magnet>
-            <Magnet padding={40} magnetStrength={3} className="w-full sm:w-auto">
-              <Link
-                href={`/${locale}/give`}
-                className="flex w-full touch-manipulation items-center justify-center rounded-lg border border-red-400/30 bg-red-500/10 px-7 py-3.5 font-nav text-sm font-extrabold uppercase tracking-wider text-red-100 backdrop-blur-md transition-transform hover:bg-red-500/20 active:scale-[0.98] sm:w-auto sm:py-4"
-              >
-                {dict.hero.ctaPrimary}
-              </Link>
-            </Magnet>
+        <div className="flex w-full flex-col items-center justify-center gap-4 sm:w-auto sm:flex-row">
+          <Magnet padding={40} magnetStrength={3} className="w-full sm:w-auto">
             <button
               type="button"
-              onClick={() => setIsWatchOpen(true)}
-              className="flex w-full touch-manipulation items-center justify-center gap-2 rounded-lg border border-white/30 bg-white/10 px-7 py-3.5 font-nav text-sm font-extrabold uppercase tracking-wider text-white backdrop-blur-md transition-transform hover:bg-white/20 active:scale-[0.98] sm:w-auto sm:py-4"
+              onClick={openPrayerModal}
+              className="flex w-full min-w-[200px] touch-manipulation items-center justify-center rounded-xl bg-[#2563EB] px-8 py-4 font-semibold text-white shadow-lg transition hover:bg-[#1D4ED8] active:scale-[0.98] sm:w-auto"
             >
-              <PlayCircle className="h-5 w-5 animate-pulse text-blue-300" aria-hidden="true" />
-              {dict.hero.ctaWatch}
+              {dict.hero.ctaSecondary}
             </button>
-          </div>
+          </Magnet>
+          <Magnet padding={40} magnetStrength={3} className="w-full sm:w-auto">
+            <Link
+              href={`/${locale}/give`}
+              className="flex w-full min-w-[200px] touch-manipulation items-center justify-center rounded-xl border border-white/30 bg-white/5 px-8 py-4 font-semibold text-white backdrop-blur-sm transition hover:bg-white/15 active:scale-[0.98] sm:w-auto"
+            >
+              {dict.hero.ctaPrimary}
+            </Link>
+          </Magnet>
         </div>
 
-        {/* Right column: Washington, D.C. sanctuary + global network card */}
-        <SpotlightCard
-          spotlightColor="rgba(37, 99, 235, 0.22)"
-          className="w-full max-w-md rounded-2xl border-2 border-blue-500/40 bg-[#0F2342]/90 p-4 shadow-2xl backdrop-blur-md sm:p-6 lg:ml-auto"
+        <button
+          type="button"
+          onClick={() => setIsWatchOpen(true)}
+          className="mt-5 inline-flex items-center gap-2 text-sm text-slate-300 transition-colors hover:text-white"
         >
-          <div className="flex items-center gap-3">
-            <div className="flex -space-x-3">
-              <div className="relative h-14 w-14 overflow-hidden rounded-full border-2 border-blue-400/60">
-                <MinistryImage
-                  src={MINISTRY_IMAGES.apostleDanielPortrait}
-                  alt="Apostle Daniel Makonnen"
-                  fill
-                  sizes="56px"
-                  className="object-cover"
-                />
-              </div>
-              <div className="relative h-14 w-14 overflow-hidden rounded-full border-2 border-blue-400/60">
-                <MinistryImage
-                  src={MINISTRY_IMAGES.pastorAberhamPortrait}
-                  alt="Pastor Aberham Bedasso"
-                  fill
-                  sizes="56px"
-                  className="object-cover"
-                />
-              </div>
-            </div>
-            <div className="relative h-9 w-9 shrink-0 overflow-hidden rounded-full border border-white/30">
-              <MinistryImage
-                src={FACEBOOK_PAGES.washingtonDc.pictureUrl}
-                alt={FACEBOOK_PAGES.washingtonDc.name}
-                fill
-                sizes="36px"
-                className="object-cover"
-              />
-            </div>
-          </div>
-          <div className="mt-2 flex flex-wrap gap-x-4 gap-y-0.5 text-xs text-blue-100">
-            <span>{dict.hero.cardFounderRole}</span>
-            <span>{dict.hero.cardPastorRole}</span>
-          </div>
-
-          <div className="mt-5 space-y-3 border-t border-blue-500/30 pt-4 text-sm text-blue-50">
-            <div className="flex gap-2.5">
-              <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-blue-300" aria-hidden="true" />
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-wide text-blue-300">
-                  {dict.hero.cardSanctuaryLabel}
-                </p>
-                <p className="mt-0.5">{DC_SANCTUARY_ADDRESS}</p>
-              </div>
-            </div>
-            <div className="flex gap-2.5">
-              <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-blue-300" aria-hidden="true" />
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-wide text-blue-300">
-                  {dict.hero.cardAdminOfficeLabel}
-                </p>
-                <p className="mt-0.5">{DC_ADMIN_OFFICE_ADDRESS}</p>
-              </div>
-            </div>
-            <div className="grid grid-cols-2 gap-2">
-              <div className="rounded-lg border border-blue-500/30 bg-blue-500/10 p-2 text-center">
-                <p className="text-[10px] font-bold uppercase tracking-wide text-blue-300">
-                  {dict.schedule.dcSundayShort}
-                </p>
-                <p className="mt-0.5 text-xs leading-snug">{dict.schedule.dcSunday}</p>
-              </div>
-              <div className="rounded-lg border border-blue-500/30 bg-blue-500/10 p-2 text-center">
-                <p className="text-[10px] font-bold uppercase tracking-wide text-blue-300">
-                  {dict.schedule.dcWednesdayShort}
-                </p>
-                <p className="mt-0.5 text-xs leading-snug">{dict.schedule.dcWednesday}</p>
-              </div>
-            </div>
-            <div className="flex gap-2.5">
-              <Phone className="mt-0.5 h-4 w-4 shrink-0 text-blue-300" aria-hidden="true" />
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-wide text-blue-300">
-                  {dict.hero.cardContactLabel}
-                </p>
-                <a href={`tel:${DC_PHONE}`} className="mt-0.5 block min-h-[32px] touch-manipulation hover:underline">
-                  {DC_PHONE}
-                </a>
-                <a href={`mailto:${DC_EMAIL}`} className="mt-0.5 flex items-center gap-1.5 hover:underline">
-                  <Mail className="h-3.5 w-3.5 shrink-0 text-blue-300" aria-hidden="true" />
-                  {DC_EMAIL}
-                </a>
-              </div>
-            </div>
-          </div>
-
-          <div className="mt-4 grid grid-cols-2 gap-3">
-            <a
-              href={`tel:${DC_PHONE}`}
-              className="flex min-h-[44px] touch-manipulation items-center justify-center gap-1.5 rounded-lg bg-blue-600 px-4 py-2 text-xs font-bold uppercase tracking-wide text-white transition-transform hover:bg-blue-500 active:scale-[0.98]"
-            >
-              <Phone className="h-3.5 w-3.5" aria-hidden="true" />
-              {dict.hero.cardContactLabel}
-            </a>
-            <a
-              href={DC_DIRECTIONS_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex min-h-[44px] touch-manipulation items-center justify-center gap-1.5 rounded-lg border border-blue-400/50 px-4 py-2 text-xs font-bold uppercase tracking-wide text-blue-100 transition-transform hover:bg-blue-500/20 active:scale-[0.98]"
-            >
-              {dict.hero.cardDirectionsCta}
-            </a>
-          </div>
-          <Link
-            href={`/${locale}#visit-dc`}
-            className="mt-2 flex min-h-[44px] touch-manipulation items-center justify-center rounded-lg border border-blue-400/30 px-4 py-2 text-xs font-bold uppercase tracking-wide text-blue-100 transition-transform hover:bg-blue-500/20 active:scale-[0.98]"
-          >
-            {dict.hero.cardVisitCta}
-          </Link>
-
-          <div className="mt-5 border-t border-blue-500/30 pt-4">
-            <p className="text-xs font-semibold uppercase tracking-wide text-blue-300">
-              {dict.hero.cardNetworkTitle}
-            </p>
-            <div className="no-scrollbar mt-2.5 flex gap-2 overflow-x-auto pb-1 snap-x sm:flex-wrap sm:overflow-visible">
-              {GLOBAL_NETWORK_SYNODS.map((entry) => (
-                <Link
-                  key={entry.synod}
-                  href={`/${locale}/locations?synod=${encodeURIComponent(entry.synod)}`}
-                  className="shrink-0 touch-manipulation snap-start whitespace-nowrap rounded-full border border-blue-400/40 bg-blue-500/10 px-3 py-1.5 text-xs font-semibold text-blue-100 transition-transform hover:bg-blue-500/30 active:scale-[0.98]"
-                >
-                  {locale === "am" ? entry.labelAm : entry.labelEn} ({entry.branchCount})
-                </Link>
-              ))}
-            </div>
-          </div>
-        </SpotlightCard>
+          <PlayCircle className="h-4 w-4" aria-hidden="true" />
+          {dict.hero.ctaWatch}
+        </button>
       </div>
+
+      <HeroBottomInfoStrip locale={locale} />
 
       <VideoModal
         isOpen={isWatchOpen}

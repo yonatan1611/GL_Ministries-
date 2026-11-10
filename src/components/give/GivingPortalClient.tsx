@@ -31,7 +31,7 @@ import { SOCIAL_LINKS } from "@/data/social-media";
 import { cn, type Locale } from "@/lib/utils";
 import type { Book } from "@/types/ministry";
 import { useToast } from "@/components/providers/AppProviders";
-import { MinistryImage } from "@/components/ui/MinistryImage";
+import { BookCoverImage } from "@/components/books/BookCoverImage";
 import { StewardshipReceiptModal, type GivingReceiptData } from "@/components/give/StewardshipReceiptModal";
 import { InteractivePaymentGatewayModal } from "@/components/give/InteractivePaymentGatewayModal";
 import { AnimatedContent } from "@/components/react-bits/AnimatedContent";
@@ -208,11 +208,10 @@ export function GivingPortalClient({ locale, books }: { locale: Locale; books: B
           >
             {MONTHLY_OFFER_BOOK.coverImageUrl && (
               <div className="relative h-40 w-28 shrink-0 overflow-hidden rounded-xl border border-amber-500/40 shadow-md">
-                <MinistryImage
+                <BookCoverImage
                   src={MONTHLY_OFFER_BOOK.coverImageUrl}
                   alt={locale === "am" ? MONTHLY_OFFER_BOOK.titleAm : MONTHLY_OFFER_BOOK.titleEn}
                   fill
-                  sizes="112px"
                   className="object-cover"
                 />
               </div>

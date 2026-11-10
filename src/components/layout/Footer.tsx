@@ -9,6 +9,7 @@ import { HQ_EMAIL, HQ_PHONE, DC_EMAIL, DC_PHONE } from "@/data/locations";
 import { SOCIAL_LINKS } from "@/data/social-media";
 import type { Locale } from "@/lib/utils";
 import { FacebookIcon, InstagramIcon, TikTokIcon, XIcon, YoutubeIcon } from "@/components/ui/BrandIcons";
+import { YoutubeChannelCards } from "@/components/ui/YoutubeChannelCards";
 
 /**
  * 4-column dark charcoal footer in Gospel Light's own logo colors —
@@ -130,6 +131,7 @@ export function Footer({ locale }: { locale: Locale }) {
                 </a>
               </li>
             </ul>
+            <YoutubeChannelCards locale={locale} className="mt-4 flex flex-col gap-2 border-t border-navy-800 pt-4" />
           </div>
 
           {/* Column 3: Keep in Touch */}

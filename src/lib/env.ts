@@ -53,12 +53,17 @@ const envSchema = z.object({
     .default("https://tithe.ly/give?c=1848247"),
 
   // YouTube (sermon archive + live stream detection). Defaults to the
-  // ministry's own verified, public channel ID — not a secret, so it's
-  // safe to ship as a real default rather than a placeholder.
+  // ministry's primary verified, public channel ID — Gospel Light
+  // Church, DC (`@gospellightchurchdc6393`) — not a secret, so it's
+  // safe to ship as a real default rather than a placeholder. The
+  // secondary Aware Gospel Light Ethiopia channel id
+  // (`UCbvgk_wBqP2XgyE40xgHOjA`) is read directly from
+  // `src/data/social-media.ts`'s `ETHIOPIA_YOUTUBE_CHANNEL`, not from
+  // this env var.
   YOUTUBE_CHANNEL_ID: z
     .string()
     .min(1)
-    .default("UCbvgk_wBqP2XgyE40xgHOjA"),
+    .default("UC4dgEThd8fyJIMUsHmM4aVA"),
 
   // Official ministry contact emails. Note: the legacy WordPress site
   // shipped a typo'd US contact address (`dc@glmministries.org`, double

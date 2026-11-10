@@ -25,17 +25,35 @@ import { TITHELY_URL } from "@/lib/env";
  * client brief (pending client confirmation — see the matching note in
  * `src/lib/env.ts`); `FACEBOOK_PAGES` holds the verified working
  * alternates actually used by `FacebookCommunitySection`.
+ *
+ * Dual-channel YouTube network — both verified live against YouTube
+ * (channel About page + oEmbed), not guessed:
+ *  - `DC_YOUTUBE_CHANNEL` (`@gospellightchurchdc6393`,
+ *    `UC4dgEThd8fyJIMUsHmM4aVA`): the primary North American channel —
+ *    9.76K subscribers / 894 videos confirmed live on its About page as
+ *    of this rebuild (shown rounded as "9.76K+" / "890+" since these
+ *    counters move). Its avatar URL below is the current live image
+ *    pulled from that same About page — an earlier draft URL for this
+ *    channel resolved to a different (stale) avatar and was replaced.
+ *  - `ETHIOPIA_YOUTUBE_CHANNEL` (`@AwareGospelLightEthiopia`,
+ *    `UCbvgk_wBqP2XgyE40xgHOjA`): the original Addis Ababa HQ channel,
+ *    previously the sole `YOUTUBE_CHANNEL` — kept as the secondary/
+ *    global-network channel.
+ * `YOUTUBE_CHANNEL` now aliases `DC_YOUTUBE_CHANNEL` as the site-wide
+ * primary (hero badge, sermons-page subscribe/live links, footer,
+ * JSON-LD `sameAs`), matching the live DC channel's own subscriber/
+ * video counts rather than a placeholder.
  */
 
 /** Canonical social/media + giving links, matching the shape requested
  *  for the bennyhinn.org-style multi-platform media hub. */
 export const SOCIAL_LINKS = {
-  youtubeChannelUrl: "https://www.youtube.com/@AwareGospelLightEthiopia",
-  youtubeChannelId: "UCbvgk_wBqP2XgyE40xgHOjA",
+  youtubeChannelUrl: "https://www.youtube.com/@gospellightchurchdc6393",
+  youtubeChannelId: "UC4dgEThd8fyJIMUsHmM4aVA",
   youtubeRssFeed:
-    "https://www.youtube.com/feeds/videos.xml?channel_id=UCbvgk_wBqP2XgyE40xgHOjA",
+    "https://www.youtube.com/feeds/videos.xml?channel_id=UC4dgEThd8fyJIMUsHmM4aVA",
   youtubeSubscribeUrl:
-    "https://www.youtube.com/@AwareGospelLightEthiopia?sub_confirmation=1",
+    "https://www.youtube.com/@gospellightchurchdc6393?sub_confirmation=1",
   facebookPageUrl: "https://web.facebook.com/EGLIC",
   facebookLiveUrl: "https://web.facebook.com/EGLIC/live",
   facebookAvatarUrl: "https://graph.facebook.com/EGLIC/picture?type=large",
@@ -49,21 +67,45 @@ export const SOCIAL_LINKS = {
   tithelyGivingUrl: TITHELY_URL,
 } as const;
 
-/** YouTube channel metadata, derived from `SOCIAL_LINKS` plus a couple
- *  of fields (handle, avatar, videos list) that have no `SOCIAL_LINKS`
- *  equivalent. Kept as a convenience object for existing consumers
- *  (`MediaTheater`, `youtube-sync`) instead of duplicating the literals. */
-export const YOUTUBE_CHANNEL = {
+/** Gospel Light Church, DC — the primary North American YouTube
+ *  channel (Washington, D.C. / Alexandria, VA broadcasts). See the file
+ *  header note above for how every field here was verified live. */
+export const DC_YOUTUBE_CHANNEL = {
   id: SOCIAL_LINKS.youtubeChannelId,
-  handle: "@AwareGospelLightEthiopia",
+  handle: "@gospellightchurchdc6393",
+  name: "Gospel Light Church, DC",
   url: SOCIAL_LINKS.youtubeChannelUrl,
   channelUrl: `https://www.youtube.com/channel/${SOCIAL_LINKS.youtubeChannelId}`,
   videosUrl: `https://www.youtube.com/channel/${SOCIAL_LINKS.youtubeChannelId}/videos`,
+  liveStreamUrl: "https://www.youtube.com/@gospellightchurchdc6393/streams",
   subscribeUrl: SOCIAL_LINKS.youtubeSubscribeUrl,
   rssFeedUrl: SOCIAL_LINKS.youtubeRssFeed,
   avatarUrl:
+    "https://yt3.googleusercontent.com/v9FBPJzPA9LpSUdbPf2MFc1uBqKnWJ1igjlhSZod8ZhPVscHu7sAm0vV4JXm4qH7BA3noHm2Gw=s900-c-k-c0x00ffffff-no-rj",
+  subscriberCountLabel: "9.76K+",
+  videoCountLabel: "890+",
+} as const;
+
+/** Aware Gospel Light Ethiopia — the secondary/global-network channel
+ *  (Addis Ababa HQ broadcasts); formerly the sole `YOUTUBE_CHANNEL`. */
+export const ETHIOPIA_YOUTUBE_CHANNEL = {
+  id: "UCbvgk_wBqP2XgyE40xgHOjA",
+  handle: "@AwareGospelLightEthiopia",
+  name: "Aware Gospel Light Ethiopia",
+  url: "https://www.youtube.com/@AwareGospelLightEthiopia",
+  channelUrl: "https://www.youtube.com/channel/UCbvgk_wBqP2XgyE40xgHOjA",
+  videosUrl: "https://www.youtube.com/channel/UCbvgk_wBqP2XgyE40xgHOjA/videos",
+  subscribeUrl: "https://www.youtube.com/@AwareGospelLightEthiopia?sub_confirmation=1",
+  rssFeedUrl: "https://www.youtube.com/feeds/videos.xml?channel_id=UCbvgk_wBqP2XgyE40xgHOjA",
+  avatarUrl:
     "https://yt3.googleusercontent.com/aJ4lB3okt7pYM9v0P42bOZc8XwjoAAJexbnGdT_7fFSzQn5L8f-7IIjvrQh2121vMQM-pZR7=s900-c-k-c0x00ffffff-no-rj",
 } as const;
+
+/** YouTube channel metadata — aliases `DC_YOUTUBE_CHANNEL` as the
+ *  site-wide primary channel. Kept as a convenience object for existing
+ *  consumers (`MediaTheater`, `youtube-sync`) instead of duplicating
+ *  the literals. */
+export const YOUTUBE_CHANNEL = DC_YOUTUBE_CHANNEL;
 
 export const TELEGRAM_URL = SOCIAL_LINKS.telegramUrl;
 export const INSTAGRAM_URL = SOCIAL_LINKS.instagramUrl;
@@ -119,6 +161,12 @@ export const MINISTRY_VIDEO_IDS = {
   crusadeRevival: "FvnQFVRwdLs",
   pastoralTime: "-ilsw36Mh8E",
   apostleDanielPreaching: "oLx8cvN83w4",
+  /** Gospel Light Church, DC live-service broadcasts (verified real ids
+   *  on `@gospellightchurchdc6393`) featured alongside the Ethiopia HQ
+   *  ids above in the hero's "Watch Full Worship & Sermons" modal. */
+  dcHeIsWorthy: "PPdkq9gddlU",
+  dcSeasonLordLookedUpon: "5wNOAS6kUQ8",
+  dcGiveMeThisLivingWater: "2jnqsYe7vG8",
 } as const;
 
 /**

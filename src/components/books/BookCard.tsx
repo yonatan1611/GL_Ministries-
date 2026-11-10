@@ -5,7 +5,7 @@ import { getDictionary } from "@/data/i18n";
 import type { Locale } from "@/lib/utils";
 import type { Book } from "@/types/ministry";
 import { useCart, useToast } from "@/components/providers/AppProviders";
-import { MinistryImage } from "@/components/ui/MinistryImage";
+import { BookCoverImage } from "@/components/books/BookCoverImage";
 import { TiltedCard } from "@/components/react-bits/TiltedCard";
 
 interface BookCardProps {
@@ -59,13 +59,7 @@ export function BookCard({ locale, book, onReadExcerpt }: BookCardProps) {
       {book.coverImageUrl ? (
         <TiltedCard rotateAmplitude={10} scaleOnHover={1.04} className="w-24 shrink-0 sm:w-48">
           <div className="relative overflow-hidden rounded-xl border border-amber-500/40 shadow-md">
-            <MinistryImage
-              src={book.coverImageUrl}
-              alt={titleEn}
-              width={192}
-              height={272}
-              className="h-full w-full object-cover"
-            />
+            <BookCoverImage src={book.coverImageUrl} alt={titleEn} className="h-full w-full object-cover" />
           </div>
         </TiltedCard>
       ) : (
@@ -133,9 +127,10 @@ export function BookCard({ locale, book, onReadExcerpt }: BookCardProps) {
             <button
               type="button"
               onClick={handleAddPrint}
-              className="min-h-[44px] touch-manipulation rounded-lg bg-amber-600 px-3 py-2 text-xs font-semibold text-white transition-transform active:scale-[0.98] hover:bg-amber-700"
+              disabled={book.inStock === false}
+              className="min-h-[44px] touch-manipulation rounded-lg bg-amber-600 px-3 py-2 text-xs font-semibold text-white transition-transform active:scale-[0.98] hover:bg-amber-700 disabled:cursor-not-allowed disabled:bg-slate-300"
             >
-              {dict.booksPage.addPrint}
+              {book.inStock === false ? "Out of Print Stock" : dict.booksPage.addPrint}
             </button>
             <button
               type="button"

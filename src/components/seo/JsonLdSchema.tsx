@@ -1,5 +1,5 @@
 import { HQ_EMAIL, HQ_PHONE, DC_EMAIL, DC_PHONE } from "@/data/locations";
-import { SOCIAL_LINKS } from "@/data/social-media";
+import { ETHIOPIA_YOUTUBE_CHANNEL, SOCIAL_LINKS } from "@/data/social-media";
 import type { Locale } from "@/lib/utils";
 
 const ENGLISH_NAME = "Gospel Light Ministries International";
@@ -26,6 +26,7 @@ export function JsonLdSchema({ locale }: { locale: Locale }) {
     logo: `${siteUrl}/brand/glm-logo.jpg`,
     sameAs: [
       SOCIAL_LINKS.youtubeChannelUrl,
+      ETHIOPIA_YOUTUBE_CHANNEL.url,
       "https://www.facebook.com/gospellightchurchdc/",
       SOCIAL_LINKS.telegramUrl,
       SOCIAL_LINKS.instagramUrl,

@@ -3,8 +3,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { BookOpen, Check, Copy, HeartHandshake, Users } from "lucide-react";
 import { getDictionary } from "@/data/i18n";
-import { DAILY_DEVOTIONALS } from "@/data/ministry-content";
 import { cn, type Locale } from "@/lib/utils";
+import type { DailyDevotional } from "@/types/ministry";
 import { useToast } from "@/components/providers/AppProviders";
 import { PrayerRequestForm } from "@/components/prayer/PrayerRequestForm";
 import { PrayerWall, type PrayerWallStats } from "@/components/home/PrayerWall";
@@ -12,14 +12,10 @@ import { Particles } from "@/components/react-bits/Particles";
 import { SplitText } from "@/components/react-bits/SplitText";
 import { AnimatedContent } from "@/components/react-bits/AnimatedContent";
 
-/** Picks today's devotional by weekday if one is scheduled for today's
- *  date, otherwise falls back to the first entry in the series. */
-function getTodaysDevotionalId(): string {
-  const todayIso = new Date().toISOString().slice(0, 10);
-  const match = DAILY_DEVOTIONALS.find((devotional) => devotional.date === todayIso);
-  // DAILY_DEVOTIONALS is a static, non-empty 7-entry series (see
-  // src/data/ministry-content.ts) — the fallback index is always defined.
-  return (match ?? DAILY_DEVOTIONALS[0]!).id;
+/** The entry flagged `isFeaturedToday` (sorted first by the API/db
+ *  helper already), falling back to the first entry in the list. */
+function getFeaturedId(devotionals: DailyDevotional[]): string | null {
+  return devotionals[0]?.id ?? null;
 }
 
 /**
@@ -28,11 +24,23 @@ function getTodaysDevotionalId(): string {
  * blocks: a Daily Scripture devotional selector on the left
  * (`id="todays-scripture"`) and the Global Prayer Army enrollment form
  * on the right (`id="global-prayer-army"`).
+ *
+ * `initialDevotionals` is the SSR snapshot from `listDevotionals()` (see
+ * `src/app/[locale]/page.tsx`); this component then re-fetches
+ * `GET /api/devotionals` on mount so an Admin Portal edit made after
+ * the page loaded still shows up without a hard refresh.
  */
-export function GlobalPrayerArmyAndScripture({ locale }: { locale: Locale }) {
+export function GlobalPrayerArmyAndScripture({
+  locale,
+  initialDevotionals,
+}: {
+  locale: Locale;
+  initialDevotionals: DailyDevotional[];
+}) {
   const dict = getDictionary(locale);
   const { showToast } = useToast();
-  const [activeId, setActiveId] = useState<string>(getTodaysDevotionalId());
+  const [devotionals, setDevotionals] = useState<DailyDevotional[]>(initialDevotionals);
+  const [activeId, setActiveId] = useState<string | null>(getFeaturedId(initialDevotionals));
   const [isPrayerConfirmed, setIsPrayerConfirmed] = useState(false);
   const [copied, setCopied] = useState(false);
   const [stats, setStats] = useState<PrayerWallStats | null>(null);
@@ -47,14 +55,31 @@ export function GlobalPrayerArmyAndScripture({ locale }: { locale: Locale }) {
     }
   }
 
+  async function refreshDevotionals() {
+    try {
+      const response = await fetch("/api/devotionals");
+      const result = await response.json().catch(() => null);
+      const fresh = result?.success ? (result.data.devotionals as DailyDevotional[]) : null;
+      if (fresh && fresh.length > 0) {
+        setDevotionals(fresh);
+        setActiveId((current) => (current && fresh.some((d) => d.id === current) ? current : getFeaturedId(fresh)));
+      }
+    } catch {
+      // Progressive enhancement over the SSR snapshot — fail silently.
+    }
+  }
+
   useEffect(() => {
     refreshStats();
+    refreshDevotionals();
   }, []);
 
   const active = useMemo(
-    () => DAILY_DEVOTIONALS.find((devotional) => devotional.id === activeId) ?? DAILY_DEVOTIONALS[0]!,
-    [activeId]
+    () => devotionals.find((devotional) => devotional.id === activeId) ?? devotionals[0] ?? null,
+    [devotionals, activeId]
   );
+
+  if (!active) return null;
 
   const verseText = locale === "am" ? active.verseTextAm : active.verseTextEn;
   const scriptureRef = locale === "am" ? active.scriptureRefAm : active.scriptureRefEn;
@@ -70,11 +95,6 @@ export function GlobalPrayerArmyAndScripture({ locale }: { locale: Locale }) {
     }
   }
 
-  const formattedDate = new Date(`${active.date}T00:00:00`).toLocaleDateString(
-    locale === "am" ? "am-ET" : "en-US",
-    { year: "numeric", month: "long", day: "numeric" }
-  );
-
   return (
     <section className="bg-slate-50 px-4 py-16 sm:px-6 lg:px-8">
       <div className="mx-auto grid max-w-6xl grid-cols-1 gap-10 lg:grid-cols-2">
@@ -89,7 +109,7 @@ export function GlobalPrayerArmyAndScripture({ locale }: { locale: Locale }) {
             {dict.dailyWord.selectDayLabel}
           </p>
           <div className="mt-3 flex flex-wrap items-center gap-2">
-            {DAILY_DEVOTIONALS.map((devotional, index) => (
+            {devotionals.map((devotional, index) => (
               <button
                 key={devotional.id}
                 type="button"
@@ -118,7 +138,7 @@ export function GlobalPrayerArmyAndScripture({ locale }: { locale: Locale }) {
             />
             <div className="relative flex flex-wrap items-center justify-between gap-2 text-xs text-amber-400">
               <span className="font-semibold uppercase tracking-wide">{dict.dailyWord.todayLabel}</span>
-              <span>{formattedDate}</span>
+              <span>{active.dateLabel}</span>
             </div>
             <h3 className="mt-4 font-display text-xl font-bold">
               {locale === "am" ? active.titleAm : active.titleEn}

@@ -11,7 +11,6 @@ import { CartDrawer } from "@/components/books/CartDrawer";
 import { Footer } from "@/components/layout/Footer";
 import { GlobalPrayerModal } from "@/components/prayer/GlobalPrayerModal";
 import { JsonLdSchema } from "@/components/seo/JsonLdSchema";
-import { ClickSpark } from "@/components/react-bits/ClickSpark";
 import "../globals.css";
 
 // Every font below is self-hosted (`next/font/local`) rather than
@@ -176,15 +175,13 @@ export default async function LocaleLayout({
       <body className="bg-slate-50 font-sans text-slate-800 antialiased">
         <JsonLdSchema locale={locale} />
         <AppProviders>
-          <ClickSpark sparkColor="#60A5FA" sparkSize={10} sparkRadius={20} sparkCount={8} duration={400}>
-            <TopUtilityBar locale={locale} />
-            <Navbar locale={locale} />
-            {children}
-            <Footer locale={locale} />
-            <MobileBottomNav locale={locale} />
-            <CartDrawer />
-            <GlobalPrayerModal />
-          </ClickSpark>
+          <TopUtilityBar locale={locale} />
+          <Navbar locale={locale} />
+          {children}
+          <Footer locale={locale} />
+          <MobileBottomNav locale={locale} />
+          <CartDrawer />
+          <GlobalPrayerModal />
         </AppProviders>
       </body>
     </html>

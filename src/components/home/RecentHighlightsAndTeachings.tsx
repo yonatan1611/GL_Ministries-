@@ -11,7 +11,11 @@ import type { Locale } from "@/lib/utils";
 import { MinistryImage } from "@/components/ui/MinistryImage";
 import { Modal } from "@/components/ui/Modal";
 
-const FEATURED_TEACHING_IDS = ["-ilsw36Mh8E", "oLx8cvN83w4", "IspYtE3w0tk", "ouZLcHq0v1I"];
+/** Top 4 featured teachings (2x2 grid) — Gospel Light Church, DC leads,
+ *  followed by Ethiopia HQ teachings — with a clean "Watch All 38+
+ *  Sermons" button doing the rest of the work, rather than dumping
+ *  dozens of video cards onto the homepage. */
+const FEATURED_TEACHING_IDS = ["5wNOAS6kUQ8", "PPdkq9gddlU", "-ilsw36Mh8E", "oLx8cvN83w4"];
 
 /**
  * "Recent Updates & Highlights" + "Latest Teachings" split grid, styled
@@ -28,8 +32,8 @@ export function RecentHighlightsAndTeachings({ locale }: { locale: Locale }) {
   ).filter((sermon): sermon is (typeof SERMONS)[number] => Boolean(sermon));
 
   return (
-    <section className="bg-slate-50 px-4 py-16 sm:px-6 lg:px-8">
-      <div className="mx-auto grid max-w-7xl grid-cols-1 gap-10 lg:grid-cols-2">
+    <section className="bg-slate-50 px-4 py-16 sm:px-6 sm:py-24 lg:px-8">
+      <div className="mx-auto grid max-w-6xl grid-cols-1 gap-10 lg:grid-cols-2">
         {/* Left: Recent Updates & Highlights */}
         <div className="overflow-hidden border border-[#E6DFD3] bg-white shadow-md">
           <div className="relative aspect-video w-full border-b-4 border-amber-600">
@@ -88,7 +92,7 @@ export function RecentHighlightsAndTeachings({ locale }: { locale: Locale }) {
                       />
                     </div>
                   </div>
-                  <p className="line-clamp-2 p-2 text-xs font-semibold text-navy-900">
+                  <p className="h-10 overflow-hidden px-2 pt-2 text-xs font-semibold leading-4 text-navy-900">
                     {locale === "am" ? sermon.titleAm : sermon.titleEn}
                   </p>
                 </Link>

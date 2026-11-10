@@ -24,9 +24,9 @@ export interface AnimatedContentProps {
  */
 export function AnimatedContent({
   children,
-  distance = 40,
+  distance = 20,
   direction = "vertical",
-  duration = 0.7,
+  duration = 0.6,
   delay = 0,
   className,
   threshold = 0.2,

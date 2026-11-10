@@ -15,6 +15,8 @@ export interface BlurTextProps {
    *  `BlurText` instances in the same headline read as one continuous
    *  left-to-right reveal instead of all starting at once. */
   startDelay?: number;
+  /** Per-word/letter transition duration, in seconds. */
+  duration?: number;
   className?: string;
   as?: "span" | "h1" | "h2" | "h3" | "p";
 }
@@ -30,6 +32,7 @@ export function BlurText({
   direction = "top",
   delay = 80,
   startDelay = 0,
+  duration = 0.5,
   className,
   as = "span",
 }: BlurTextProps) {
@@ -60,7 +63,7 @@ export function BlurText({
           initial="hidden"
           animate="visible"
           variants={variants}
-          transition={{ duration: 0.5, delay: (startDelay + index * delay) / 1000, ease: "easeOut" }}
+          transition={{ duration, delay: (startDelay + index * delay) / 1000, ease: "easeOut" }}
           style={{ display: "inline-block", whiteSpace: unit.trim() === "" ? "pre" : "normal" }}
         >
           {unit}

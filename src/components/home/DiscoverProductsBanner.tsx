@@ -3,7 +3,7 @@ import { BookOpen } from "lucide-react";
 import { getDictionary } from "@/data/i18n";
 import { listBooks } from "@/lib/db";
 import type { Locale } from "@/lib/utils";
-import { MinistryImage } from "@/components/ui/MinistryImage";
+import { BookCoverImage } from "@/components/books/BookCoverImage";
 
 /**
  * "Discover Resources / Products" banner, styled after bennyhinn.org's
@@ -16,8 +16,8 @@ export async function DiscoverProductsBanner({ locale }: { locale: Locale }) {
   const books = await listBooks();
 
   return (
-    <section className="bg-white px-4 py-16 sm:px-6 lg:px-8">
-      <div className="mx-auto max-w-5xl text-center">
+    <section className="bg-white px-4 py-16 sm:px-6 sm:py-24 lg:px-8">
+      <div className="mx-auto max-w-6xl text-center">
         <h2 className="font-display text-2xl font-bold text-navy-900 sm:text-3xl">
           {dict.discoverProducts.sectionTitle}
         </h2>
@@ -28,7 +28,7 @@ export async function DiscoverProductsBanner({ locale }: { locale: Locale }) {
           {dict.discoverProducts.body}
         </p>
 
-        <div className="mt-10 grid grid-cols-2 gap-5 sm:grid-cols-4">
+        <div className="mt-10 grid grid-cols-2 gap-6 sm:grid-cols-4 sm:gap-8">
           {books.map((book) => (
             <Link
               key={book.id}
@@ -37,13 +37,7 @@ export async function DiscoverProductsBanner({ locale }: { locale: Locale }) {
             >
               <div className="relative h-32 w-24 overflow-hidden rounded border border-amber-500/30 shadow">
                 {book.coverImageUrl ? (
-                  <MinistryImage
-                    src={book.coverImageUrl}
-                    alt={book.titleEn}
-                    fill
-                    sizes="96px"
-                    className="object-cover"
-                  />
+                  <BookCoverImage src={book.coverImageUrl} alt={book.titleEn} fill className="object-cover" />
                 ) : (
                   <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-navy-800 to-navy-950">
                     <BookOpen className="h-6 w-6 text-amber-300" aria-hidden="true" />

@@ -380,6 +380,9 @@ export const newSermonSchema = z.object({
   speakerEn: sanitizedString(0, 120).optional(),
   speakerAm: sanitizedString(0, 120).optional(),
   topic: z.enum(SERMON_TOPICS).default("New Upload"),
+  /** Which of the two official channels this manually-added video
+   *  belongs to — defaults to DC, the primary North American channel. */
+  channelSource: z.enum(["DC", "ETHIOPIA"]).default("DC"),
   yearLabel: sanitizedString(0, 20).optional(),
   summaryEn: sanitizedString(0, 600).optional(),
   summaryAm: sanitizedString(0, 600).optional(),
@@ -388,18 +391,70 @@ export const newSermonSchema = z.object({
 export type NewSermonInput = z.infer<typeof newSermonSchema>;
 
 // ---------------------------------------------------------------------------
-// 10. Admin Portal — Edit Book Catalog
+// 10. Admin Portal — Full Book Catalog Management (Add / Edit / Delete)
 // ---------------------------------------------------------------------------
 
-/** Admin-portal book edit — price and the monthly-offer flag only.
- *  Titles/synopsis stay source-controlled content, not something an
- *  office PIN should be able to rewrite. */
-export const updateBookSchema = z
-  .object({
-    priceUsdPrint: z.number().positive().finite().optional(),
-    priceUsdPdf: z.number().positive().finite().optional(),
-    isMonthlySpecialOffer: z.boolean().optional(),
-  })
-  .refine((data) => Object.keys(data).length > 0, "No changes provided.");
+/** A book cover is either a same-origin upload path (`/uploads/...`),
+ *  a `data:` URI fallback from `/api/upload`, or an admin-pasted
+ *  external image URL — accept any non-empty string rather than a
+ *  strict URL format so all three pass. */
+const coverImageUrlField = z.string().trim().max(8_000_000).optional();
 
-export type UpdateBookInput = z.infer<typeof updateBookSchema>;
+export const newBookSchema = z.object({
+  titleEn: sanitizedString(2, 200),
+  titleAm: sanitizedString(0, 200).optional(),
+  authorEn: sanitizedString(0, 120).optional(),
+  authorAm: sanitizedString(0, 120).optional(),
+  coverImageUrl: coverImageUrlField,
+  priceUsdPrint: z.number().positive().finite(),
+  priceUsdPdf: z.number().positive().finite(),
+  pages: z.number().int().positive().optional(),
+  isbn: sanitizedString(0, 40).optional(),
+  synopsisEn: sanitizedString(10, 4000),
+  synopsisAm: sanitizedString(0, 4000).optional(),
+  topics: z.array(sanitizedString(1, 60)).max(12).optional(),
+  isMonthlySpecialOffer: z.boolean().optional(),
+  inStock: z.boolean().optional(),
+});
+
+export type NewBookInput = z.infer<typeof newBookSchema>;
+
+export const updateBookFullSchema = newBookSchema.partial().extend({
+  id: z.string().min(1, "Missing book id."),
+});
+
+export type UpdateBookFullInput = z.infer<typeof updateBookFullSchema>;
+
+// ---------------------------------------------------------------------------
+// 11. Admin Portal — Daily Scripture Devotionals (Add / Edit / Feature / Delete)
+// ---------------------------------------------------------------------------
+
+const devotionalFieldsSchema = z.object({
+  dateLabel: sanitizedString(1, 120),
+  titleEn: sanitizedString(0, 200).optional(),
+  titleAm: sanitizedString(0, 200).optional(),
+  scriptureRefEn: sanitizedString(1, 160),
+  scriptureRefAm: sanitizedString(0, 160).optional(),
+  verseTextEn: sanitizedString(1, 3000),
+  verseTextAm: sanitizedString(0, 3000).optional(),
+  reflectionEn: sanitizedString(1, 4000),
+  reflectionAm: sanitizedString(0, 4000).optional(),
+  prayerDeclarationEn: sanitizedString(1, 1200),
+  prayerDeclarationAm: sanitizedString(0, 1200).optional(),
+  authorEn: sanitizedString(0, 120).optional(),
+  authorAm: sanitizedString(0, 120).optional(),
+  // No `.default()` here deliberately: `updateDevotionalSchema` below
+  // reuses this via `.partial()`, and a default would make an omitted
+  // field in a PUT request silently resolve to `false`, clobbering an
+  // existing `isFeaturedToday: true` on a text-only edit. Each route
+  // coerces `undefined` to the right value itself instead.
+  isFeaturedToday: z.boolean().optional(),
+});
+
+export const newDevotionalSchema = devotionalFieldsSchema;
+export type NewDevotionalInput = z.infer<typeof newDevotionalSchema>;
+
+export const updateDevotionalSchema = devotionalFieldsSchema.partial().extend({
+  id: z.string().min(1, "Missing devotional id."),
+});
+export type UpdateDevotionalInput = z.infer<typeof updateDevotionalSchema>;

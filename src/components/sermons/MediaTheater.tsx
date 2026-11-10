@@ -29,6 +29,7 @@ import {
 } from "@/lib/utils";
 import type { Sermon } from "@/types/ministry";
 import { useToast } from "@/components/providers/AppProviders";
+import { YoutubeChannelCards } from "@/components/ui/YoutubeChannelCards";
 
 type TheaterMode = "ondemand" | "live";
 type PlayerMode = "video" | "audio";
@@ -91,6 +92,8 @@ export function MediaTheater({ locale, sermon, mode, onModeChange, onRequestPray
           {dict.sermonsPage.liveTabLabel}
         </button>
       </div>
+
+      <YoutubeChannelCards locale={locale} className="grid grid-cols-1 gap-3 border-b border-navy-800 p-4 sm:grid-cols-2" />
 
       <div className="p-6">
         {mode === "ondemand" ? (
@@ -453,6 +456,18 @@ function AudioWaveform({ isPlaying }: { isPlaying: boolean }) {
   );
 }
 
+/** Shape of `GET /api/youtube/live`'s `data` — kept local to this
+ *  client component rather than importing `LiveBroadcastStatus` from
+ *  `@/lib/youtube-sync`, which pulls in server-only modules (db,
+ *  env.server) that must never reach the browser bundle. */
+interface LiveApiStatus {
+  isLiveNow: boolean;
+  source: "api" | "schedule";
+  videoId?: string;
+  title?: string;
+  embedUrl?: string;
+}
+
 function LiveView({
   locale,
   onRequestPrayerComment,
@@ -462,11 +477,40 @@ function LiveView({
 }) {
   const dict = getDictionary(locale);
   const [status, setStatus] = useState(() => getBroadcastStatus());
+  const [liveApiStatus, setLiveApiStatus] = useState<LiveApiStatus | null>(null);
 
   useEffect(() => {
     const interval = setInterval(() => setStatus(getBroadcastStatus()), 30_000);
     return () => clearInterval(interval);
   }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    async function pollLiveStatus() {
+      try {
+        const response = await fetch("/api/youtube/live");
+        const result = await response.json().catch(() => null);
+        if (!cancelled && result?.success) setLiveApiStatus(result.data as LiveApiStatus);
+      } catch {
+        // Real-time check is a progressive enhancement over the
+        // schedule-based fallback below — fail silently.
+      }
+    }
+    pollLiveStatus();
+    const interval = setInterval(pollLiveStatus, 45_000);
+    return () => {
+      cancelled = true;
+      clearInterval(interval);
+    };
+  }, []);
+
+  // A real, authoritative answer from the YouTube Data API (`source:
+  // "api"`) always wins over the fixed weekly clock schedule — it only
+  // falls back to the schedule's guess when no `YOUTUBE_API_KEY` is
+  // configured server-side (`source: "schedule"`) or the poll hasn't
+  // landed yet.
+  const isLiveNow = liveApiStatus?.source === "api" ? liveApiStatus.isLiveNow : status.isLiveNow;
+  const liveEmbedUrl = liveApiStatus?.source === "api" && liveApiStatus.isLiveNow ? liveApiStatus.embedUrl : undefined;
 
   const activeLabels = status.activeWindow ? BROADCAST_LABELS[status.activeWindow.key] : null;
   const nextLabels = status.nextWindow ? BROADCAST_LABELS[status.nextWindow.key] : null;
@@ -474,7 +518,7 @@ function LiveView({
   return (
     <div>
       <div className="flex flex-wrap items-center gap-3">
-        {status.isLiveNow ? (
+        {isLiveNow ? (
           <span className="flex items-center gap-2 rounded-full bg-red-600/20 px-4 py-1.5 text-sm font-bold text-red-400">
             <span className="relative flex h-2.5 w-2.5" aria-hidden="true">
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-500 opacity-75" />
@@ -491,13 +535,26 @@ function LiveView({
         {activeLabels && (
           <span className="text-sm text-slate-300">{dict.schedule[activeLabels.titleKey]}</span>
         )}
-        {!status.isLiveNow && nextLabels && status.minutesUntilNext !== null && (
+        {!isLiveNow && nextLabels && status.minutesUntilNext !== null && (
           <span className="text-sm text-slate-300">
             {dict.sermonsPage.nextBroadcastLabel}: {dict.schedule[nextLabels.titleKey]} —{" "}
             {formatCountdown(status.minutesUntilNext)}
           </span>
         )}
       </div>
+
+      {liveEmbedUrl && (
+        <div className="mt-6 aspect-video w-full overflow-hidden rounded-xl bg-black">
+          <iframe
+            key={liveEmbedUrl}
+            src={liveEmbedUrl}
+            title={liveApiStatus?.title ?? dict.sermonsPage.liveNowBadge}
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+            className="h-full w-full"
+          />
+        </div>
+      )}
 
       <div className="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2">
         <div className="rounded-xl border border-navy-800 bg-navy-900 p-5">

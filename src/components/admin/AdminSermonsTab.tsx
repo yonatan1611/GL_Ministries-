@@ -8,14 +8,28 @@ import type { Locale } from "@/lib/utils";
 import { cn } from "@/lib/utils";
 import type { Sermon } from "@/types/ministry";
 
+type ChannelSource = Sermon["channelSource"];
+
 type FormState = {
   youtubeUrlOrId: string;
   titleEn: string;
   speakerEn: string;
   topic: (typeof SERMON_TOPICS)[number];
+  channelSource: ChannelSource;
 };
 
-const EMPTY_FORM: FormState = { youtubeUrlOrId: "", titleEn: "", speakerEn: "", topic: "New Upload" };
+const EMPTY_FORM: FormState = {
+  youtubeUrlOrId: "",
+  titleEn: "",
+  speakerEn: "",
+  topic: "New Upload",
+  channelSource: "DC",
+};
+
+const CHANNEL_LABELS: Record<ChannelSource, string> = {
+  DC: "Gospel Light Church, DC",
+  ETHIOPIA: "Aware Gospel Light Ethiopia",
+};
 
 export function AdminSermonsTab({
   locale,
@@ -65,6 +79,7 @@ export function AdminSermonsTab({
           titleEn: form.titleEn || undefined,
           speakerEn: form.speakerEn || undefined,
           topic: form.topic,
+          channelSource: form.channelSource,
         }),
       });
       const result = await response.json().catch(() => null);
@@ -108,6 +123,7 @@ export function AdminSermonsTab({
               <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
                 <tr>
                   <th className="px-4 py-3">Title</th>
+                  <th className="px-4 py-3">Channel</th>
                   <th className="px-4 py-3">Speaker</th>
                   <th className="px-4 py-3">Topic</th>
                   <th className="px-4 py-3">Year</th>
@@ -119,6 +135,16 @@ export function AdminSermonsTab({
                   <tr key={sermon.id}>
                     <td className="px-4 py-3 font-medium text-navy-900">
                       {locale === "am" ? sermon.titleAm : sermon.titleEn}
+                    </td>
+                    <td className="px-4 py-3">
+                      <span
+                        className={cn(
+                          "rounded-full px-2 py-0.5 text-xs font-semibold",
+                          sermon.channelSource === "DC" ? "bg-blue-50 text-blue-700" : "bg-amber-50 text-amber-700"
+                        )}
+                      >
+                        {sermon.channelSource === "DC" ? "🇺🇸 DC" : "🇪🇹 Ethiopia"}
+                      </span>
                     </td>
                     <td className="px-4 py-3 text-slate-600">{sermon.speakerEn}</td>
                     <td className="px-4 py-3">
@@ -201,6 +227,23 @@ export function AdminSermonsTab({
               {SERMON_TOPICS.map((topic) => (
                 <option key={topic} value={topic}>
                   {topic}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label htmlFor="admin-sermon-channel" className="mb-1 block text-xs font-medium text-slate-600">
+              {dict.admin.addSermonChannelLabel}
+            </label>
+            <select
+              id="admin-sermon-channel"
+              value={form.channelSource}
+              onChange={(e) => setForm((f) => ({ ...f, channelSource: e.target.value as ChannelSource }))}
+              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
+            >
+              {(Object.keys(CHANNEL_LABELS) as ChannelSource[]).map((channel) => (
+                <option key={channel} value={channel}>
+                  {CHANNEL_LABELS[channel]}
                 </option>
               ))}
             </select>

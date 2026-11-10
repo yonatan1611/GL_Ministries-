@@ -74,6 +74,7 @@ export async function POST(request: Request) {
       // See the note in /api/prayer — `.default()` fields narrow back
       // to `T | undefined` through validateBody's generic.
       topic: input.topic ?? "New Upload",
+      channelSource: input.channelSource ?? "DC",
       yearLabel: input.yearLabel || String(new Date().getFullYear()),
       youtubeId,
       summaryEn: input.summaryEn || "",

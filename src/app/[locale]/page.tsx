@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { isSupportedLocale } from "@/lib/utils";
+import { listDevotionals } from "@/lib/db";
 import { HeroSection } from "@/components/home/HeroSection";
 import { SalvationBanner } from "@/components/home/SalvationBanner";
 import { WashingtonDcSpotlightSection } from "@/components/home/WashingtonDcSpotlightSection";
@@ -41,37 +42,39 @@ export default async function LocaleHomePage({
     notFound();
   }
 
+  const devotionals = await listDevotionals();
+
   return (
     <main className="min-h-screen bg-slate-50">
       <HeroSection locale={locale} />
-      <AnimatedContent distance={40} duration={0.7}>
+      <AnimatedContent>
         <SalvationBanner locale={locale} />
       </AnimatedContent>
-      <AnimatedContent distance={40} duration={0.7}>
+      <AnimatedContent>
         <WashingtonDcSpotlightSection locale={locale} />
       </AnimatedContent>
-      <AnimatedContent distance={40} duration={0.7}>
+      <AnimatedContent>
         <RecentHighlightsAndTeachings locale={locale} />
       </AnimatedContent>
-      <AnimatedContent distance={40} duration={0.7}>
+      <AnimatedContent>
         <MonthlyResourceOffer locale={locale} />
       </AnimatedContent>
-      <AnimatedContent distance={40} duration={0.7}>
+      <AnimatedContent>
         <HistoricVisitationSection locale={locale} />
       </AnimatedContent>
-      <AnimatedContent distance={40} duration={0.7}>
-        <GlobalPrayerArmyAndScripture locale={locale} />
+      <AnimatedContent>
+        <GlobalPrayerArmyAndScripture locale={locale} initialDevotionals={devotionals} />
       </AnimatedContent>
-      <AnimatedContent distance={40} duration={0.7}>
+      <AnimatedContent>
         <StayConnectedSignupSection locale={locale} />
       </AnimatedContent>
-      <AnimatedContent distance={40} duration={0.7}>
+      <AnimatedContent>
         <DiscoverProductsBanner locale={locale} />
       </AnimatedContent>
-      <AnimatedContent distance={40} duration={0.7}>
+      <AnimatedContent>
         <UpcomingEventsSection locale={locale} />
       </AnimatedContent>
-      <AnimatedContent distance={40} duration={0.7}>
+      <AnimatedContent>
         <ScriptureDividerBanner locale={locale} />
       </AnimatedContent>
     </main>
