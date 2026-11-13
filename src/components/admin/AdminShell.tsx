@@ -11,6 +11,7 @@ import {
   Globe2,
   HandHeart,
   LogOut,
+  Megaphone,
   Menu,
   PlayCircle,
   Plus,
@@ -30,7 +31,8 @@ export type AdminModuleId =
   | "sermons"
   | "prayer"
   | "events"
-  | "branches";
+  | "branches"
+  | "updates";
 
 export type DateRangeFilter = "all" | "30d" | "month" | "week";
 
@@ -81,15 +83,17 @@ const NAV_ITEMS: NavItem[] = [
     label: "Branches & Subscribers",
     count: (s) => s.locations.length + s.subscribers.length,
   },
+  { id: "updates", icon: Megaphone, label: "News & Highlights (Section 3)", count: (s) => s.newsUpdates.length },
 ];
 
-export type QuickCreateAction = "scripture" | "book" | "sermon" | "event";
+export type QuickCreateAction = "scripture" | "book" | "sermon" | "event" | "update";
 
 const QUICK_CREATE_ACTIONS: { id: QuickCreateAction; label: string; module: AdminModuleId }[] = [
   { id: "scripture", label: "+ Publish Today's Scripture", module: "devotionals" },
   { id: "book", label: "+ Add New Book", module: "books" },
   { id: "sermon", label: "+ Add YouTube Sermon", module: "sermons" },
   { id: "event", label: "+ Create Event", module: "events" },
+  { id: "update", label: "+ Publish Church Update", module: "updates" },
 ];
 
 interface SearchHit {
@@ -120,6 +124,9 @@ function buildSearchIndex(snapshot: AdminSnapshot): SearchHit[] {
   for (const sub of snapshot.subscribers) {
     const name = [sub.firstName, sub.lastName].filter(Boolean).join(" ") || sub.email || sub.phone || "Subscriber";
     hits.push({ module: "branches", label: name, sublabel: sub.email ?? sub.phone ?? "" });
+  }
+  for (const update of snapshot.newsUpdates) {
+    hits.push({ module: "updates", label: update.titleEn, sublabel: update.category });
   }
   return hits;
 }
@@ -176,58 +183,60 @@ export function AdminShell({
 
   function SidebarContent() {
     return (
-      <div className="flex h-full flex-col justify-between">
-        <div>
-          <div className="flex items-center gap-2.5 border-b border-slate-800 px-5 py-5">
-            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#1B365D] to-[#2563EB] text-white">
-              <Church className="h-5 w-5" aria-hidden="true" />
-            </span>
-            <div className="min-w-0">
-              <p className="truncate text-sm font-bold uppercase tracking-wide text-white">GLM Executive Admin</p>
-              <p className="truncate text-[11px] text-slate-400">Washington, D.C. &amp; Global Synods</p>
-            </div>
+      <div className="flex h-full select-none flex-col">
+        {/* Brand header — fixed at the top of the sidebar */}
+        <div className="flex h-16 shrink-0 items-center gap-2.5 border-b border-slate-800/80 px-5">
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#1B365D] to-[#2563EB] text-white">
+            <Church className="h-5 w-5" aria-hidden="true" />
+          </span>
+          <div className="min-w-0">
+            <p className="truncate text-sm font-bold uppercase tracking-wide text-white">GLM Executive Admin</p>
+            <p className="truncate text-[11px] text-slate-400">Washington, D.C. &amp; Global Synods</p>
           </div>
-
-          <nav className="flex flex-col gap-1 p-3">
-            {NAV_ITEMS.map((item) => {
-              const Icon = item.icon;
-              const count = item.count(snapshot);
-              const isActive = activeModule === item.id;
-              return (
-                <button
-                  key={item.id}
-                  type="button"
-                  onClick={() => {
-                    onModuleChange(item.id);
-                    setIsMobileSidebarOpen(false);
-                  }}
-                  aria-pressed={isActive}
-                  className={cn(
-                    "flex items-center justify-between gap-2 rounded-lg px-3 py-2.5 text-left text-sm font-semibold transition-colors",
-                    isActive ? "bg-blue-600 text-white" : "text-slate-300 hover:bg-slate-800 hover:text-white"
-                  )}
-                >
-                  <span className="flex min-w-0 items-center gap-2.5">
-                    <Icon className="h-4 w-4 shrink-0" aria-hidden="true" />
-                    <span className="truncate">{item.label}</span>
-                  </span>
-                  {item.id !== "overview" && (
-                    <span
-                      className={cn(
-                        "shrink-0 rounded-full px-2 py-0.5 text-[11px] font-bold",
-                        isActive ? "bg-white/20 text-white" : "bg-slate-800 text-slate-300"
-                      )}
-                    >
-                      {count}
-                    </span>
-                  )}
-                </button>
-              );
-            })}
-          </nav>
         </div>
 
-        <div className="flex flex-col gap-2 border-t border-slate-800 p-4">
+        {/* Nav items — scrolls on its own if the viewport is short,
+            without moving the brand header or footer below. */}
+        <nav className="flex flex-1 flex-col gap-1 overflow-y-auto p-3">
+          {NAV_ITEMS.map((item) => {
+            const Icon = item.icon;
+            const count = item.count(snapshot);
+            const isActive = activeModule === item.id;
+            return (
+              <button
+                key={item.id}
+                type="button"
+                onClick={() => {
+                  onModuleChange(item.id);
+                  setIsMobileSidebarOpen(false);
+                }}
+                aria-pressed={isActive}
+                className={cn(
+                  "flex items-center justify-between gap-2 rounded-lg px-3 py-2.5 text-left text-sm font-semibold transition-colors",
+                  isActive ? "bg-blue-600 text-white" : "text-slate-300 hover:bg-slate-800 hover:text-white"
+                )}
+              >
+                <span className="flex min-w-0 items-center gap-2.5">
+                  <Icon className="h-4 w-4 shrink-0" aria-hidden="true" />
+                  <span className="truncate">{item.label}</span>
+                </span>
+                {item.id !== "overview" && (
+                  <span
+                    className={cn(
+                      "shrink-0 rounded-full px-2 py-0.5 text-[11px] font-bold",
+                      isActive ? "bg-white/20 text-white" : "bg-slate-800 text-slate-300"
+                    )}
+                  >
+                    {count}
+                  </span>
+                )}
+              </button>
+            );
+          })}
+        </nav>
+
+        {/* Sidebar footer — fixed at the bottom */}
+        <div className="flex shrink-0 flex-col gap-2 border-t border-slate-800/80 p-4">
           <Link
             href={`/${locale}`}
             target="_blank"
@@ -254,9 +263,9 @@ export function AdminShell({
   }
 
   return (
-    <div className="flex min-h-screen bg-slate-50">
-      {/* Desktop sidebar */}
-      <aside className="hidden w-64 shrink-0 flex-col border-r border-slate-800 bg-[#091528] text-slate-200 lg:flex">
+    <div className="flex h-dvh w-full overflow-hidden bg-slate-50">
+      {/* Desktop sidebar — locked full-height, never scrolls with the page */}
+      <aside className="hidden h-full w-64 shrink-0 select-none flex-col border-r border-slate-800 bg-[#091528] text-slate-200 lg:flex">
         <SidebarContent />
       </aside>
 
@@ -275,9 +284,10 @@ export function AdminShell({
         </div>
       )}
 
-      <div className="flex min-w-0 flex-1 flex-col">
-        {/* Top command bar */}
-        <header className="sticky top-0 z-30 flex h-16 shrink-0 items-center gap-3 border-b border-slate-200 bg-white px-4 sm:px-6">
+      {/* Right column: locked top header + independently scrollable content */}
+      <div className="flex h-full min-w-0 flex-1 flex-col overflow-hidden">
+        {/* Locked top command bar — never moves when the content below scrolls */}
+        <header className="z-30 flex h-16 shrink-0 items-center gap-3 border-b border-slate-200 bg-white px-4 shadow-sm sm:px-6">
           <button
             type="button"
             onClick={() => setIsMobileSidebarOpen(true)}
@@ -367,7 +377,11 @@ export function AdminShell({
           </button>
         </header>
 
-        <main className="min-w-0 flex-1 p-4 sm:p-6 lg:p-8">{children}</main>
+        {/* The only element that scrolls — sidebar and header above
+            stay locked in place regardless of content height. */}
+        <main className="min-w-0 flex-1 overflow-y-auto overscroll-contain p-4 sm:p-6 lg:p-8">
+          <div className="mx-auto max-w-7xl space-y-6 pb-12">{children}</div>
+        </main>
       </div>
     </div>
   );

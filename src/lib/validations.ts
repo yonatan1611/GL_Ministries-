@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { sanitizeText } from "@/lib/security/sanitize";
+import { sanitizeText, stripControlCharacters, stripHtmlTags } from "@/lib/security/sanitize";
 import { CONTACT_EMAILS } from "@/lib/env";
 
 /**
@@ -18,6 +18,36 @@ function sanitizedString(min: number, max: number) {
     .min(min, `Must be at least ${min} character${min === 1 ? "" : "s"}.`)
     .max(max, `Must be ${max} characters or fewer.`)
     .transform(sanitizeText);
+}
+
+/**
+ * Like `sanitizedString`, but for long-form multi-paragraph fields
+ * (e.g. a news update's full story body) — preserves intentional
+ * paragraph breaks instead of collapsing them away.
+ *
+ * `sanitizeText`'s `stripControlCharacters` treats `\n`/`\r` as control
+ * characters (correctly, for a single-line field) and strips them
+ * outright, then `normalizeWhitespace` would collapse any that
+ * survived anyway — so a plain `sanitizedString` silently fuses every
+ * paragraph into one run-on line. This sanitizes each line
+ * individually (HTML tags, control/bidi characters, and horizontal
+ * whitespace runs) and only then rejoins them with newlines, capping
+ * more than one blank line between paragraphs.
+ */
+function sanitizedParagraphs(min: number, max: number) {
+  return z
+    .string()
+    .trim()
+    .min(min, `Must be at least ${min} character${min === 1 ? "" : "s"}.`)
+    .max(max, `Must be ${max} characters or fewer.`)
+    .transform((value) =>
+      value
+        .split("\n")
+        .map((line) => stripControlCharacters(stripHtmlTags(line)).replace(/[ \t]+/g, " ").trim())
+        .join("\n")
+        .replace(/\n{3,}/g, "\n\n")
+        .trim()
+    );
 }
 
 const emailField = z
@@ -540,3 +570,66 @@ export const updateBookOrderFulfillmentSchema = z.object({
   fulfillmentStatus: z.enum(["pending", "shipped", "completed"]),
 });
 export type UpdateBookOrderFulfillmentInput = z.infer<typeof updateBookOrderFulfillmentSchema>;
+
+// ---------------------------------------------------------------------------
+// 14. Admin Portal — Recent Updates & Highlights (Homepage Section 3)
+// ---------------------------------------------------------------------------
+
+export const NEWS_HIGHLIGHT_CATEGORIES = [
+  "Washington, D.C. Sanctuary",
+  "Revival & Crusade Report",
+  "Ethiopian Synod Update",
+  "Special Announcement",
+  "Testimony & Baptism",
+] as const;
+
+const newsHighlightFieldsSchema = z.object({
+  titleEn: sanitizedString(2, 200),
+  titleAm: sanitizedString(0, 200).optional(),
+  category: z.enum(NEWS_HIGHLIGHT_CATEGORIES),
+  summaryEn: sanitizedString(10, 600),
+  summaryAm: sanitizedString(0, 600).optional(),
+  contentEn: sanitizedParagraphs(10, 8000),
+  contentAm: sanitizedParagraphs(0, 8000).optional(),
+  // Same reasoning as `coverImageUrlField` in section 10 — an admin
+  // upload path, a `data:` URI fallback, or a pasted external URL.
+  imageUrl: z.string().trim().min(1, "A cover photo (upload or URL) is required.").max(8_000_000),
+  videoUrl: sanitizedString(0, 300).optional(),
+  locationLabel: sanitizedString(1, 160),
+  publishedDateLabel: sanitizedString(1, 120),
+  // No `.default()` here, same reasoning as `isFeaturedToday` in
+  // section 11 — `updateNewsHighlightSchema` reuses this via
+  // `.partial()`, and a default would make an omitted field in a PUT
+  // request silently resolve to `false`, unpinning the lead story on a
+  // text-only edit.
+  isPinnedLeadStory: z.boolean().optional(),
+});
+
+export const newNewsHighlightSchema = newsHighlightFieldsSchema;
+export type NewNewsHighlightInput = z.infer<typeof newNewsHighlightSchema>;
+
+export const updateNewsHighlightSchema = newsHighlightFieldsSchema.partial().extend({
+  id: z.string().min(1, "Missing update id."),
+});
+export type UpdateNewsHighlightInput = z.infer<typeof updateNewsHighlightSchema>;
+
+// ---------------------------------------------------------------------------
+// 15. Admin Portal — Site Settings (Hero Banner) & Impact Stats
+// ---------------------------------------------------------------------------
+
+export const updateSiteSettingsSchema = z.object({
+  heroAnnouncementTitle: sanitizedString(0, 200).optional(),
+  heroAnnouncementSubtitle: sanitizedString(0, 300).optional(),
+  heroFeaturedVideoId: sanitizedString(0, 100).optional(),
+});
+export type UpdateSiteSettingsInput = z.infer<typeof updateSiteSettingsSchema>;
+
+export const updateImpactStatSchema = z.object({
+  id: z.string().min(1, "Missing impact stat id."),
+  value: sanitizedString(1, 20).optional(),
+  labelEn: sanitizedString(1, 120).optional(),
+  labelAm: sanitizedString(0, 120).optional(),
+  detailEn: sanitizedString(0, 200).optional(),
+  detailAm: sanitizedString(0, 200).optional(),
+});
+export type UpdateImpactStatInput = z.infer<typeof updateImpactStatSchema>;

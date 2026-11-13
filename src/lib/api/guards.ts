@@ -45,11 +45,18 @@ export async function readJsonBody(request: Request): Promise<ParsedBody> {
 export type Validated<T> = { ok: true; data: T } | { ok: false; response: NextResponse };
 
 /** Sanitizes top-level string fields, then validates against the
- *  provided Zod schema. On failure, returns a 400 with per-field issues. */
-export function validateBody<T>(schema: ZodSchema<T>, body: unknown): Validated<T> {
+ *  provided Zod schema. On failure, returns a 400 with per-field issues.
+ *  `skipSanitizeKeys` exempts fields whose own schema already does
+ *  full sanitization that needs to see the raw value first — see
+ *  `sanitizeObject`'s doc comment. */
+export function validateBody<T>(
+  schema: ZodSchema<T>,
+  body: unknown,
+  skipSanitizeKeys: string[] = []
+): Validated<T> {
   const sanitized =
     typeof body === "object" && body !== null && !Array.isArray(body)
-      ? sanitizeObject(body as Record<string, unknown>)
+      ? sanitizeObject(body as Record<string, unknown>, skipSanitizeKeys)
       : body;
 
   const result = schema.safeParse(sanitized);

@@ -11,7 +11,7 @@ import type {
   RsvpRecord,
   SubscriberRecord,
 } from "@/lib/db";
-import type { Book, BranchLocation, DailyDevotional, MinistryEvent, Sermon } from "@/types/ministry";
+import type { Book, BranchLocation, DailyDevotional, MinistryEvent, NewsHighlight, Sermon } from "@/types/ministry";
 import { AdminShell, type AdminModuleId, type DateRangeFilter } from "@/components/admin/AdminShell";
 import { AdminOverviewModule } from "@/components/admin/AdminOverviewModule";
 import { AdminGivingModule } from "@/components/admin/AdminGivingModule";
@@ -21,6 +21,7 @@ import { AdminSermonsModule } from "@/components/admin/AdminSermonsModule";
 import { AdminPrayerModule } from "@/components/admin/AdminPrayerModule";
 import { AdminEventsModule } from "@/components/admin/AdminEventsModule";
 import { AdminBranchesAndSubscribersModule } from "@/components/admin/AdminBranchesAndSubscribersModule";
+import { AdminUpdatesModule } from "@/components/admin/AdminUpdatesModule";
 
 export interface AdminSnapshot {
   donations: DonationRecord[];
@@ -33,6 +34,7 @@ export interface AdminSnapshot {
   sermons: Sermon[];
   dailyDevotionals: DailyDevotional[];
   locations: BranchLocation[];
+  newsUpdates: NewsHighlight[];
 }
 
 /** The real, documented default passcode (`src/lib/adminAuth.ts` /
@@ -47,7 +49,7 @@ const DEMO_PASSCODE = "2026";
  * fetch every module reads from, and the `AdminShell` sidebar/top-bar
  * layout + module router. Modules mutate through their own endpoints
  * and call `refresh()` afterward so every view reflects the real,
- * current state of `data/glm-database.json`.
+ * current state of the Neon Postgres database.
  */
 export function AdminPortalClient({
   locale,
@@ -231,6 +233,9 @@ export function AdminPortalClient({
           subscribers={snapshot.subscribers}
           onChanged={refresh}
         />
+      )}
+      {activeModule === "updates" && (
+        <AdminUpdatesModule updates={snapshot.newsUpdates} onChanged={refresh} />
       )}
     </AdminShell>
   );

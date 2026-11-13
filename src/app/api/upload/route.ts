@@ -30,11 +30,11 @@ function sanitizeFilenameStem(name: string): string {
  *
  * On a read-only filesystem (e.g. a deployed serverless function,
  * where `public/` is immutable build output rather than a writable
- * disk — see the same caveat on `persistBestEffort` in `src/lib/db.ts`)
- * the write fails every time, so this falls back to returning the
- * file as a `data:` URI instead. That still gives the admin a working,
- * instantly-previewable cover; it just lives inside
- * `data/glm-database.json` rather than as a standalone static file.
+ * disk) the write fails every time, so this falls back to returning
+ * the file as a `data:` URI instead. That still gives the admin a
+ * working, instantly-previewable cover; it just lives inline in the
+ * record's `data` column in Postgres (see `src/lib/db.ts`) rather than
+ * as a standalone static file.
  */
 export async function POST(request: Request) {
   const limited = rateLimitGuard(request, "admin-action", RATE_LIMIT_PRESETS.adminAction);

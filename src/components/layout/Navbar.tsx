@@ -118,6 +118,12 @@ export function Navbar({ locale }: { locale: Locale }) {
     };
   }, [openDropdown]);
 
+  // The Admin Portal is its own locked app shell (AdminShell) — the
+  // public site's navbar would stack on top of it and push the admin
+  // header down the page. (After every hook above, per the rules of
+  // hooks — this component still renders for every other route.)
+  if (pathname.includes("/admin")) return null;
+
   function NavDropdown({
     id,
     label,

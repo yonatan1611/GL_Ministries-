@@ -37,6 +37,7 @@ export async function GET(request: Request) {
           sermons: db.sermons,
           dailyDevotionals: db.dailyDevotionals,
           locations: db.locations,
+          newsUpdates: db.newsUpdates,
         },
       },
       { status: 200 }

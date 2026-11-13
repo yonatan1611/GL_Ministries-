@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { isSupportedLocale } from "@/lib/utils";
-import { listDevotionals } from "@/lib/db";
+import { listDevotionals, listNewsUpdates, listSermons } from "@/lib/db";
 import { HeroSection } from "@/components/home/HeroSection";
 import { SalvationBanner } from "@/components/home/SalvationBanner";
 import { WashingtonDcSpotlightSection } from "@/components/home/WashingtonDcSpotlightSection";
@@ -15,10 +15,10 @@ import { ScriptureDividerBanner } from "@/components/home/ScriptureDividerBanner
 import { AnimatedContent } from "@/components/react-bits/AnimatedContent";
 
 // MonthlyResourceOffer/DiscoverProductsBanner read the live book catalog
-// (src/lib/db.ts) on every render — force dynamic rendering so Next.js
-// never tries to statically prerender this page at build time (which
-// both bakes in stale data and, on Vercel's build filesystem, raced
-// writing data/glm-database.json across parallel prerender workers).
+// (src/lib/db.ts, backed by Neon Postgres) on every render — force
+// dynamic rendering so Next.js never tries to statically prerender this
+// page at build time, which would both bake in stale data and require
+// a real DATABASE_URL to be reachable during the build itself.
 export const dynamic = "force-dynamic";
 
 /**
@@ -42,7 +42,11 @@ export default async function LocaleHomePage({
     notFound();
   }
 
-  const devotionals = await listDevotionals();
+  const [devotionals, newsUpdates, sermons] = await Promise.all([
+    listDevotionals(),
+    listNewsUpdates(),
+    listSermons(),
+  ]);
 
   return (
     <main className="min-h-screen bg-slate-50">
@@ -54,7 +58,7 @@ export default async function LocaleHomePage({
         <WashingtonDcSpotlightSection locale={locale} />
       </AnimatedContent>
       <AnimatedContent>
-        <RecentHighlightsAndTeachings locale={locale} />
+        <RecentHighlightsAndTeachings locale={locale} initialUpdates={newsUpdates} initialSermons={sermons} />
       </AnimatedContent>
       <AnimatedContent>
         <MonthlyResourceOffer locale={locale} />

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { ArrowUp, Heart, Mail, Phone, Radio } from "lucide-react";
 import { getDictionary } from "@/data/i18n";
 import { HQ_EMAIL, HQ_PHONE, DC_EMAIL, DC_PHONE } from "@/data/locations";
@@ -21,6 +22,7 @@ import { YoutubeChannelCards } from "@/components/ui/YoutubeChannelCards";
  */
 export function Footer({ locale }: { locale: Locale }) {
   const dict = getDictionary(locale);
+  const pathname = usePathname() ?? `/${locale}`;
   const year = new Date().getFullYear();
   const [showGoToTop, setShowGoToTop] = useState(false);
 
@@ -31,6 +33,11 @@ export function Footer({ locale }: { locale: Locale }) {
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  // The Admin Portal is its own locked app shell (AdminShell) — the
+  // public site's footer would stack below it inside the same
+  // scrolling page instead of staying out of the way entirely.
+  if (pathname.includes("/admin")) return null;
 
   const socialIcons = [
     { href: SOCIAL_LINKS.youtubeChannelUrl, label: dict.footer.socialYoutube, Icon: YoutubeIcon },

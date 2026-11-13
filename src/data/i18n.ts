@@ -141,10 +141,9 @@ export interface UiDictionary {
   };
   recentHighlights: {
     highlightsTitle: string;
-    storyHeadline: string;
-    storyBody: string;
-    readMore: string;
-    readMoreBody: string;
+    readFullStoryCta: string;
+    shareCta: string;
+    noUpdatesLabel: string;
     teachingsTitle: string;
     watchAllCta: string;
   };
@@ -788,13 +787,9 @@ export const DICTIONARY: Record<Locale, UiDictionary> = {
     },
     recentHighlights: {
       highlightsTitle: "Recent Updates & Highlights",
-      storyHeadline:
-        "Thousands Gather at Aware International Sanctuary & Across 32 Ethiopian Branches for Revival Nights",
-      storyBody:
-        "From Aware HQ in Addis Ababa to congregations in Adama, Harar, and Dire Dawa, a fresh hunger for the Word of God is drawing overflow crowds to midweek revival nights across every synod — a spiritual awakening our pastoral team is seeing ripple from the sanctuary into homes and rural outreach stations alike.",
-      readMore: "Read More",
-      readMoreBody:
-        "Apostle Daniel Makonnen and the pastoral team across Addis Ababa, East Showa, and Eastern Ethiopia report growing attendance at midweek prayer and revival services, with many congregations adding extra chairs and overflow seating. Leadership credits sustained intercession through the Global Prayer Army and a renewed emphasis on discipleship for the momentum — and is calling the whole network to steward it through fasting, prayer, and the Word.",
+      readFullStoryCta: "Read Full Story →",
+      shareCta: "Share",
+      noUpdatesLabel: "No updates published yet.",
       teachingsTitle: "Latest Teachings",
       watchAllCta: "Watch All 38+ Sermons →",
     },
@@ -1490,12 +1485,9 @@ export const DICTIONARY: Record<Locale, UiDictionary> = {
     },
     recentHighlights: {
       highlightsTitle: "የቅርብ ጊዜ ዜናዎችና ድንቅ ነገሮች",
-      storyHeadline: "በአዋሬ ዓለም አቀፍ ቤተመቅደስና በ32 የኢትዮጵያ አጥቢያዎች ለተሃድሶ ምሽቶች ሺዎች ይሰበሰባሉ",
-      storyBody:
-        "ከአዲስ አበባ አዋሬ ዋና ቢሮ ጀምሮ በአዳማ፣ በሐረርና በድሬዳዋ ባሉ ጉባኤዎች፣ ለእግዚአብሔር ቃል አዲስ ረሃብ በሁሉም ሲኖዶስ ለሚካሄዱ የሳምንት አጋማሽ ተሃድሶ ምሽቶች ብዙ ሰዎችን እየሳበ ነው — የፓስተሮቻችን ቡድን ይህ መንፈሳዊ ንቅናቄ ከቤተመቅደስ ወደ ቤተሰቦችና የገጠር ስርጭት ጣቢያዎች እየተዛመተ መሆኑን ይመለከታል።",
-      readMore: "ተጨማሪ ያንብቡ",
-      readMoreBody:
-        "ሐዋሪያው ዳንኤል መኮንንና በአዲስ አበባ፣ በምስራቅ ሸዋና በምስራቅ ኢትዮጵያ ያለው የፓስተሮች ቡድን ለሳምንት አጋማሽ ጸሎትና ተሃድሶ አገልግሎቶች እያደገ ያለውን ጉባኤ ይመለከታሉ፤ ብዙ አጥቢያዎችም ተጨማሪ መቀመጫ እየጨመሩ ነው። አመራሩ ይህን ለቀጣይነት ባለው የጸሎት ሠራዊት ምልጃና ለደቀ መዝሙርነት ትኩረት እንደ ምክንያት ይጠቅሳል — እንዲሁም መላውን መረብ በፆም፣ በጸሎትና በቃሉ አማካኝነት ይህን እንቅስቃሴ እንዲጠብቅ ይጠራል።",
+      readFullStoryCta: "ሙሉ ታሪክ ያንብቡ →",
+      shareCta: "አጋራ",
+      noUpdatesLabel: "እስካሁን የታተመ ዜና የለም።",
       teachingsTitle: "የቅርብ ጊዜ ትምህርቶች",
       watchAllCta: "ከ38+ ስብከቶች ሁሉንም ይከታተሉ →",
     },

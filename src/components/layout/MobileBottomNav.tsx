@@ -22,6 +22,10 @@ export function MobileBottomNav({ locale }: { locale: Locale }) {
   const isHome = pathname === `/${locale}`;
   const isWatch = pathname.startsWith(`/${locale}/sermons`);
 
+  // The Admin Portal is its own locked app shell (AdminShell) — this
+  // fixed bottom bar would otherwise float on top of it on mobile.
+  if (pathname.includes("/admin")) return null;
+
   return (
     <nav
       aria-label={dict.mobileNav.home}

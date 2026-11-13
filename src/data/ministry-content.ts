@@ -1,4 +1,4 @@
-import type { Book, DailyDevotional, LeaderProfile, MinistryEvent, Sermon } from "@/types/ministry";
+import type { Book, DailyDevotional, LeaderProfile, MinistryEvent, NewsHighlight, Sermon } from "@/types/ministry";
 import { MINISTRY_IMAGES } from "@/data/social-media";
 import { CONTACT_EMAILS, CONTACT_PHONES } from "@/lib/env";
 
@@ -620,7 +620,7 @@ export const SERMONS: Sermon[] = [
 /**
  * Seven-day Daily Scripture devotional series authored by Apostle
  * Daniel Makonnen, inspired by bennyhinn.org's Daily Scripture page —
- * seeds `data/glm-database.json`'s `dailyDevotionals` collection, which
+ * seeds the Postgres `daily_devotionals` table (see `src/lib/db.ts`), which
  * is then fully editable (add/edit/feature/delete) from the Admin
  * Portal. Exactly one entry should carry `isFeaturedToday: true` at a
  * time; that entry is shown first as the homepage's "Today's Key
@@ -1248,5 +1248,104 @@ export const UPCOMING_EVENTS_2026: MinistryEvent[] = [
     descriptionAm:
       "በምስራቅ ኢትዮጵያ ሲኖዶስ ውስጥ ያሉ 22 አጥቢያዎችንና የገጠር ስርጭት ጣቢያዎችን የሚያገለግሉ ፓስተሮችንና የቤተክርስቲያን መስራቾችን ለማዘጋጀት በሐረርና በአዳማ የሚካሄድ የሶስት ቀን ማሰልጠኛ ጉባኤ፤ በደቀ መዝሙርነት፣ በመሪነትና በገጠር አገልግሎት ላይ ያተኮረ።",
     isLiveStreamed: false,
+  },
+];
+
+// ---------------------------------------------------------------------------
+// E. Recent Updates & Highlights (Homepage Section 3)
+// ---------------------------------------------------------------------------
+
+/**
+ * Seeds the Postgres `news_updates` table (see `src/lib/db.ts`) — fully
+ * editable (add/edit/pin/delete) from the Admin Portal afterward. Exactly
+ * one entry should carry `isPinnedLeadStory: true` at a time; that entry
+ * renders as the #1 large lead card in the homepage's "Recent Updates &
+ * Highlights" section.
+ */
+export const NEWS_HIGHLIGHTS: NewsHighlight[] = [
+  {
+    id: "update-overflow-worship-renewal",
+    slug: "overflow-worship-renewal-services",
+    titleEn:
+      "Overflow Worship & Renewal Services at Gospel Light International Church, Washington, D.C. & Across 32 Ethiopian Branches",
+    titleAm: "በወንጌል ብርሃን ዓለም አቀፍ ቤተክርስቲያን ዋሽንግተን ዲሲ እና በ32 የኢትዮጵያ አጥቢያዎች የተትረፈረፈ አምልኮና ተሐድሶ አገልግሎቶች",
+    category: "Special Announcement",
+    summaryEn:
+      "Weekend services at the Washington, D.C. Sanctuary and across the 32 Ethiopian branch churches saw standing-room-only attendance this month, with extended altar calls and reports of healing, restoration, and new commitments to Christ.",
+    summaryAm:
+      "በዚህ ወር በዋሽንግተን ዲሲ ቤተመቅደስ እና በ32 የኢትዮጵያ አጥቢያ ቤተክርስቲያኖች የሳምንት ስብከቶች ቦታ እስኪያጥር ድረስ ተገኝነት ነበራቸው፤ የተራዘሙ የመሠዊያ ጥሪዎች፣ የፈውስ፣ የማደስና ለክርስቶስ አዲስ ቁርጠኝነት ዘገባዎች ታዝበዋል።",
+    contentEn:
+      "Across both continents this month, congregations at Gospel Light International Church in Washington, D.C. and all 32 branch churches and outreach stations in Ethiopia reported overflow attendance at weekend worship and renewal services. In Washington, D.C., Sunday and Wednesday gatherings extended well past their usual close as the altar call drew dozens forward for prayer, with pastoral staff reporting testimonies of physical healing, marriages restored, and a wave of first-time commitments to Christ among younger attendees.\n\nThe same spirit of renewal was echoed from Aware International HQ in Addis Ababa to the rural outreach stations of the Eastern Ethiopia Synod, where local pastors described some of the fullest sanctuaries in recent memory. Apostle Daniel Makonnen, reflecting on the reports from both sides of the Atlantic, called it \"a fresh wind of the same Spirit that birthed this ministry in the 1970s — still moving, still gathering, still saving.\"\n\nThe ministry is inviting Partners worldwide to continue standing in prayer as both continents press into this season of visitation, and has added extra Wednesday evening prayer gatherings at the D.C. Sanctuary through the end of the month to sustain the momentum.",
+    contentAm:
+      "በዚህ ወር በሁለቱም አህጉራት፣ በዋሽንግተን ዲሲ የወንጌል ብርሃን ዓለም አቀፍ ቤተክርስቲያንና በኢትዮጵያ ውስጥ ባሉት 32 አጥቢያ ቤተክርስቲያኖችና ስርጭት ጣቢያዎች ለሳምንት መጨረሻ አምልኮና ተሐድሶ አገልግሎቶች ከፍተኛ ተገኝነት ተመዝግቧል። በዋሽንግተን ዲሲ፣ የሰንበትና የረቡዕ ስብሰባዎች ከተለመደው ጊዜ ባለፈ ረዘም ያሉ ነበሩ፤ የመሠዊያ ጥሪው ለጸሎት ብዙዎችን ወደ ፊት ስቦ አምጥቷል፤ የአገልግሎት ሰራተኞችም ስለ ሰውነት ፈውስ፣ ስለ ተመሠረቱ ትዳሮችና በወጣቶች መካከል ስለ ብዙ አዳዲስ ለክርስቶስ ቁርጠኝነት መመስከር ገልጸዋል።\n\nየዚሁ ተሐድሶ መንፈስ ከአዲስ አበባ ከአዋሬ ዓለም አቀፍ ዋና ቢሮ እስከ ምስራቅ ኢትዮጵያ ሲኖዶስ የገጠር ስርጭት ጣቢያዎች ድረስ ተስተጋብቶ ነበር፤ የአካባቢው ፓስተሮችም በቅርብ ጊዜ ከነበሩት እጅግ የተሞሉ ቤተመቅደሶች አንዱ እንደነበር ገልጸዋል። ሐዋሪያው ዳንኤል መኮንን ከሁለቱም የአትላንቲክ ጎኖች የተሰሙትን ዘገባዎች ሲያስተነትኑ \"በ1970ዎቹ ይህን አገልግሎት የወለደው የመንፈስ ትኩስ ነፍስ ነው — አሁንም የሚንቀሳቀስ፣ አሁንም የሚሰበስብ፣ አሁንም የሚያድን\" ብለዋል።\n\nአገልግሎቱ በዓለም ዙሪያ ያሉ አጋሮች ሁለቱም አህጉራት በዚህ የመጎብኘት ወቅት ውስጥ ሲገሰግሱ በጸሎት እንዲቆሙ ጥሪ እያቀረበ ሲሆን፣ ይህንን ግስጋሴ ለማስጠንከር እስከ ወሩ መጨረሻ ድረስ በዲሲ ቤተመቅደስ ተጨማሪ የረቡዕ ምሽት የጸሎት ስብሰባዎችን ጨምሯል።",
+    imageUrl: "/images/hero/hero-hd-3.jpg",
+    videoUrl: "5wNOAS6kUQ8",
+    locationLabel: "Washington, D.C. Sanctuary & 32 Ethiopian Branches",
+    publishedDateLabel: "November 2026",
+    isPinnedLeadStory: true,
+    createdAt: "2026-11-02T00:00:00.000Z",
+  },
+  {
+    id: "update-dc-broadcast-expansion",
+    slug: "dc-broadcast-home-fellowship-expansion",
+    titleEn:
+      "Gospel Light Church, DC (@gospellightchurchdc6393) Expands Weekly Live Broadcasts & DMV Home Fellowship Groups",
+    titleAm: "የወንጌል ብርሃን ቤተክርስቲያን ዲሲ (@gospellightchurchdc6393) ሳምንታዊ ቀጥታ ስርጭትና የDMV ቤት ኅብረት ቡድኖችን አስፍቷል",
+    category: "Washington, D.C. Sanctuary",
+    summaryEn:
+      "Gospel Light Church, DC is now live-streaming both Sunday and Wednesday services on YouTube in full, and has launched three new home fellowship groups across the DMV (D.C., Maryland, Virginia) area for members unable to attend in person.",
+    summaryAm:
+      "የወንጌል ብርሃን ቤተክርስቲያን ዲሲ አሁን ሁለቱንም የሰንበትና የረቡዕ አገልግሎቶች ሙሉ በሙሉ በዩቲዩብ ቀጥታ እያስተላለፈ ሲሆን፣ በአካል መገኘት ለማይችሉ አባላት በDMV (ዲሲ፣ ሜሪላንድ፣ ቨርጂኒያ) አካባቢ ሦስት አዳዲስ የቤት ኅብረት ቡድኖችን አስጀምሯል።",
+    contentEn:
+      "Gospel Light Church, DC has expanded its YouTube presence (@gospellightchurchdc6393) to carry both Sunday morning and Wednesday evening services live, in full, rather than highlight clips alone — giving the growing Ethiopian diaspora community across the Washington, D.C., Maryland, and Virginia (DMV) region a direct line into every service even when they cannot make the drive to the Alexandria, VA sanctuary.\n\nAlongside the broadcast expansion, the church has launched three new home fellowship groups meeting weekly in Alexandria, Silver Spring, and Woodbridge, each led by a trained lay leader and following the same \"Christian Spiritual Growth\" discipleship track taught at the main sanctuary. Pastor Abreham Getachew noted that the groups exist specifically for members \"who need the Word brought closer to their own table\" — new immigrants adjusting to life in the DMV, young families balancing long work hours, and elderly members for whom the sanctuary commute has become difficult.\n\nMembers interested in joining a home fellowship group, or in volunteering with the broadcast ministry team, are encouraged to reach out through the church's regular Sunday announcements or the D.C. office.",
+    contentAm:
+      "የወንጌል ብርሃን ቤተክርስቲያን ዲሲ የዩቲዩብ ተገኝነቱን (@gospellightchurchdc6393) አስፍቶ ሁለቱንም የሰንበት ጠዋትና የረቡዕ ምሽት አገልግሎቶች ሙሉ በሙሉ በቀጥታ እያስተላለፈ ነው፤ ይህም በአካል ወደ አሌክሳንድሪያ ቨርጂኒያ ቤተመቅደስ መምጣት ለማይችሉ በዋሽንግተን ዲሲ፣ ሜሪላንድና ቨርጂኒያ (DMV) አካባቢ ለሚያድገው የኢትዮጵያ ዲያስፖራ ማህበረሰብ ወደ እያንዳንዱ አገልግሎት ቀጥተኛ መስመር ይከፍታል።\n\nከስርጭት መስፋፋቱ ጎን ለጎን፣ ቤተክርስቲያኑ በአሌክሳንድሪያ፣ በሲልቨር ስፕሪንግና በውድብሪጅ በየሳምንቱ የሚሰበሰቡ ሦስት አዳዲስ የቤት ኅብረት ቡድኖችን አስጀምሯል፤ እያንዳንዱም በሰለጠነ ተራ መሪ የሚመራና በዋናው ቤተመቅደስ እንደሚሰጠው ዓይነት \"የክርስትና እድገት\" የደቀ መዝሙርነት ትምህርት የሚከተል ነው። ፓስተር አብርሃም ጌታቸው እነዚህ ቡድኖች በተለይ \"ቃሉ ወደ ገዛ ጠረጴዛቸው ይበልጥ እንዲቀርብላቸው ለሚያስፈልጋቸው\" አባላት እንደተዘጋጁ ገልጸዋል — በDMV ህይወት ለሚስተካክሉ አዲስ ስደተኞች፣ ረዥም የስራ ጊዜ ለሚያስተናግዱ ወጣት ቤተሰቦችና ወደ ቤተመቅደስ መንገድ ለከበዳቸው ዕድሜ ለገፉ አባላት።\n\nበቤት ኅብረት ቡድን ለመቀላቀል ወይም በስርጭት አገልግሎት ቡድን በፈቃደኝነት ለማገልገል የሚፈልጉ አባላት በመደበኛው የሰንበት ማስታወቂያ ወይም በዲሲ ቢሮ በኩል እንዲጠይቁ ይበረታታሉ።",
+    imageUrl: "/images/hero/pastor-aberham-dc.jpg",
+    videoUrl: "2jnqsYe7vG8",
+    locationLabel: "Washington, D.C. Sanctuary",
+    publishedDateLabel: "November 2026",
+    isPinnedLeadStory: false,
+    createdAt: "2026-11-04T00:00:00.000Z",
+  },
+  {
+    id: "update-eastern-ethiopia-outreach-growth",
+    slug: "eastern-ethiopia-outreach-growth",
+    titleEn: "22 Rural Outreach Stations in Eastern Ethiopia Report New Believers, Baptisms & Church Planting Growth",
+    titleAm: "በምስራቅ ኢትዮጵያ ያሉ 22 የገጠር ስርጭት ጣቢያዎች አዳዲስ አማኞች፣ ጥምቀቶችና ቤተክርስቲያን ተከላ እድገት ዘገባ አቅርበዋል",
+    category: "Ethiopian Synod Update",
+    summaryEn:
+      "The Eastern Ethiopia Synod's 22 rural outreach stations report a wave of new believers and baptisms this quarter, alongside early groundwork for two additional church plants in previously unreached farming communities.",
+    summaryAm:
+      "የምስራቅ ኢትዮጵያ ሲኖዶስ 22 የገጠር ስርጭት ጣቢያዎች በዚህ ሩብ ዓመት ስለ ብዙ አዳዲስ አማኞችና ጥምቀቶች ዘገባ አቅርበዋል፤ እንዲሁም ወንጌል ገና ላልደረሰባቸው የገጠር አካባቢዎች ለሁለት ተጨማሪ ቤተክርስቲያን ተከላዎች የመጀመሪያ ስራ ተጀምሯል።",
+    contentEn:
+      "Synod leadership for Eastern Ethiopia reports a strong quarter of growth across the region's 22 rural outreach stations, spanning farming communities around Harar, Dire Dawa, and the surrounding countryside. Local pastors and evangelists recorded a noticeable increase in new believers this period, with several stations hosting baptism services for first-time converts — many from villages with little or no prior evangelical presence.\n\nBeyond the baptisms, synod leaders have identified two additional farming communities as candidates for new church plants, building on the same rural outreach model that has carried the gospel to 22 stations since the ministry's founding. Evangelists are currently conducting preliminary visits and relationship-building in both communities, with a target of holding first public gatherings in the coming months.\n\n\"Every one of our 22 stations started exactly this way — a handful of believers, a borrowed room, and a willingness to keep showing up,\" said one regional overseer. The synod has asked Partners to continue praying specifically for laborers, since the growth is outpacing the number of trained evangelists currently available to serve the new congregations.",
+    contentAm:
+      "የምስራቅ ኢትዮጵያ ሲኖዶስ አመራር በሐረርና በድሬዳዋ አካባቢ በሚገኙ የገጠር ማህበረሰቦች ውስጥ ባሉት 22 የገጠር ስርጭት ጣቢያዎች ጠንካራ የዕድገት ሩብ ዓመት ዘግቧል። የአካባቢው ፓስተሮችና ወንጌላውያን በዚህ ወቅት ስለ አዳዲስ አማኞች ከፍተኛ ጭማሪ ዘግበዋል፤ በርካታ ጣቢያዎችም ለመጀመሪያ ጊዜ ለተለወጡ ጥምቀት አገልግሎቶችን አከናውነዋል — ብዙዎቹም ቀደም ሲል ትንሽ ወይም ምንም ወንጌላዊ ተገኝነት ካልነበራቸው መንደሮች ናቸው።\n\nከጥምቀቶቹ ባሻገር፣ የሲኖዶስ አመራሮች ከመሥራቱ ጀምሮ ወንጌልን ለ22 ጣቢያዎች ያደረሰውን ይህንኑ የገጠር ስርጭት ሞዴል በመከተል ለሁለት ተጨማሪ ቤተክርስቲያን ተከላዎች ዕጩ የሆኑ ተጨማሪ የገጠር ማህበረሰቦችን ለይተዋል። ወንጌላውያን በአሁኑ ሰዓት በሁለቱም ማህበረሰቦች የመጀመሪያ ጉብኝቶችንና ዝምድና የመገንባት ስራ እያከናወኑ ሲሆን፣ በሚቀጥሉት ወራት የመጀመሪያ የህዝብ ስብሰባዎችን ለማድረግ ዓላማ አድርገዋል።\n\n\"ሁሉም 22 ጣቢያዎቻችን የጀመሩት በትክክል በዚህ መንገድ ነው — ጥቂት አማኞች፣ የተዋሱት ክፍልና ዘወትር የመገኘት ፈቃደኝነት\" ብለዋል አንድ የክልል ተጠሪ። ሲኖዶሱ እድገቱ አዳዲሱን ጉባኤዎች ለማገልገል አሁን ካሉት የሰለጠኑ ወንጌላውያን ቁጥር እየበለጠ በመሆኑ አጋሮች በተለይ ለሠራተኞች በጸሎት እንዲቆሙ ጠይቋል።",
+    imageUrl: "https://glministries.org/wp-content/uploads/2020/05/East_Showa_300x300.png",
+    locationLabel: "Eastern Ethiopia Synod",
+    publishedDateLabel: "November 2026",
+    isPinnedLeadStory: false,
+    createdAt: "2026-11-06T00:00:00.000Z",
+  },
+  {
+    id: "update-hearing-voice-of-god-release",
+    slug: "hearing-the-voice-of-god-worldwide-release",
+    titleEn:
+      "New Discipleship Resource Release: Apostle Daniel Makonnen's \"Hearing the Voice of God\" (የእግዚአብሔር ድምጽ) Now Available Worldwide",
+    titleAm: "አዲስ የደቀ መዝሙርነት መጽሐፍ ዕትም፦ የሐዋሪያው ዳንኤል መኮንን \"የእግዚአብሔር ድምጽ\" አሁን በዓለም ዙሪያ ይገኛል",
+    category: "Special Announcement",
+    summaryEn:
+      "Apostle Daniel Makonnen's discipleship book \"Hearing the Voice of God\" (የእግዚአብሔር ድምጽ) is now available worldwide in both print and digital PDF through the ministry's Book Store, and is this month's Monthly Partner Resource Offer.",
+    summaryAm:
+      "የሐዋሪያው ዳንኤል መኮንን የደቀ መዝሙርነት መጽሐፍ \"የእግዚአብሔር ድምጽ\" አሁን በአገልግሎቱ የመጻሕፍት መደብር በኩል በህትመትና በዲጂታል ፒዲኤፍ በዓለም ዙሪያ ይገኛል፤ የዚህ ወር የአጋር ሀብት ስጦታም ነው።",
+    contentEn:
+      "\"Hearing the Voice of God\" (የእግዚአብሔር ድምጽ), Apostle Daniel Makonnen's practical guide to recognizing how God speaks through His Word and the Holy Spirit, testing prophetic impressions, and walking in divine guidance, is now available worldwide through the ministry's Book Store — in both a print paperback edition and a digital PDF eBook for instant download.\n\nThe release follows years of the same teaching being delivered in person across Gospel Light's 32 Ethiopian branches and the Washington, D.C. sanctuary, now compiled into a single resource for believers who want to study it at their own pace or share it with a home fellowship group. Early readers have highlighted the book's practical framework for distinguishing God's voice from competing noise — a theme Apostle Makonnen has taught on for decades.\n\n\"Hearing the Voice of God\" is this month's Monthly Partner Resource Offer, available as a thank-you gift to Monthly and Annual Covenant Partners through the Giving portal, and can also be purchased individually — print or digital — through the Book Store for international shipping or instant worldwide digital access.",
+    contentAm:
+      "\"የእግዚአብሔር ድምጽ\"፣ የሐዋሪያው ዳንኤል መኮንን እግዚአብሔር በቃሉና በመንፈስ ቅዱስ እንዴት እንደሚናገር መለየት፣ ትንቢታዊ ግንዛቤዎችን መሞከርና በመለኮታዊ መሪነት መመላለስ የሚያስተምር ተግባራዊ መጽሐፍ፣ አሁን በአገልግሎቱ የመጻሕፍት መደብር በኩል በዓለም ዙሪያ ይገኛል — በህትመት ርካሽ ዕትምም ሆነ ለቅጽበታዊ ማውረድ በዲጂታል ፒዲኤፍ መልክ።\n\nይህ ዕትም ለብዙ ዓመታት በ32 የኢትዮጵያ አጥቢያዎችና በዋሽንግተን ዲሲ ቤተመቅደስ በአካል ተሰጥቶ የቆየውን ትምህርት ተከትሎ የመጣ ሲሆን፣ አሁን አማኞች በራሳቸው ፍጥነት ለማጥናት ወይም ከቤት ኅብረት ቡድን ጋር ለማካፈል በአንድ ሀብት ውስጥ ተጠናቅሯል። የመጀመሪያ አንባቢዎች የእግዚአብሔርን ድምጽ ከሚፋለሱ ድምፆች መለየት የሚያስተምረውን የመጽሐፉን ተግባራዊ ማዕቀፍ አጉልተው ገልጸዋል — ሐዋሪያው መኮንን ለአስርት ዓመታት ያስተማሩበት ርዕስ።\n\n\"የእግዚአብሔር ድምጽ\" የዚህ ወር የአጋር ሀብት ስጦታ ነው፤ በመለገስ መግቢያ በኩል ለወራዊና ለዓመታዊ የቃል ኪዳን አጋሮች እንደ ምስጋና ስጦታ የሚሰጥ ሲሆን፣ ለዓለም አቀፍ መላኪያ ወይም ለቅጽበታዊ ዓለም አቀፍ ዲጂታል መዳረሻ በህትመትም ሆነ በዲጂታል በተናጠል በመጻሕፍት መደብር ሊገዛ ይችላል።",
+    imageUrl: "https://glministries.org/wp-content/uploads/2020/05/glm-book2.png",
+    locationLabel: "Aware HQ, Addis Ababa & Worldwide",
+    publishedDateLabel: "November 2026",
+    isPinnedLeadStory: false,
+    createdAt: "2026-11-08T00:00:00.000Z",
   },
 ];

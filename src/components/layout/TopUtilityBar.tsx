@@ -21,6 +21,11 @@ export function TopUtilityBar({ locale }: { locale: Locale }) {
   const pathname = usePathname() ?? `/${locale}`;
   const { totalItems, setIsCartOpen } = useCart();
 
+  // The Admin Portal is its own locked app shell (AdminShell) — the
+  // public site's utility bar would stack on top of it and push the
+  // admin header down the page.
+  if (pathname.includes("/admin")) return null;
+
   return (
     <div className="border-b border-blue-600/30 bg-navy-950 text-[11px] text-slate-300">
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-1.5 sm:px-6 lg:px-8">

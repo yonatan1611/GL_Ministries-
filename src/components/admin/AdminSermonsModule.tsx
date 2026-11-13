@@ -19,6 +19,7 @@ type FormState = {
   speakerEn: string;
   topic: (typeof SERMON_TOPICS)[number];
   channelSource: ChannelSource;
+  alsoPostHighlight: boolean;
 };
 
 const EMPTY_FORM: FormState = {
@@ -27,6 +28,7 @@ const EMPTY_FORM: FormState = {
   speakerEn: "",
   topic: "New Upload",
   channelSource: "DC",
+  alsoPostHighlight: false,
 };
 
 const CHANNEL_LABELS: Record<ChannelSource, string> = {
@@ -104,10 +106,42 @@ export function AdminSermonsModule({
         setError(result?.error ?? "Something went wrong.");
         return;
       }
+      if (form.alsoPostHighlight) await postSermonAsHighlight(result.data as Sermon);
       setForm(EMPTY_FORM);
       onChanged();
     } finally {
       setIsSubmitting(false);
+    }
+  }
+
+  /** "Also post this to Recent Updates & Highlights" — creates a real,
+   *  manageable `NewsHighlight` card using the *resolved* sermon record
+   *  returned by `POST /api/sermons` (final title/thumbnail, since the
+   *  client-side form fields may have been left blank for YouTube's
+   *  oEmbed metadata to fill in server-side). Best-effort: the sermon
+   *  is already saved by the time this runs. */
+  async function postSermonAsHighlight(sermon: Sermon) {
+    try {
+      await fetch("/api/updates", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          titleEn: sermon.titleEn,
+          titleAm: sermon.titleAm,
+          category: sermon.channelSource === "DC" ? "Washington, D.C. Sanctuary" : "Ethiopian Synod Update",
+          summaryEn: sermon.summaryEn || `A new teaching from ${sermon.speakerEn}.`,
+          summaryAm: sermon.summaryAm,
+          contentEn: sermon.summaryEn || `A new teaching from ${sermon.speakerEn}.`,
+          contentAm: sermon.summaryAm,
+          imageUrl: getYoutubeThumbnailUrl(sermon.youtubeId),
+          videoUrl: sermon.youtubeId,
+          locationLabel: CHANNEL_LABELS[sermon.channelSource],
+          publishedDateLabel: sermon.yearLabel,
+          isPinnedLeadStory: false,
+        }),
+      });
+    } catch {
+      console.error("[AdminSermonsModule] Failed to auto-post sermon as a highlight.");
     }
   }
 
@@ -356,6 +390,15 @@ export function AdminSermonsModule({
             </select>
           </div>
         </div>
+        <label className="mt-3 flex items-center gap-2 text-sm text-slate-700">
+          <input
+            type="checkbox"
+            checked={form.alsoPostHighlight}
+            onChange={(e) => setForm((f) => ({ ...f, alsoPostHighlight: e.target.checked }))}
+            className="h-4 w-4 rounded border-slate-300 text-amber-600 focus:ring-amber-500"
+          />
+          Also post this to &quot;Recent Updates &amp; Highlights&quot; on the Homepage
+        </label>
         {error && <p className="mt-3 text-xs text-red-600">{error}</p>}
         <button
           type="submit"

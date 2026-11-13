@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getDictionary } from "@/data/i18n";
-import { IMPACT_STATS, MINISTRY_IMAGES } from "@/data/social-media";
+import { MINISTRY_IMAGES } from "@/data/social-media";
+import { listImpactStats } from "@/lib/db";
 import type { Locale } from "@/lib/utils";
 import { MinistryImage } from "@/components/ui/MinistryImage";
 import { CountUp } from "@/components/react-bits/CountUp";
@@ -21,9 +22,10 @@ function parseStatValue(value: string): { to: number; suffix: string; separator:
  * statistics, styled after bennyhinn.org's dramatic African Crusade
  * storytelling section ("Will you say YES to Africa?").
  */
-export function HistoricVisitationSection({ locale }: { locale: Locale }) {
+export async function HistoricVisitationSection({ locale }: { locale: Locale }) {
   const dict = getDictionary(locale);
-  const featuredStats = IMPACT_STATS.slice(0, 4);
+  const impactStats = await listImpactStats();
+  const featuredStats = impactStats.slice(0, 4);
 
   return (
     <section className="relative overflow-hidden bg-navy-950 px-4 py-20 sm:px-6 lg:px-8">

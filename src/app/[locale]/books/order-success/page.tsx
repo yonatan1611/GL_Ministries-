@@ -12,6 +12,12 @@ interface OrderSuccessPageProps {
   searchParams: Promise<{ ref?: string; session_id?: string }>;
 }
 
+// Reads the live order from src/lib/db.ts (Neon Postgres) by query
+// param — force dynamic rendering so this never gets statically
+// prerendered at build time, which would both require DATABASE_URL to
+// be reachable during every build and bake in a stale/empty order.
+export const dynamic = "force-dynamic";
+
 export async function generateMetadata({ params }: OrderSuccessPageProps): Promise<Metadata> {
   const { locale } = await params;
   const loc: Locale = isSupportedLocale(locale) ? locale : "en";

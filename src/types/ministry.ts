@@ -173,6 +173,49 @@ export interface LeaderProfile {
   portraitUrl?: string;
 }
 
+export type NewsHighlightCategory =
+  | "Washington, D.C. Sanctuary"
+  | "Revival & Crusade Report"
+  | "Ethiopian Synod Update"
+  | "Special Announcement"
+  | "Testimony & Baptism";
+
+/** A church update / highlight card for the homepage's "Recent Updates
+ *  & Highlights" section — fully editable from the Admin Portal. */
+export interface NewsHighlight {
+  id: string;
+  slug: string;
+  titleEn: string;
+  titleAm: string;
+  category: NewsHighlightCategory;
+  /** Short 2-3 sentence preview shown on the card itself. */
+  summaryEn: string;
+  summaryAm: string;
+  /** Full multi-paragraph story shown in the "Read Full Story" modal. */
+  contentEn: string;
+  contentAm: string;
+  imageUrl: string;
+  /** Optional YouTube video id/URL embedded in the story modal. */
+  videoUrl?: string;
+  locationLabel: string;
+  /** Free-text date label, e.g. "November 2026" — not parsed. */
+  publishedDateLabel: string;
+  /** At most one update should carry this at a time — the Admin
+   *  Portal unsets every other entry when this one is set. Shown as
+   *  the #1 large lead story card on the homepage. */
+  isPinnedLeadStory: boolean;
+  createdAt: string;
+}
+
+/** Admin-editable Hero banner announcement + "Storytelling by the
+ *  Numbers" source — singleton settings record (not a collection). */
+export interface SiteSettings {
+  heroAnnouncementTitle: string;
+  heroAnnouncementSubtitle: string;
+  heroFeaturedVideoId: string;
+  updatedAt: string;
+}
+
 export interface MinistryEvent {
   id: string;
   titleEn: string;

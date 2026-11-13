@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { Download, Loader2, Plus } from "lucide-react";
 import { getDictionary } from "@/data/i18n";
 import { EVENT_CATEGORIES, newEventSchema } from "@/lib/validations";
+import { MINISTRY_IMAGES } from "@/data/social-media";
 import type { Locale } from "@/lib/utils";
 import { cn } from "@/lib/utils";
 import type { RsvpRecord } from "@/lib/db";
@@ -21,6 +22,7 @@ type FormState = {
   descriptionEn: string;
   descriptionAm: string;
   isLiveStreamed: boolean;
+  alsoPostHighlight: boolean;
 };
 
 const EMPTY_FORM: FormState = {
@@ -34,6 +36,7 @@ const EMPTY_FORM: FormState = {
   descriptionEn: "",
   descriptionAm: "",
   isLiveStreamed: false,
+  alsoPostHighlight: false,
 };
 
 type KindFilter = "all" | RsvpRecord["kind"];
@@ -118,11 +121,43 @@ export function AdminEventsModule({
         body: JSON.stringify(form),
       });
       if (response.ok) {
+        if (form.alsoPostHighlight) await postEventAsHighlight(form);
         setForm(EMPTY_FORM);
         onChanged();
       }
     } finally {
       setIsSubmitting(false);
+    }
+  }
+
+  /** "Also post this to Recent Updates & Highlights" — creates a real,
+   *  manageable `NewsHighlight` card from the event's own fields rather
+   *  than synthesizing an ephemeral one at render time, so it shows up
+   *  in the News & Highlights module and survives independently of the
+   *  event (editable/deletable on its own). Best-effort: the event
+   *  itself is already saved by the time this runs, so a failure here
+   *  is logged, not surfaced as a form error. */
+  async function postEventAsHighlight(data: FormState) {
+    try {
+      await fetch("/api/updates", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          titleEn: data.titleEn,
+          titleAm: data.titleAm,
+          category: "Special Announcement",
+          summaryEn: data.descriptionEn,
+          summaryAm: data.descriptionAm,
+          contentEn: data.descriptionEn,
+          contentAm: data.descriptionAm,
+          imageUrl: MINISTRY_IMAGES.crusadeRevivalGathering,
+          locationLabel: data.locationEn,
+          publishedDateLabel: data.dateRangeEn,
+          isPinnedLeadStory: false,
+        }),
+      });
+    } catch {
+      console.error("[AdminEventsModule] Failed to auto-post event as a highlight.");
     }
   }
 
@@ -270,6 +305,15 @@ export function AdminEventsModule({
           {field("descriptionEn", "Description (English)", true)}
           {field("descriptionAm", "Description (Amharic)", true)}
         </div>
+        <label className="mt-3 flex items-center gap-2 text-sm text-slate-700">
+          <input
+            type="checkbox"
+            checked={form.alsoPostHighlight}
+            onChange={(e) => setForm((f) => ({ ...f, alsoPostHighlight: e.target.checked }))}
+            className="h-4 w-4 rounded border-slate-300 text-amber-600 focus:ring-amber-500"
+          />
+          Also post this to &quot;Recent Updates &amp; Highlights&quot; on the Homepage
+        </label>
         <button
           type="submit"
           disabled={isSubmitting}
